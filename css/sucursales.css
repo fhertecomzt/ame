@@ -19,6 +19,7 @@ body{
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, .4);
     color: #fff;
+    height: 150px;
     padding: 30px 40px;
     width: 500px;
 }
@@ -69,4 +70,11 @@ body{
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
+}
+.input-select{
+    font-size: 25px;
+    padding: 30px;
+}
+.tiendas-selects{
+    font-size: 25px;   
 }

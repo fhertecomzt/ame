@@ -1,55 +1,42 @@
 <?php
 session_start();
-if(!isset($_POST['btn_iniciar'])) {	
-	header("Location: ../index.html");
-}
-
 include "conexion.php";
 
-	$usuario = $_POST['txtusuario']; 
-	$password1 = md5($_POST['txtpassword1']);
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = filter_input(INPUT_POST, 'txtusuario', FILTER_SANITIZE_STRING);
+    $password1 = filter_input(INPUT_POST, 'txtpassword1', FILTER_SANITIZE_STRING);
 
-	if ($dbh !=null) { //Conectado a la db
-		echo "Conectado a la db. OK</br> ";
-		$stmt = $dbh->prepare("SELECT idusuario, usuario, nombre, appaterno, apmaterno, departamento, tipodeusuario FROM usuarios WHERE usuario=:usuario AND password1=:password1");
+    if (empty($username) || empty($password1)) {
+        header("Location: login.php?error=Usuario o contraseña vacíos");
+        exit;
+    }
 
-		$stmt->bindParam(':usuario', $usuario);
-		$stmt->bindParam(':password1', $password1);
+    // Consulta a la tabla de usuarios haciendo join a la tabla departamentos para mostrar los nombres
+    $stmt = $dbh->prepare("
+    SELECT usuarios.*, departamentos.departamento 
+    FROM usuarios 
+    JOIN departamentos ON usuarios.iddepartamento = departamentos.iddepartamento 
+    WHERE usuarios.usuario = :username
+");
+    $stmt->bindParam(':username', $username);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-		$stmt->setFetchMode(PDO::FETCH_ASSOC);
-		//Ejecuta consulta
-		$stmt->execute();
-		$datos = $stmt->fetch();
+    if ($user && password_verify($password1, $user['password1'])) {
+        // Crear sesiones
+        $_SESSION['idusuario'] = $user['idusuario'];
+        $_SESSION['usuario'] = $user['usuario'];
+        $_SESSION['nombre'] = $user['nombre'];
+        $_SESSION['appaterno'] = $user['appaterno'];
+        $_SESSION['apmaterno'] = $user['apmaterno'];
+        $_SESSION['departamento'] = $user['departamento'];
 
-
-		if($datos['usuario']!=null) { //Si obtuvo registro
-			$_SESSION["idusuario"]=$datos["idusuario"];
-			$_SESSION["usuario"]=$datos["usuario"];
-			$_SESSION["nombre"]=$datos["nombre"];
-			$_SESSION["appaterno"]=$datos["appaterno"];
-			$_SESSION["apmaterno"]=$datos["apmaterno"];
-			$_SESSION["tipodeusuario"]=$datos["tipodeusuario"];
-			$_SESSION["departamento"]=$datos["departamento"];
-
-			if($_SESSION["tipodeusuario"]=='AD'){//Extrae la etiqueta de tipo usuario			 
-				//$_SESSION["usuario"]="Administrador";
-				header("Location: ad.php");
-			}elseif($_SESSION["tipodeusuario"]=='VTA'){
-				$_SESSION["usuario"]="Ventas";
-				header("Location: vta.php");
-			} //fin del elseif			
-		} //Fin si se obtuvo registro
-			else //No se obtuvo registro
-			{	
-				echo "<h1>Usuario no registrado.</h1> ";
-				echo "<h2>Usuario o Contraseña incorrecta.</h2> ";
-				echo "<br><br><a href='../index.html'><img src='../imgs/back.png'>Regresar</a>";
-				exit();
-			}
-			$dbh=null; //Termina la conexión
-			}
-			else //nO SÉ LOGRO LA CONEXION
-			{
-				echo "<h1>No hay conexión con la base de datos</h1>";
-				}	
+        // Redirigir a la selección de sucursal
+        header("Location: seleccionar_sucursal.php");
+        exit;
+    } else {
+        header("Location: login.php?error=Nombre de usuario o contraseña incorrectos");
+        exit;
+    }
+}
 ?>
