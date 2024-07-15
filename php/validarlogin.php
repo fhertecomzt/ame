@@ -32,10 +32,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['departamento'] = $user['departamento'];
 
         // Redirigir a la selección de sucursal
-        header("Location: seleccionar_sucursal.php");
+        header("Location: ".$URL." seleccionar_sucursal.php");
         exit;
     } else {
-        header("Location: login.php?error=Nombre de usuario o contraseña incorrectos");
+        header("Location: ".$URL."login.php?error=Nombre de usuario o contraseña incorrectos");
         exit;
     }
 }
