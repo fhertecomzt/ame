@@ -1,0 +1,196 @@
+/*Import Google Font Cdn enlace*/
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+body {
+  display: flex;
+  font-family: Arial;
+}
+/*Fondo del menu*/
+.sidebar {
+  background: #a2d2ff;
+  bottom: 0;
+  color: #ff0000;
+  height: 100vh;
+  left: 0;
+  overflow: hidden;
+  position: sticky;
+  top: 0;
+  transition: all 0.5s linear;
+  width: 200px; /*70px para que tenga efecto de desplazarce y 240px para que quede fijo*/
+}
+.sidebar:hover {
+  width: 200px; /*240px para que se mueva el menu y 200px para que quede fijo*/
+  transition: 0.5s;
+}
+/*Personalización menú*/
+nav ul {
+  margin: -5;
+  padding: 0;
+  list-style: none;
+}
+nav ul li {
+  border-bottom: 0px solid;
+}
+/*Botones externos del menu*/
+nav ul a {
+  box-sizing: border-box;
+  color: rgb(255, 255, 255);
+  background: #6a8cab;
+  display: block;
+  width: 100%;
+  padding: 2px 5px;
+  text-decoration: none;
+  border-radius: 25px;
+}
+nav ul ul {
+  height: 0px;
+  overflow: hidden;
+  transition: 0.4s;
+}
+nav ul li:hover ul {
+  height: auto;
+}
+/*Botones internos del menu*/
+nav ul ul a {
+  background: #038cd6;
+}
+nav i,
+span {
+  margin-left: 8px;
+}
+.menu {
+  height: 100%;
+  position: relative;
+  list-style: none;
+  padding: 0;
+}
+.menu li {
+  padding: 0.5rem;
+  margin: 2px;
+  border-radius: 8px;
+  transition: all 0.5s ease-in-out;
+}
+.menu li:hover,
+.active {
+  background: #294d0a58;
+}
+
+.logo {
+  height: 30px;
+  padding: 10px;
+}
+
+.logout {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+/*Sección del cuerpo del menu */
+.main--content {
+  position: relative;
+  background: #ebe9e9;
+  width: 100%;
+  padding: 0.3rem;
+}
+.header--wrapper img {
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+.header--wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 2rem;
+  margin-bottom: 1rem;
+}
+.header--title {
+  color: #3e9ed1;
+}
+.user--info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.search--box {
+  background: rgb(237, 237, 237);
+  border-radius: 15px;
+  color: rgba(113, 99, 186, 255);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+}
+.search--box input {
+  background: transparent;
+  padding: 10px;
+}
+.search--box i {
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.5s ease-out;
+}
+.search--box i:hover {
+  transform: scale(1.2);
+}
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.is-required:after {
+  content: "*";
+  margin-left: 3px;
+  color: red;
+  font-weight: bold;
+}
+.form-total {
+  display: flex;
+  gap: 20px;
+  justify-content: flex-end;
+  padding: 0px 10px;
+  width: 100%;
+}
+.button-container {
+  display: flex;
+  justify-content: space-between; /* Separación máxima entre los elementos */
+  align-items: center;
+  gap: 40px; /* Espaciado entre botones */
+  margin: 20px 0;
+}
+.buttons input {
+  padding: 10px 20px; /* Espaciado interno del botón */
+  font-size: 16px; /* Tamaño de la fuente */
+  cursor: pointer; /* Cambia el cursor al pasar por encima */
+  border: 1px solid #ccc; /* Borde opcional */
+  border-radius: 5px; /* Bordes redondeados */
+  background: linear-gradient(130deg, blue, skyblue);
+  transition: background-color 0.3s; /* Transición suave */
+}
+.buttons input:hover {
+  background-color: #ffffff; /* Color al pasar el cursor */
+}
+.diferencianegativa {
+  color: #ff0000;
+}
+.diferenciapositiva {
+  color: #092eff;
+}
+.sindiferencia {
+  color: #000000;
+}

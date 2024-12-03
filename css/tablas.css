@@ -1,0 +1,28 @@
+table {
+  background-color: white;
+  border-collapse: collapse;
+  text-align: left;
+  width: 100%;
+}
+th,
+td {
+  padding: 5px;
+}
+thead {
+  background-color: #7c52f0;
+  border-bottom: solid 5px #0f362d;
+  color: white;
+}
+tr:nth-child(even) {
+  background-color: #ddd;
+}
+tr:hover td {
+  background-color: #6d73e4;
+  color: rgb(255, 255, 255);
+}
+#btneditar {
+  color: #002cee;
+}
+#btneliminar {
+  color: #ff0000;
+}
