@@ -1,10 +1,10 @@
 <?php
-session_start();
-if (!isset($_SESSION['idusuario']) || ($_SESSION["rol"] !== "SISTEMAS")) {
-    header("Location: logout.php");
-    exit;
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
+$rol_requerido = "SISTEMAS";
+include "verificar_sesion.php";
 include "conexion.php";
 
 function obtenerTiendas($dbh)

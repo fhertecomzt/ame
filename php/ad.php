@@ -1,15 +1,13 @@
 <?php
-session_start();
-//Restricción por rol
-if (
-    !isset($_SESSION['idusuario']) ||
-    !in_array($_SESSION['rol'], ['SISTEMAS'])
-) {
-    header("Location: ../../logout.php");
-    exit;
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
+$rol_requerido = "SISTEMAS";
+include "verificar_sesion.php";
+
 ?>
+
 <!DOCTYPE html>
 <html>
 
@@ -250,6 +248,7 @@ if (
     <script src="../js/clientes.js"></script>
     <script src="../js/ventas.js"></script>
     <script src="../js/perfil.js"></script>
+    <script src="../js/tiempo_sessiones.js"></script>
 </body>
 
 </html>

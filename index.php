@@ -1,3 +1,14 @@
+<?php
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start(); // Inicia la sesión con configuraciones seguras
+}
+$num1 = rand(1, 9);
+$num2 = rand(1, 9);
+$_SESSION['captcha_result'] = $num1 + $num2;
+
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -24,8 +35,6 @@
         <div class="form-information">
             <div class="form-information-childs">
                 <h2>Iniciar sesión</h2>
-                <p>Usa tu usuario para entrar</p>
-
 
                 <form class="form" action="php/validarlogin.php" method="POST">
                     <label>
@@ -34,16 +43,28 @@
                     <label>
                         <input type="password" placeholder="Contraseña" name="txtpassword1" autocomplete="off" required>
                     </label>
+                    <label>
+                        <input type="number" placeholder="<?php echo $num1; ?> + <?php echo $num2; ?>=   " name="captcha" style="width: 100%;" required>
+                    </label>
+
                     <button type="submit" name="btn_iniciar" class="btn_iniciar" id="botoniniciar">Iniciar sesión</button>
-                    <!-- Mostrar el error si existe -->
+                </form>
+                <!-- Mostrar el error si existe -->
+                <div>
                     <?php
-                    session_start();
-                    if (isset($_SESSION['error'])) {
-                        echo '<p style="color: red;">' . $_SESSION['error'] . '</p>';
-                        unset($_SESSION['error']); // Borrar el error después de mostrarlo
+                    if (session_status() === PHP_SESSION_NONE) {
+                        session_start();
+                    }
+                    if (isset($_SESSION['errores']) && !empty($_SESSION['errores'])) {
+                        echo '<div class="errror">';
+                        foreach ($_SESSION['errores'] as $error) {
+                            echo "<p>$error</p>"; // Mostrar cada error en un párrafo
+                        }
+                        echo '</div>';
+                        unset($_SESSION['errores']); // Limpiar errores después de mostrarlos
                     }
                     ?>
-                </form>
+                </div>
             </div>
         </div>
     </div>
