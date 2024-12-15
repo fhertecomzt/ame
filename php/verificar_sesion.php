@@ -3,10 +3,11 @@ if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
 
-$rol_requerido = isset($rol_requerido) ? $rol_requerido : null;
+// Definir los roles permitidos para la página
+$roles_permitidos = ["SISTEMAS", "GERENCIA", "VENTAS"];
 
 // Establecer un tiempo máximo de inactividad (en segundos)
-$tiempo_inactividad = 600; // 10 minutos
+$tiempo_inactividad = 50; // 10 minutos
 
 // Revisar si existe un timestamp de actividad previa
 if (isset($_SESSION['ultimo_acceso'])) {
@@ -21,8 +22,8 @@ if (isset($_SESSION['ultimo_acceso'])) {
 
 $_SESSION['ultimo_acceso'] = time();
 
-// Verificar si el usuario tiene sesión activa y el rol permitido
-if (!isset($_SESSION['idusuario']) || ($rol_requerido && $_SESSION['rol'] !== $rol_requerido)) {
+// Verificar si el rol del usuario está permitido
+if (!isset($_SESSION['rol']) || !in_array($_SESSION['rol'], $roles_permitidos)) {
   header("Location: logout.php");
   exit;
 }

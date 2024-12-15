@@ -1,13 +1,10 @@
 <?php
-session_start();
-//Restricción por rol
-if (
-    !isset($_SESSION['idusuario']) ||
-    !in_array($_SESSION['rol'], ['GERENCIA'])
-) {
-    header("Location: ../../logout.php");
-    exit;
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
+//Restricción por rol
+$roles_permitidos = ["GERENCIA"];
+include "verificar_sesion.php";
 
 ?>
 <!DOCTYPE html>
@@ -244,6 +241,7 @@ if (
     <SCRIPT src="../js/clientes.js"></SCRIPT>
     <SCRIPT src="../js/perfil.js"></SCRIPT>
     <SCRIPT src="../js/ventas.js"></SCRIPT>
+    <script src="../js/tiempo_sessiones.js"></script>
 </body>
 
 </html>

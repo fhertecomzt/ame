@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$rol_requerido = "SISTEMAS";
+$roles_permitidos = ["SISTEMAS", "GERENCIA"];
 include "verificar_sesion.php";
 include "conexion.php";
 

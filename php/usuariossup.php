@@ -1,12 +1,12 @@
 <?php
-session_start();
-if (!isset($_SESSION['idusuario']) || ($_SESSION["rol"] !== "SISTEMAS")) {
-    header("Location: ../index.php");
-    exit;
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
+//Restricción por rol
+$roles_permitidos = ["VENTAS"];
+include "verificar_sesion.php";
 
-//$sucursal_nombre = $_SESSION['sucursal_nombre'];
-
+//conexión a db
 include "conexion.php";
 
 function obtenerUsuarios($dbh)
@@ -31,7 +31,7 @@ WHERE idusuario = :idusuario");
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
-// Rellenamos la lista de roles 
+// Rellenamos la lista de roles
 $consulta_roles = $dbh->prepare("SELECT * FROM roles");
 $consulta_roles->execute();
 
@@ -344,3 +344,4 @@ $usuario = isset($_GET['idusuario']) ? obtenerUsuario($dbh, filter_input(INPUT_G
         <?php endforeach; ?>
     </tbody>
 </table>
+<script src="../js/tiempo_sessiones.js"></script>

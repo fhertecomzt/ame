@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$rol_requerido = "SISTEMAS";
+$roles_permitidos = ["SISTEMAS"];
 include "verificar_sesion.php";
 
 ?>
@@ -66,6 +66,12 @@ include "verificar_sesion.php";
                             <a href="#" id="usuarios-link">
                                 <i class="fas fa-user"></i>
                                 <span>USUARIOS</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" id="usuariossup-link">
+                                <i class="fas fa-user"></i>
+                                <span>SUPUSUARIOS</span>
                             </a>
                         </li>
                     </ul>
@@ -244,6 +250,8 @@ include "verificar_sesion.php";
         </div>
     </div>
 
+    <SCRIPT src="../js/scripts.js"></SCRIPT>
+    <SCRIPT src="../js/scriptssup.js"></SCRIPT>
     <SCRIPT src="../js/scripts.js"></SCRIPT>
     <script src="../js/clientes.js"></script>
     <script src="../js/ventas.js"></script>

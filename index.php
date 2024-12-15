@@ -46,6 +46,12 @@ $_SESSION['captcha_result'] = $num1 + $num2;
                     <label>
                         <input type="number" placeholder="<?php echo $num1; ?> + <?php echo $num2; ?>=   " name="captcha" style="width: 100%;" required>
                     </label>
+                    <div>
+                        <!-- Mostrar reCAPTCHA solo si se necesitan -->
+                        <?php if (isset($_SESSION['mostrar_recaptcha']) && $_SESSION['mostrar_recaptcha']): ?>
+                            <div class="g-recaptcha" data-sitekey="6LfvWZYqAAAAABAAzNP9IPyPePJ5iwxONAh1DfVi"></div>
+                        <?php endif; ?>
+                    </div>
 
                     <button type="submit" name="btn_iniciar" class="btn_iniciar" id="botoniniciar">Iniciar sesión</button>
                 </form>
@@ -68,6 +74,8 @@ $_SESSION['captcha_result'] = $num1 + $num2;
             </div>
         </div>
     </div>
+    <!-- Script de reCAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
 
 </html>

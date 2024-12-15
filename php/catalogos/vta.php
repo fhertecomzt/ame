@@ -1,10 +1,10 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+session_start();
+if (!isset($_SESSION['idusuario']) || $_SESSION["rol"] !== "VENTAS") {
+    header("Location: ../logout.php");
+    exit;
 }
-//Restricción por rol
-$roles_permitidos = ["VENTAS"];
-include "verificar_sesion.php";
+//$sucursal_nombre = $_SESSION['sucursal_nombre'];
 ?>
 <!DOCTYPE html>
 <html>
@@ -13,18 +13,10 @@ include "verificar_sesion.php";
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>VENTAS AME</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- CDn Font Awesome link-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!--Estilo Css GM -->
+    <!--Estilo Css admin -->
     <link rel="stylesheet" href="../css/estilovta.css">
-    <!--Estilo Css formulario -->
-    <link rel="stylesheet" href="../css/formularios.css">
-    <!--Estilo Css tablas -->
-    <link rel="stylesheet" href="../css/tablas.css">
-    <!--Estilo Css errores -->
-    <link rel="stylesheet" href="../css/mensajesdeestado.css">
 </head>
 
 <body>
@@ -33,13 +25,12 @@ include "verificar_sesion.php";
             <div class="logo"></div>
             <ul class="menu">
                 <li>
-                    <a href="vta.php" id="inicio-link">
+                    <a href="ad.php" id="inicio-link">
                         <i class="fas fa-tachometer-alt"></i>
                         <span>INICIO</span>
                     </a>
                 </li>
-                <li>
-                    <a href="#" id="ventas-link">
+                <li><a href="#">
                         <i class="fas fa-wrench"></i>
                         <span>VENTAS</span>
                     </a>
@@ -47,14 +38,13 @@ include "verificar_sesion.php";
                     </ul>
                 </li>
 
-                <li>
-                    <a href="#">
+                <li><a href="#">
                         <i class="fa-solid fa-folder-tree"></i>
                         <span>CATALOGOS</span>
                     </a>
                     <ul>
                         <li>
-                            <a href="#" id="clientes-link">
+                            <a href="#" id="usuarios-link">
                                 <i class="fa-solid fa-people-group"></i>
                                 <span>CLIENTES</span>
                             </a>
@@ -90,30 +80,23 @@ include "verificar_sesion.php";
                 </li>
         </div>
     </nav>
-    <div class="main--content" id="main-content">
+    <div class="main--content">
         <div class="header--wrapper">
             <div class="header--title">
                 <h2>Usuario: <?php echo $_SESSION['nombre'] . " " . $_SESSION['appaterno'] . " " . $_SESSION['apmaterno']; ?></h2>
-                <span>Rol: <?php echo $_SESSION['rol'] ?> &nbsp;&nbsp;&nbsp;<span>Tienda: <?php echo $_SESSION['sucursal_nombre'] ?></span></span>
+                <span>Rol: <?php echo $_SESSION['rol'] ?> &nbsp;&nbsp;&nbsp;<span>Tienda: <?php echo htmlspecialchars($sucursal_nombre); ?></span>
+                </span>
+
             </div>
             <div class="user--info">
                 <div class="search--box">
                     <i class="fa-solid fa-search"></i>
-                    <input disabled type="text" name="buscar" placeholder="Buscar">
+                    <input type="text" name="buscar" placeholder="Buscar">
                 </div>
-                <img src="<?php echo $_SESSION['imagen']; ?>" alt="Imagen de perfil" width="50" height="50">
+                <img src="../imgs/yoredes2024.jpg" alt="">
             </div>
         </div>
-
-        <div class="content-area" id="content-area">
-            <!-- Contenido dinámico se cargará aquí -->
-        </div>
     </div>
-
-    <script src="../js/clientes.js"></script>
-    <SCRIPT src="../js/perfil.js"></SCRIPT>
-    <script src="../js/ventas.js"></script>
-    <script src="../js/tiempo_sessiones.js"></script>
 </body>
 
 </html>
