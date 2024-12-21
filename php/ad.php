@@ -247,8 +247,14 @@ include "verificar_sesion.php";
 
         <div class="content-area" id="content-area">
             <!-- Contenido dinámico se cargará aquí -->
+            <?php
+            if (isset($_GET['page']) && $_GET['page'] === 'tiendas') {
+                include 'tiendas.php';
+            }
+            ?>
         </div>
     </div>
+
 
     <SCRIPT src="../js/scripts.js"></SCRIPT>
     <SCRIPT src="../js/scriptssup.js"></SCRIPT>

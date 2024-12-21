@@ -1,5 +1,5 @@
 // Tiempo máximo de inactividad en segundos (sincronizado con el servidor)
-const tiempoInactividad = 50; // 5 minutos
+const tiempoInactividad = 3600; // 5 minutos
 let tiempoUltimaActividad = Date.now();
 let advertenciaMostrada = false; // Bandera para evitar mostrar múltiples advertencias
 
@@ -21,7 +21,7 @@ setInterval(() => {
   const tiempoInactivo = (tiempoActual - tiempoUltimaActividad) / 1000; // Convertir a segundos
 
   // Mostrar advertencia 1 minuto antes de la redirección
-  if (tiempoInactivo > tiempoInactividad - 30 && !advertenciaMostrada) {
+  if (tiempoInactivo > tiempoInactividad - 3000 && !advertenciaMostrada) {
     console.log("Tu sesión está a punto de expirar.");
     alert("Tu sesión está a punto de expirar en menos de un minuto.");
     advertenciaMostrada = true; // Asegura que solo se muestre una vez

@@ -85,12 +85,6 @@ function limpiarFormularioTiendas() {
   // Limpiar el valor de cada campo seleccionado
   campos.forEach((campo) => (campo.value = ""));
 }
-//Función para cambiar de nombre los botones guardar nuevo y actualizar
-function cambiarTextoBoton() {
-  // Seleccionamos el botón de "Actualizar" / "Guardar" y cambiamos su valor a "Guardar"
-  const boton = document.getElementById("botonGuardarActualizar");
-  boton.value = "Guardar";
-}
 
 // Inicializar al cargar la página
 document.addEventListener("DOMContentLoaded", function () {
