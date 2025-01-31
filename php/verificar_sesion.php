@@ -7,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
 $roles_permitidos = ["SISTEMAS", "GERENCIA", "VENTAS"];
 
 // Establecer un tiempo máximo de inactividad (en segundos)
-$tiempo_inactividad = 3600; // 10 minutos
+$tiempo_inactividad = 3600; // 60 minutos
 
 // Revisar si existe un timestamp de actividad previa
 if (isset($_SESSION['ultimo_acceso'])) {

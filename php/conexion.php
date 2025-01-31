@@ -3,7 +3,7 @@
 
 $dsn = 'mysql:host=localhost;dbname=gestion;charset=utf8mb4'; // Usar utf8mb4 para mayor compatibilidad con caracteres especiales.
 $username = 'root'; // Verifica si el usuario es realmente 'roots'.
-$password = '$';
+$password = '';
 
 try {
     $dbh = new PDO($dsn, $username, $password);

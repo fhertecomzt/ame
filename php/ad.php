@@ -1,4 +1,9 @@
 <?php
+// Encabezados para evitar el caché
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -6,13 +11,40 @@ if (session_status() === PHP_SESSION_NONE) {
 $roles_permitidos = ["SISTEMAS"];
 include "verificar_sesion.php";
 
+
+// Verificar si hay una sesión activa y si el rol está permitido
+if (!isset($_SESSION['rol']) || !in_array($_SESSION['rol'], $roles_permitidos)) {
+    header("Location: ../index.php?error=acceso_denegado");
+    exit;
+}
+
+// Generar un token único en cada acceso
+$current_token = bin2hex(random_bytes(32));
+$_SESSION['current_token'] = $current_token;
+
+// Verificar el token de navegación para detectar inconsistencias
+if (isset($_SESSION['last_token'])) {
+    $page_token = $_POST['page_token'] ?? '';
+    if ($_SESSION['last_token'] !== $page_token) {
+        // Destruir la sesión y redirigir al inicio con un mensaje
+        session_unset();
+        session_destroy();
+        header("Location: ../index.php?session_expired=1&error=navegacion_inconsistente");
+        exit;
+    }
+}
+
+// Actualizar el último token utilizado
+$_SESSION['last_token'] = $current_token;
+
 ?>
+
 
 <!DOCTYPE html>
 <html>
 
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf8mb4">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Administrador AME</title>
     <!-- CDn Font Awesome link-->
@@ -36,10 +68,12 @@ include "verificar_sesion.php";
 <body>
     <nav>
         <div class="sidebar">
-            <div class="logo"></div>
+            <div class="logo">
+                <img src="../imgs/logo.jpg" alt="SOUMAZ" style="height: 50px; width: 50px; border-radius: 25px">
+            </div>
             <ul class="menu">
                 <li>
-                    <a href="ad.php" id="inicio-link">
+                    <a href="ad.php#" id="inicio-link">
                         <i class="fas fa-tachometer-alt"></i>
                         <span>INICIO</span>
                     </a>
@@ -237,10 +271,7 @@ include "verificar_sesion.php";
                 <span>Rol: <?php echo $_SESSION['rol'] ?> &nbsp;&nbsp;&nbsp;<span>Tienda: <?php echo $_SESSION['sucursal_nombre'] ?></span></span>
             </div>
             <div class="user--info">
-                <div class="search--box">
-                    <i class="fa-solid fa-search"></i>
-                    <input disabled type="text" name="buscar" placeholder="Buscar">
-                </div>
+
                 <img src="<?php echo $_SESSION['imagen']; ?>" alt="Imagen de perfil" width="50" height="50">
             </div>
         </div>
@@ -255,14 +286,15 @@ include "verificar_sesion.php";
         </div>
     </div>
 
-
-    <SCRIPT src="../js/scripts.js"></SCRIPT>
-    <SCRIPT src="../js/scriptssup.js"></SCRIPT>
-    <SCRIPT src="../js/scripts.js"></SCRIPT>
+    <!--Scripts JS-->
+    <script src="../js/scripts.js"></script>
+    <script src="../js/scriptssup.js"></script>
     <script src="../js/clientes.js"></script>
     <script src="../js/ventas.js"></script>
     <script src="../js/perfil.js"></script>
     <script src="../js/tiempo_sessiones.js"></script>
+    <!--Alertas SweetAlert2-->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 
 </html>

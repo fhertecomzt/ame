@@ -4,8 +4,7 @@ function cambiarTextoBoton() {
   const boton = document.getElementById("botonGuardarActualizar");
   boton.value = "Guardar";
 }
-
-// Llamar formulario de tiendas
+//Llamar pagina de tiendas
 document
   .getElementById("tiendas-link")
   .addEventListener("click", function (event) {
@@ -14,84 +13,337 @@ document
       .then((response) => response.text())
       .then((html) => {
         document.getElementById("content-area").innerHTML = html;
-        asignarControladorFormularioTienda(); // Asigna el controlador después de cargar el contenido
       })
       .catch((error) => {
         console.error("Error al cargar el contenido:", error);
       });
   });
 
-// Guardar Tiendas
-function enviarFormularioTienda(event) {
-  event.preventDefault(); // Evita la recarga de la página
+//Crear tienda
+function abrirModal(id) {
+  document.getElementById(id).style.display = "flex";
+}
 
-  const formData = new FormData(event.target); // Obtiene los datos del formulario
-  fetch("tiendas.php", {
+function cerrarModal(id) {
+  document.getElementById(id).style.display = "none";
+}
+
+function procesarFormulario(event, tipo) {
+  event.preventDefault();
+  const formData = new FormData(event.target);
+
+  fetch(`cruds/procesar_${tipo}.php`, {
     method: "POST",
     body: formData,
   })
-    .then((response) => response.text())
-    .then((html) => {
-      document.getElementById("content-area").innerHTML = html; // Actualiza el contenido
-      asignarControladorFormularioTienda(); // Vuelve a asignar el controlador para el nuevo contenido
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        // Cerrar el modal
+        cerrarModal(tipo + "-modal");
+
+        // Actualizar la tabla dinámicamente si es 'crear'
+        if (tipo === "crear") {
+          const tbody = document.querySelector("table tbody");
+
+          // Crear una nueva fila
+          const newRow = document.createElement("tr");
+          newRow.innerHTML = `
+            <td>${data.tienda.id}</td>
+            <td>${data.tienda.nombre}</td>
+            <td>${data.tienda.representante}</td>
+            <td>${data.tienda.rfc}</td>
+            <td>${data.tienda.email}</td>
+            <td>${data.tienda.telefono}</td>
+            <td>
+              <button title="Editar" class="editar fa-solid fa-pen-to-square" data-id="${data.tienda.id}"></button>
+              <button title="Eliminar" class="eliminar fa-solid fa-trash" data-id="${data.tienda.id}"></button>
+            </td>
+          `;
+
+          // Agregar la nueva fila a la tabla
+          tbody.appendChild(newRow);
+        }
+
+        // Mostrar un mensaje de éxito
+        //alert(data.message);
+        Swal.fire({
+          title: "¡Éxito!",
+          text: "La acción se realizó correctamente.",
+          icon: "success",
+        });
+      } else {
+        // Mostrar un mensaje de error
+        //alert(`Error: ${data.message}`);
+        Swal.fire({
+          title: "Error",
+          text: "Ocurrió un problema.",
+          icon: "error",
+        });
+      }
     })
-    .catch((error) => {
-      console.error("Error al enviar el formulario:", error);
-    });
+    .catch((error) => console.error("Error:", error));
 }
-//Cargamos datos para editar
-function cargarEditarTienda(id) {
-  fetch("tiendas.php?idtienda=" + id)
-    .then((response) => response.text())
-    .then((html) => {
-      document.getElementById("content-area").innerHTML = html;
-      asignarControladorFormularioTienda();
-    })
-    .catch((error) => {
-      console.error("Error al cargar el contenido:", error);
-    });
-}
-//eliminamos la tienda
-function eliminarTienda(id) {
-  if (confirm("¿Estás seguro de que deseas eliminar esta tienda?")) {
-    fetch("tiendas.php?action=delete&idtienda=" + id)
-      .then((response) => response.text())
-      .then((html) => {
-        document.getElementById("content-area").innerHTML = html;
-        asignarControladorFormularioTienda();
-      })
-      .catch((error) => {
-        console.error("Error al eliminar la tienda:", error);
-      });
-  }
-}
-
-// Asignar controlador al formulario
-function asignarControladorFormularioTienda() {
-  const form = document.querySelector("form"); // Selecciona el formulario dentro del nuevo contenido
-  if (form) {
-    form.addEventListener("submit", enviarFormularioTienda); // Asigna el evento submit
-  }
-}
-//Función para limpiar el formulario tiendas
-function limpiarFormularioTiendas() {
-  console.log("Limpiando el formulario Tiendas..."); // Para depuración
-
-  // Seleccionar todos los elementos del formulario
-  const campos = document.querySelectorAll(
-    '#frmTiendas input[type="text"], #frmTiendas input[type="number"], #frmTiendas input[type="email"], #frmTiendas input[type="hidden"]'
-  );
-
-  // Limpiar el valor de cada campo seleccionado
-  campos.forEach((campo) => (campo.value = ""));
-}
-
-// Inicializar al cargar la página
+//Para editar
 document.addEventListener("DOMContentLoaded", function () {
-  asignarControladorFormularioTienda(); // Asigna el controlador cuando el DOM esté listo
+  document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("editar")) {
+      const id = event.target.dataset.id;
+      console.log("Botón editar clickeado. ID:", id);
+
+      fetch(`cruds/obtener_tienda.php?id=${id}`)
+        .then((response) => response.json())
+        .then((data) => {
+          // Prueba console.log("Datos recibidos del servidor:", data);
+
+          if (data.success) {
+            const formulario = document.getElementById("form-editar");
+            if (formulario) {
+              formulario["editar-id"].value = data.tienda.id || "";
+              formulario["editar-nombre"].value = data.tienda.nombre || "";
+              formulario["editar-representante"].value =
+                data.tienda.representante || "";
+              formulario["editar-rfc"].value = data.tienda.rfc || "";
+              formulario["editar-domicilio"].value =
+                data.tienda.domicilio || "";
+              formulario["editar-noexterior"].value =
+                data.tienda.noexterior || "";
+              formulario["editar-nointerior"].value =
+                data.tienda.nointerior || "";
+              formulario["editar-colonia"].value = data.tienda.colonia || "";
+              formulario["editar-ciudad"].value = data.tienda.ciudad || "";
+              formulario["editar-estado"].value = data.tienda.estado || "";
+              formulario["editar-cpostal"].value = data.tienda.cpostal || "";
+              formulario["editar-email"].value = data.tienda.email || "";
+              formulario["editar-telefono"].value = data.tienda.telefono || "";
+
+              abrirModal("editar-modal");
+            } else {
+              console.error("Formulario de edición no encontrado.");
+            }
+          } else {
+            alert(data.message || "Error al cargar los datos de la tienda.");
+          }
+        })
+        .catch((error) => console.error("Error al obtener tienda:", error));
+    }
+  });
+
+  // Delegación de eventos para el formulario dinámico
+  document.body.addEventListener("submit", function (event) {
+    if (event.target && event.target.id === "form-editar") {
+      event.preventDefault(); // Esto evita el comportamiento predeterminado de recargar la página.
+
+      const formData = new FormData(event.target);
+
+      fetch("cruds/editar_tienda.php", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Respuesta del servidor:", data); // Para depuración
+          if (data.success) {
+            // Mensaje de éxito con SweetAlert
+            Swal.fire({
+              title: "¡Éxito!",
+              text:
+                data.message || "La actualización se realizó correctamente.",
+              icon: "success",
+            });
+
+            // Actualizar la fila de la tabla sin recargar
+            const fila = document
+              .querySelector(`button[data-id="${formData.get("editar-id")}"]`)
+              .closest("tr");
+            if (fila) {
+              fila.cells[1].textContent = formData.get("nombre");
+              fila.cells[2].textContent = formData.get("representante");
+              fila.cells[3].textContent = formData.get("rfc");
+              /* fila.cells[4].textContent = formData.get("domicilio");
+            fila.cells[5].textContent = formData.get("noexterior");
+            fila.cells[6].textContent = formData.get("nointerior");
+            fila.cells[7].textContent = formData.get("colonia");
+            fila.cells[8].textContent = formData.get("ciudad");
+            fila.cells[9].textContent = formData.get("estado");
+            fila.cells[10].textContent = formData.get("cpostal"); */
+              fila.cells[4].textContent = formData.get("email");
+              fila.cells[5].textContent = formData.get("telefono");
+            }
+            cerrarModal("editar-modal");
+          } else {
+            // Mensaje de error o advertencia del servidor con SweetAlert
+            Swal.fire({
+              title: "Atención",
+              text: data.message || "Hubo un error al actualizar la tienda.",
+              icon: "warning",
+            });
+          }
+        })
+        .catch((error) => {
+          console.error("Error al intentar actualizar la tienda:", error);
+          // Mensaje de error general con SweetAlert
+          Swal.fire({
+            title: "Error",
+            text: "Ocurrió un problema al intentar actualizar la tienda.",
+            icon: "error",
+          });
+        });
+    }
+  });
 });
 
-// Llamar formulario de roles
+// Eliminar
+document.addEventListener("click", function (event) {
+  if (event.target.classList.contains("eliminar")) {
+    const id = event.target.dataset.id;
+
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esta acción",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Realizar la solicitud para eliminar
+        fetch(`cruds/eliminar_tienda.php?id=${id}`, { method: "POST" })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              //alert("Tienda eliminada correctamente");
+              Swal.fire(
+                "¡Eliminado!",
+                "El registro ha sido eliminado correctamente.",
+                "success"
+              );
+              // Remover la fila de la tabla
+              event.target.closest("tr").remove();
+            } else {
+              Swal.fire(
+                "Error",
+                data.message || "No se pudo eliminar el registro.",
+                "error"
+              );
+            }
+          })
+          .catch((error) => {
+            Swal.fire(
+              "Error",
+              "Hubo un problema al procesar tu solicitud.",
+              "error"
+            );
+            console.error("Error al eliminar la tienda:", error);
+          });
+      }
+    });
+  }
+});
+
+//Buscar en la tabla y filtrar
+document.addEventListener("DOMContentLoaded", function () {
+  const observarDOM = new MutationObserver(function (mutations) {
+    mutations.forEach((mutation) => {
+      if (mutation.type === "childList") {
+        const buscarBox = document.getElementById("buscarbox");
+        if (buscarBox) {
+          //console.log("Elemento 'buscarbox' encontrado dinámicamente");
+          agregarEventoBuscar(buscarBox);
+          observarDOM.disconnect(); // Deja de observar después de encontrarlo
+        }
+      }
+    });
+  });
+
+  // Comienza a observar el body del DOM
+  observarDOM.observe(document.body, { childList: true, subtree: true });
+
+  // Si el elemento ya existe en el DOM
+  const buscarBoxInicial = document.getElementById("buscarbox");
+  if (buscarBoxInicial) {
+    console.log("Elemento 'buscarbox' ya existe en el DOM");
+    agregarEventoBuscar(buscarBoxInicial);
+    observarDOM.disconnect(); // No es necesario seguir observando
+  }
+
+  // Función para agregar el evento de búsqueda
+  function agregarEventoBuscar(buscarBox) {
+    buscarBox.addEventListener("input", function () {
+      const filtro = buscarBox.value.toLowerCase();
+      const filas = document.querySelectorAll("#tabla-tiendas tbody tr");
+
+      filas.forEach((fila) => {
+        const textoFila = fila.textContent.toLowerCase();
+        fila.style.display = textoFila.includes(filtro) ? "" : "none";
+      });
+    });
+  }
+});
+
+//Limpiar busqueda
+document.addEventListener("DOMContentLoaded", function () {
+  // Delegación del evento 'input' en el campo de búsqueda
+  document.addEventListener("input", function (event) {
+    if (event.target.id === "buscarbox") {
+      const buscarBox = event.target; // El input dinámico
+      const filtro = buscarBox.value.toLowerCase();
+      const limpiarBusqueda = document.getElementById("limpiar-busqueda"); // Botón dinámico
+      const filas = document.querySelectorAll("#tabla-tiendas tbody tr");
+      const mensajeVacio = document.getElementById("mensaje-vacio");
+
+      let coincidencias = 0; // Contador de filas visibles
+
+      filas.forEach((fila) => {
+        const textoFila = fila.textContent.toLowerCase();
+        if (textoFila.includes(filtro)) {
+          fila.style.display = ""; // Mostrar fila
+          coincidencias++;
+        } else {
+          fila.style.display = "none"; // Ocultar fila
+        }
+      });
+
+      // Mostrar/ocultar mensaje de resultados vacíos
+      if (coincidencias === 0) {
+        mensajeVacio.style.display = "block";
+      } else {
+        mensajeVacio.style.display = "none";
+      }
+
+      // Filtrar las filas de la tabla
+      filas.forEach((fila) => {
+        const textoFila = fila.textContent.toLowerCase();
+        fila.style.display = textoFila.includes(filtro) ? "" : "none";
+      });
+    }
+  });
+
+  // Delegación del evento 'click' en el botón "Limpiar"
+  document.addEventListener("click", function (event) {
+    if (event.target.id === "limpiar-busqueda") {
+      const buscarBox = document.getElementById("buscarbox");
+      const limpiarBusqueda = event.target;
+
+      if (buscarBox) {
+        buscarBox.value = ""; // Limpiar el input
+        if (limpiarBusqueda) {
+          limpiarBusqueda.style.display = "none"; // Ocultar el botón de limpiar
+          document.getElementById("mensaje-vacio").style.display = "none";
+        }
+      }
+
+      const filas = document.querySelectorAll("#tabla-tiendas tbody tr");
+      filas.forEach((fila) => {
+        fila.style.display = ""; // Mostrar todas las filas
+      });
+    }
+  });
+});
+
+// Llamar pagina de roles *********************************************
 document
   .getElementById("roles-link")
   .addEventListener("click", function (event) {
@@ -100,82 +352,313 @@ document
       .then((response) => response.text())
       .then((html) => {
         document.getElementById("content-area").innerHTML = html;
-        asignarControladorFormularioRol();
       })
       .catch((error) => {
         console.error("Error al cargar el contenido:", error);
       });
   });
-//Cargamos datos en los campos para editar
-function cargarEditarRol(id) {
-  fetch("roles.php?idrol=" + id)
-    .then((response) => response.text())
-    .then((html) => {
-      document.getElementById("content-area").innerHTML = html;
-      asignarControladorFormularioRol();
-    })
-    .catch((error) => {
-      console.error("Error al cargar el contenido:", error);
-    });
-}
-//Eliminar rol
-function eliminarRol(id) {
-  if (confirm("¿Estás seguro de que deseas eliminar este rol?")) {
-    fetch("roles.php?action=delete&idrol=" + id)
-      .then((response) => response.text())
-      .then((html) => {
-        document.getElementById("content-area").innerHTML = html;
-        asignarControladorFormularioRol();
-      })
-      .catch((error) => {
-        console.error("Error al eliminar el rol:", error);
-      });
-  }
-}
-//Guardar roles
-function enviarFormularioRol(event) {
-  event.preventDefault(); // Evita la recarga de la página
 
+//Crear Rol
+function abrirModalRol(id) {
+  document.getElementById(id).style.display = "flex";
+}
+
+function cerrarModalRol(id) {
+  document.getElementById(id).style.display = "none";
+}
+
+function procesarFormularioRol(event, tipo) {
+  event.preventDefault();
   const formData = new FormData(event.target);
-  fetch("roles.php", {
+
+  fetch(`cruds/procesar_${tipo}_rol.php`, {
     method: "POST",
     body: formData,
   })
-    .then((response) => response.text())
-    .then((html) => {
-      document.getElementById("content-area").innerHTML = html;
-      asignarControladorFormularioRol();
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        // Cerrar el modal
+        cerrarModalRol(tipo + "-modalRol");
+
+        // Actualizar la tabla dinámicamente si es 'crear'
+        if (tipo === "crear") {
+          const tbody = document.querySelector("table tbody");
+
+          // Crear una nueva fila
+          const newRow = document.createElement("tr");
+          newRow.innerHTML = `
+            <td>${data.rol.id}</td>
+            <td>${data.rol.nombre}</td>
+            <td>${data.rol.descripcion}</td>
+            <td>
+              <button title="Editar" class="editarRol fa-solid fa-pen-to-square" data-id="${data.rol.id}"></button>
+              <button title="Eliminar" class="eliminarRol fa-solid fa-trash" data-id="${data.rol.id}"></button>
+            </td>
+          `;
+
+          // Agregar la nueva fila a la tabla
+          tbody.appendChild(newRow);
+        }
+
+        // Mostrar un mensaje de éxito
+        //alert(data.message);
+        Swal.fire({
+          title: "¡Éxito!",
+          text: "La acción se realizó correctamente.",
+          icon: "success",
+        });
+      } else {
+        // Mostrar un mensaje de error
+        //alert(`Error: ${data.message}`);
+        Swal.fire({
+          title: "Error",
+          text: "Ocurrió un problema.",
+          icon: "error",
+        });
+      }
     })
-    .catch((error) => {
-      console.error("Error al enviar el formulario:", error);
-    });
+    .catch((error) => console.error("Error:", error));
 }
-
-function asignarControladorFormularioRol() {
-  const form = document.querySelector("form");
-  if (form) {
-    form.addEventListener("submit", enviarFormularioRol);
-  }
-}
-
+//Para editar rol
 document.addEventListener("DOMContentLoaded", function () {
-  asignarControladorFormularioRol();
+  document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("editarRol")) {
+      const id = event.target.dataset.id;
+      console.log("Botón editar clickeado. ID:", id);
+
+      fetch(`cruds/obtener_rol.php?id=${id}`)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Datos recibidos del servidor:", data);
+
+          if (data.success) {
+            const formularioRol = document.getElementById("form-editarRol");
+            if (formularioRol) {
+              formularioRol["editar-idrol"].value = data.rol.id || "";
+              formularioRol["editar-rol"].value = data.rol.nombre || "";
+              formularioRol["editar_desc_rol"].value =
+                data.rol.descripcion || "";
+
+              abrirModalRol("editar-modalRol");
+            } else {
+              console.error("Formulario de edición no encontrado.");
+            }
+          } else {
+            alert(data.message || "Error al cargar los datos del Rol.");
+          }
+        })
+        .catch((error) => console.error("Error al obtener Rol:", error));
+    }
+  });
+
+  // Delegación de eventos para el formulario dinámico
+  document.body.addEventListener("submit", function (event) {
+    if (event.target && event.target.id === "form-editarRol") {
+      event.preventDefault(); // Esto evita el comportamiento predeterminado de recargar la página.
+
+      const formData = new FormData(event.target);
+
+      fetch("cruds/editar_rol.php", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          //Prueba console.log("Respuesta del servidorEdit:", data); // Para depuración
+          if (data.success) {
+            // Mensaje de éxito con SweetAlert
+            Swal.fire({
+              title: "¡Éxito!",
+              text:
+                data.message || "La actualización se realizó correctamente.",
+              icon: "success",
+            });
+
+            // Actualizar la fila de la tabla sin recargar
+            const fila = document
+              .querySelector(
+                `button[data-id="${formData.get("editar-idrol")}"]`
+              )
+              .closest("tr");
+            if (fila) {
+              fila.cells[1].textContent = formData.get("rol");
+              fila.cells[2].textContent = formData.get("desc_rol");
+            }
+            cerrarModalRol("editar-modalRol");
+          } else {
+            // Mensaje de error o advertencia del servidor con SweetAlert
+            Swal.fire({
+              title: "Atención",
+              text: data.message || "Hubo un error al actualizar el registro.",
+              icon: "warning",
+            });
+          }
+        })
+        .catch((error) => {
+          console.error("Error al intentar actualizar el registro:", error);
+          // Mensaje de error general con SweetAlert
+          Swal.fire({
+            title: "Error",
+            text: "Ocurrió un problema al intentar el registro.",
+            icon: "error",
+          });
+        });
+    }
+  });
 });
 
-//Función para limpiar el formulario Roles
-function limpiarFormularioRoles() {
-  console.log("Limpiando el formulario Roles..."); // Para depuración
+// Eliminar
+document.addEventListener("click", function (event) {
+  if (event.target.classList.contains("eliminarRol")) {
+    const id = event.target.dataset.id;
 
-  // Seleccionar todos los elementos del formulario
-  const campos = document.querySelectorAll(
-    '#frmRoles input[type="text"], #frmRoles input[type="hidden"]'
-  );
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esta acción",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Realizar la solicitud para eliminar
+        fetch(`cruds/eliminar_rol.php?id=${id}`, { method: "POST" })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              //alert("Registro eliminado correctamente");
+              Swal.fire(
+                "¡Eliminado!",
+                "El registro ha sido eliminado correctamente.",
+                "success"
+              );
+              // Remover la fila de la tabla
+              event.target.closest("tr").remove();
+            } else {
+              Swal.fire(
+                "Error",
+                data.message || "No se pudo eliminar el registro.",
+                "error"
+              );
+            }
+          })
+          .catch((error) => {
+            Swal.fire(
+              "Error",
+              "Hubo un problema al procesar tu solicitud.",
+              "error"
+            );
+            console.error("Error al eliminar la tienda:", error);
+          });
+      }
+    });
+  }
+});
 
-  // Limpiar el valor de cada campo seleccionado
-  campos.forEach((campo) => (campo.value = ""));
-}
+//Buscar en la tabla y filtrar
+document.addEventListener("DOMContentLoaded", function () {
+  const observarDOM = new MutationObserver(function (mutations) {
+    mutations.forEach((mutation) => {
+      if (mutation.type === "childList") {
+        const buscarBox = document.getElementById("buscarboxrol");
+        if (buscarBox) {
+          //console.log("Elemento 'buscarbox' encontrado dinámicamente");
+          agregarEventoBuscarRol(buscarBox);
+          observarDOM.disconnect(); // Deja de observar después de encontrarlo
+        }
+      }
+    });
+  });
 
-// Llamar formulario de usuarios
+  // Comienza a observar el body del DOM
+  observarDOM.observe(document.body, { childList: true, subtree: true });
+
+  // Si el elemento ya existe en el DOM
+  const buscarBoxInicial = document.getElementById("buscarboxrol");
+  if (buscarBoxInicial) {
+    console.log("Elemento 'buscarboxrol' ya existe en el DOM");
+    agregarEventoBuscarRol(buscarBoxInicial);
+    observarDOM.disconnect(); // No es necesario seguir observando
+  }
+
+  // Función para agregar el evento de búsqueda
+  function agregarEventoBuscarRol(buscarBox) {
+    buscarBox.addEventListener("input", function () {
+      const filtro = buscarBox.value.toLowerCase();
+      const filas = document.querySelectorAll("#tabla-roles tbody tr");
+
+      filas.forEach((fila) => {
+        const textoFila = fila.textContent.toLowerCase();
+        fila.style.display = textoFila.includes(filtro) ? "" : "none";
+      });
+    });
+  }
+});
+
+//Limpiar busqueda
+document.addEventListener("DOMContentLoaded", function () {
+  // Delegación del evento 'input' en el campo de búsqueda
+  document.addEventListener("input", function (event) {
+    if (event.target.id === "buscarboxrol") {
+      const buscarBox = event.target; // El input dinámico
+      const filtro = buscarBox.value.toLowerCase();
+      const limpiarBusquedaRol = document.getElementById("limpiar-busquedaRol"); // Botón dinámico
+      const filas = document.querySelectorAll("#tabla-roles tbody tr");
+      const mensajeVacio = document.getElementById("mensaje-vacio");
+
+      let coincidencias = 0; // Contador de filas visibles
+
+      filas.forEach((fila) => {
+        const textoFila = fila.textContent.toLowerCase();
+        if (textoFila.includes(filtro)) {
+          fila.style.display = ""; // Mostrar fila
+          coincidencias++;
+        } else {
+          fila.style.display = "none"; // Ocultar fila
+        }
+      });
+
+      // Mostrar/ocultar mensaje de resultados vacíos
+      if (coincidencias === 0) {
+        mensajeVacio.style.display = "block";
+      } else {
+        mensajeVacio.style.display = "none";
+      }
+
+      // Filtrar las filas de la tabla
+      filas.forEach((fila) => {
+        const textoFila = fila.textContent.toLowerCase();
+        fila.style.display = textoFila.includes(filtro) ? "" : "none";
+      });
+    }
+  });
+
+  // Delegación del evento 'click' en el botón "Limpiar"
+  document.addEventListener("click", function (event) {
+    if (event.target.id === "limpiar-busquedaRol") {
+      const buscarBox = document.getElementById("buscarboxrol");
+      const limpiarBusquedaRol = event.target;
+
+      if (buscarBox) {
+        buscarBox.value = ""; // Limpiar el input
+        if (limpiarBusquedaRol) {
+          limpiarBusquedaRol.style.display = "none"; // Ocultar el botón de limpiar
+          document.getElementById("mensaje-vacio").style.display = "none";
+        }
+      }
+
+      const filas = document.querySelectorAll("#tabla-roles tbody tr");
+      filas.forEach((fila) => {
+        fila.style.display = ""; // Mostrar todas las filas
+      });
+    }
+  });
+});
+
+// Llamar pagina usuarios *********************************************
 document
   .getElementById("usuarios-link")
   .addEventListener("click", function (event) {
@@ -184,169 +667,325 @@ document
       .then((response) => response.text())
       .then((html) => {
         document.getElementById("content-area").innerHTML = html;
-        asignarControladorFormularioUsuario(); // Asigna el controlador después de cargar el contenido
       })
       .catch((error) => {
         console.error("Error al cargar el contenido:", error);
       });
   });
 
-// Guardar Usuario
-function enviarFormularioUsuario(event) {
-  event.preventDefault(); // Evita la recarga de la página
+//Crear usuario
+function abrirModalUser(id) {
+  document.getElementById(id).style.display = "flex";
+}
 
-  const formData = new FormData(event.target); // Obtiene los datos del formulario
-  fetch("usuarios.php", {
+function cerrarModalUser(id) {
+  document.getElementById(id).style.display = "none";
+}
+
+function procesarFormularioUser(event, tipo) {
+  event.preventDefault();
+  const formData = new FormData(event.target);
+
+  fetch(`cruds/procesar_${tipo}_user.php`, {
     method: "POST",
     body: formData,
   })
-    .then((response) => response.text())
-    .then((html) => {
-      document.getElementById("content-area").innerHTML = html; // Actualiza el contenido
-      asignarControladorFormularioUsuario(); // Vuelve a asignar el controlador para el nuevo contenido
-    })
-    .catch((error) => {
-      console.error("Error al enviar el formulario:", error);
-    });
-}
-//Cargamos los datos a editar
-function cargarEditarUsuario(id) {
-  fetch("usuarios.php?idusuario=" + id)
-    .then((response) => response.text())
-    .then((html) => {
-      document.getElementById("content-area").innerHTML = html;
-      asignarControladorFormularioUsuario();
-    })
-    .catch((error) => {
-      console.error("Error al cargar el contenido:", error);
-    });
-}
-//Eliminamos usuario
-function eliminarUsuario(id) {
-  if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
-    fetch("usuarios.php?action=delete&idusuario=" + id)
-      .then((response) => response.text())
-      .then((html) => {
-        document.getElementById("content-area").innerHTML = html;
-        asignarControladorFormularioUsuario();
-      })
-      .catch((error) => {
-        console.error("Error al eliminar el usuario:", error);
-      });
-  }
-}
-// Asignar controlador al formulario
-function asignarControladorFormularioUsuario() {
-  const form = document.querySelector("form"); // Selecciona el formulario dentro del nuevo contenido
-  if (form) {
-    form.addEventListener("submit", enviarFormularioUsuario); // Asigna el evento submit
-  }
-}
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        // Cerrar el modal
+        cerrarModalUser(tipo + "-modalUser");
 
-// Inicializar al cargar la página
+        // Actualizar la tabla dinámicamente si es 'crear'
+        if (tipo === "crear") {
+          const tbody = document.querySelector("table tbody");
+
+          // Crear una nueva fila
+          const newRow = document.createElement("tr");
+          newRow.innerHTML = `
+            <td>${data.users.id}</td>
+            <td>${data.users.usuario}</td>
+            <td>${data.users.nombre}</td>
+            <td>
+              <button title="Editar" class="editarUser fa-solid fa-pen-to-square" data-id="${data.users.id}"></button>
+              <button title="Eliminar" class="eliminarUser fa-solid fa-trash" data-id="${data.users.id}"></button>
+            </td>
+          `;
+
+          // Agregar la nueva fila a la tabla
+          tbody.appendChild(newRow);
+        }
+
+        // Mostrar un mensaje de éxito
+        //alert(data.message);
+        Swal.fire({
+          title: "¡Éxito!",
+          text: "La acción se realizó correctamente.",
+          icon: "success",
+        });
+      } else {
+        // Mostrar un mensaje de error
+        //alert(`Error: ${data.message}`);
+        Swal.fire({
+          title: "Error",
+          text: "Ocurrió un problema.",
+          icon: "error",
+        });
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+}
+//Para editar usuario
 document.addEventListener("DOMContentLoaded", function () {
-  asignarControladorFormularioUsuario(); // Asigna el controlador cuando el DOM esté listo
-});
+  document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("editarUser")) {
+      const id = event.target.dataset.id;
+      console.log("Botón editar clickeado. ID:", id);
 
-// Función para limpiar el formulario Usuarios
-function limpiarFormularioUsuarios() {
-  console.log("Limpiando el formulario Usuarios..."); // Para depuración
+      fetch(`cruds/obtener_user.php?id=${id}`)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Datos recibidos del servidor:", data); //Depuracion
 
-  // Seleccionar todos los elementos input de texto y ocultos
-  const campos = document.querySelectorAll(
-    '#frmUsuarios input[type="text"], #frmUsuarios input[type="hidden"]'
-  );
-  campos.forEach((campo) => (campo.value = ""));
+          if (data.success) {
+            const formularioUsuario =
+              document.getElementById("form-editarUser");
+            if (formularioUsuario) {
+              formularioUsuario["editar-iduser"].value = data.users.id || "";
+              formularioUsuario["editar-User"].value = data.users.usuario || "";
+              formularioUsuario["editar-nombre"].value =
+                data.users.nombre || "";
+              formularioUsuario["editar-papellido"].value =
+                data.users.papellido || "";
+              formularioUsuario["editar-sapellido"].value =
+                data.users.sapellido || "";
+              formularioUsuario["idrol"].value = data.users.rol || "";
+              formularioUsuario["sucursales_id"].value =
+                data.users.tienda || "";
+              formularioUsuario["comision"].value = data.users.comision || "";
 
-  // Seleccionar todos los elementos select del formulario
-  const selects = document.querySelectorAll("#frmUsuarios select");
-  selects.forEach((select) => (select.selectedIndex = 0)); // Reinicia el select al primer valor (generalmente un placeholder)
-}
-
-// Llamar formulario de productos
-document
-  .getElementById("productos-link")
-  .addEventListener("click", function (event) {
-    event.preventDefault(); // Evita la acción por defecto del enlace
-    fetch("../php/catalogos/productos.php")
-      .then((response) => response.text())
-      .then((html) => {
-        document.getElementById("content-area").innerHTML = html;
-        asignarControladorFormularioProducto(); // Asigna el controlador después de cargar el contenido
-      })
-      .catch((error) => {
-        console.error("Error al cargar el contenido:", error);
-      });
+              abrirModalUser("editar-modalUser");
+            } else {
+              console.error("Formulario de edición no encontrado.");
+            }
+          } else {
+            alert(data.message || "Error al cargar los datos del Usuario.");
+          }
+        })
+        .catch((error) => console.error("Error al obtener Usuario:", error));
+    }
   });
 
-// Guardar productos
-function enviarFormularioProducto(event) {
-  event.preventDefault(); // Evita la recarga de la página
+  // Delegación de eventos para el formulario dinámico
+  document.body.addEventListener("submit", function (event) {
+    if (event.target && event.target.id === "form-editarUser") {
+      event.preventDefault(); // Esto evita el comportamiento predeterminado de recargar la página.
 
-  const formData = new FormData(event.target); // Obtiene los datos del formulario
-  fetch("../php/catalogos/productos.php", {
-    method: "POST",
-    body: formData,
-  })
-    .then((response) => response.text())
-    .then((html) => {
-      document.getElementById("content-area").innerHTML = html; // Actualiza el contenido
-      asignarControladorFormularioProducto(); // Vuelve a asignar el controlador para el nuevo contenido
-    })
-    .catch((error) => {
-      console.error("Error al enviar el formulario:", error);
-    });
-}
-//Cargamos los datos para editar
-function cargarEditarProducto(id) {
-  fetch("../php/catalogos/productos.php?idproducto=" + id)
-    .then((response) => response.text())
-    .then((html) => {
-      document.getElementById("content-area").innerHTML = html;
-      asignarControladorFormularioProducto();
-    })
-    .catch((error) => {
-      console.error("Error al cargar el contenido:", error);
-    });
-}
-//Eliminamos Producto
-function eliminarProducto(id) {
-  if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
-    fetch("../php/catalogos/productos.php?action=delete&idproducto=" + id)
-      .then((response) => response.text())
-      .then((html) => {
-        document.getElementById("content-area").innerHTML = html;
-        asignarControladorFormularioProducto();
+      const formData = new FormData(event.target);
+
+      fetch("cruds/editar_user.php", {
+        method: "POST",
+        body: formData,
       })
-      .catch((error) => {
-        console.error("Error al eliminar el producto:", error);
-      });
-  }
-}
-// Asignar controlador al formulario
-function asignarControladorFormularioProducto() {
-  const form = document.querySelector("form"); // Selecciona el formulario dentro del nuevo contenido
-  if (form) {
-    form.addEventListener("submit", enviarFormularioProducto); // Asigna el evento submit
-  }
-}
-// Inicializar al cargar la página
-document.addEventListener("DOMContentLoaded", function () {
-  asignarControladorFormularioProducto(); // Asigna el controlador cuando el DOM esté listo
+        .then((response) => response.json())
+        .then((data) => {
+          //Prueba console.log("Respuesta del servidorEdit:", data); // Para depuración
+          if (data.success) {
+            // Mensaje de éxito con SweetAlert
+            Swal.fire({
+              title: "¡Éxito!",
+              text:
+                data.message || "La actualización se realizó correctamente.",
+              icon: "success",
+            });
+
+            // Actualizar la fila de la tabla sin recargar
+            const fila = document
+              .querySelector(
+                `button[data-id="${formData.get("editar-iduser")}"]`
+              )
+              .closest("tr");
+            if (fila) {
+              fila.cells[1].textContent = formData.get("editar-User");
+              fila.cells[2].textContent = formData.get("editar-nombre");
+              fila.cells[3].textContent = formData.get("editar-papellido");
+              fila.cells[4].textContent = formData.get("editar-sapellido");
+            }
+
+            cerrarModalUser("editar-modalUser");
+          } else {
+            // Mensaje de error o advertencia del servidor con SweetAlert
+            Swal.fire({
+              title: "Atención",
+              text: data.message || "Hubo un error al actualizar el registro.",
+              icon: "warning",
+            });
+          }
+        })
+        .catch((error) => {
+          console.error("Error al intentar actualizar el registro:", error);
+          // Mensaje de error general con SweetAlert
+          Swal.fire({
+            title: "Error",
+            text: "Ocurrió un problema al intentar el registro.",
+            icon: "error",
+          });
+        });
+    }
+  });
 });
-//Función para limpiar el formulario Productos
-function limpiarFormularioProductos() {
-  console.log("Limpiando el formulario Productos ..."); // Para depuración
-  // Seleccionar todos los elementos del formulario
-  const campos = document.querySelectorAll(
-    '#frmProductos input[type="text"], #frmProductos input[type="hidden"]'
-  );
-  // Limpiar el valor de cada campo seleccionado
-  campos.forEach((campo) => (campo.value = ""));
-  // Seleccionar todos los elementos select del formulario
-  const selects = document.querySelectorAll("#frmProductos select");
-  selects.forEach((select) => (select.selectedIndex = 0)); // Reinicia el select al primer valor (generalmente un placeholder)
-}
+
+// Eliminar
+document.addEventListener("click", function (event) {
+  if (event.target.classList.contains("eliminarUser")) {
+    const id = event.target.dataset.id;
+
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esta acción",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Realizar la solicitud para eliminar
+        fetch(`cruds/eliminar_user.php?id=${id}`, { method: "POST" })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              //alert("Registro eliminado correctamente");
+              Swal.fire(
+                "¡Eliminado!",
+                "El registro ha sido eliminado correctamente.",
+                "success"
+              );
+              // Remover la fila de la tabla
+              event.target.closest("tr").remove();
+            } else {
+              Swal.fire(
+                "Error",
+                data.message || "No se pudo eliminar el registro.",
+                "error"
+              );
+            }
+          })
+          .catch((error) => {
+            Swal.fire(
+              "Error",
+              "Hubo un problema al procesar tu solicitud.",
+              "error"
+            );
+            console.error("Error al eliminar la tienda:", error);
+          });
+      }
+    });
+  }
+});
+
+//Buscar en la tabla y filtrar
+document.addEventListener("DOMContentLoaded", function () {
+  const observarDOM = new MutationObserver(function (mutations) {
+    mutations.forEach((mutation) => {
+      if (mutation.type === "childList") {
+        const buscarBox = document.getElementById("buscarboxusuario");
+        if (buscarBox) {
+          //console.log("Elemento 'buscarbox' encontrado dinámicamente");
+          agregarEventoBuscarUsuario(buscarBox);
+          observarDOM.disconnect(); // Deja de observar después de encontrarlo
+        }
+      }
+    });
+  });
+
+  // Comienza a observar el body del DOM
+  observarDOM.observe(document.body, { childList: true, subtree: true });
+
+  // Si el elemento ya existe en el DOM
+  const buscarBoxInicial = document.getElementById("buscarboxusuario");
+  if (buscarBoxInicial) {
+    console.log("Elemento 'buscarboxusuario' ya existe en el DOM");
+    agregarEventoBuscarUsuario(buscarBoxInicial);
+    observarDOM.disconnect(); // No es necesario seguir observando
+  }
+
+  // Función para agregar el evento de búsqueda
+  function agregarEventoBuscarUsuario(buscarBox) {
+    buscarBox.addEventListener("input", function () {
+      const filtro = buscarBox.value.toLowerCase();
+      const filas = document.querySelectorAll("#tabla-usuarios tbody tr");
+
+      filas.forEach((fila) => {
+        const textoFila = fila.textContent.toLowerCase();
+        fila.style.display = textoFila.includes(filtro) ? "" : "none";
+      });
+    });
+  }
+});
+
+//Limpiar busqueda
+document.addEventListener("DOMContentLoaded", function () {
+  // Delegación del evento 'input' en el campo de búsqueda
+  document.addEventListener("input", function (event) {
+    if (event.target.id === "buscarboxusuario") {
+      const buscarBox = event.target; // El input dinámico
+      const filtro = buscarBox.value.toLowerCase();
+      const limpiarBusquedaUsuario = document.getElementById(
+        "limpiar-busquedaUsuario"
+      ); // Botón dinámico
+      const filas = document.querySelectorAll("#tabla-usuarios tbody tr");
+      const mensajeVacio = document.getElementById("mensaje-vacio");
+
+      let coincidencias = 0; // Contador de filas visibles
+
+      filas.forEach((fila) => {
+        const textoFila = fila.textContent.toLowerCase();
+        if (textoFila.includes(filtro)) {
+          fila.style.display = ""; // Mostrar fila
+          coincidencias++;
+        } else {
+          fila.style.display = "none"; // Ocultar fila
+        }
+      });
+
+      // Mostrar/ocultar mensaje de resultados vacíos
+      if (coincidencias === 0) {
+        mensajeVacio.style.display = "block";
+      } else {
+        mensajeVacio.style.display = "none";
+      }
+
+      // Filtrar las filas de la tabla
+      filas.forEach((fila) => {
+        const textoFila = fila.textContent.toLowerCase();
+        fila.style.display = textoFila.includes(filtro) ? "" : "none";
+      });
+    }
+  });
+
+  // Delegación del evento 'click' en el botón "Limpiar"
+  document.addEventListener("click", function (event) {
+    if (event.target.id === "limpiar-busquedaUsuarios") {
+      const buscarBox = document.getElementById("buscarboxusuario");
+      const limpiarBusquedaUsuarios = event.target;
+
+      if (buscarBox) {
+        buscarBox.value = ""; // Limpiar el input
+        if (limpiarBusquedaUsuarios) {
+          limpiarBusquedaUsuarios.style.display = "none"; // Ocultar el botón de limpiar
+          document.getElementById("mensaje-vacio").style.display = "none";
+        }
+      }
+
+      const filas = document.querySelectorAll("#tabla-usuarios tbody tr");
+      filas.forEach((fila) => {
+        fila.style.display = ""; // Mostrar todas las filas
+      });
+    }
+  });
+});
 
 // Llamar formulario de categorias
 document

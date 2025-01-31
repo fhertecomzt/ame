@@ -2,7 +2,7 @@
 session_start();
 //Restricción por rol
 if (!isset($_SESSION['idusuario']) || ($_SESSION["rol"] !== "SISTEMAS" && $_SESSION["rol"] !== "GERENCIA")) {
-    header("Location: ../logout.php");
+    header("Location: ../../index.php");
     exit;
 }
 

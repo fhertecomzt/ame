@@ -1,189 +1,200 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
-  session_start();
+    session_start();
 }
 
 $roles_permitidos = ["SISTEMAS", "GERENCIA"];
 include "verificar_sesion.php";
+
 include "conexion.php";
 
 function obtenerTiendas($dbh)
 {
-  $stmt = $dbh->prepare("SELECT * FROM tiendas");
-  $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function obtenerTienda($dbh, $idtienda)
-{
-  $stmt = $dbh->prepare("SELECT * FROM tiendas WHERE idtienda = :idtienda");
-  $stmt->bindParam(':idtienda', $idtienda);
-  $stmt->execute();
-  return $stmt->fetch(PDO::FETCH_ASSOC);
-}
-
-function crearTienda($dbh, $data)
-{
-  // Validación de datos
-  if (empty($data['nomtienda']) || empty($data['reptienda']) || empty($data['rfctienda']) || empty($data['domtienda']) || empty($data['noexttienda']) || empty($data['nointtienda']) || empty($data['coltienda']) || empty($data['cdtienda']) || empty($data['edotienda']) || empty($data['cptienda']) || empty($data['emailtienda']) || empty($data['teltienda'])) {
-    return false;
-  }
-
-  $stmt = $dbh->prepare("INSERT INTO tiendas (nomtienda, reptienda, rfctienda, domtienda, noexttienda, nointtienda, coltienda, cdtienda, edotienda, cptienda, emailtienda, teltienda) VALUES (:nomtienda, :reptienda, :rfctienda, :domtienda, :noexttienda, :nointtienda, :coltienda, :cdtienda, :edotienda, :cptienda, :emailtienda, :teltienda)");
-
-  $params = [
-    ':nomtienda' => $data['nomtienda'],
-    ':reptienda' => $data['reptienda'],
-    ':rfctienda' => $data['rfctienda'],
-    ':domtienda' => $data['domtienda'],
-    ':noexttienda' => $data['noexttienda'],
-    ':nointtienda' => $data['nointtienda'],
-    ':coltienda' => $data['coltienda'],
-    ':cdtienda' => $data['cdtienda'],
-    ':edotienda' => $data['edotienda'],
-    ':cptienda' => $data['cptienda'],
-    ':emailtienda' => $data['emailtienda'],
-    ':teltienda' => $data['teltienda']
-  ];
-  // var_dump($params); Aquí verificamos si manda todos los datos esperados
-
-  if ($stmt->execute($params)) {
-    return true; //Indicamos que tuvimos exito
-  } else {
-    $errorInfo = $stmt->errorInfo();
-    error_log(print_r($errorInfo, true)); // Esto te ayudará a ver el error en el log
-    return false;
-  }
-}
-
-function actualizarTienda($dbh, $data)
-{
-  $stmt = $dbh->prepare("UPDATE tiendas SET nomtienda = :nomtienda, reptienda = :reptienda, rfctienda = :rfctienda, domtienda = :domtienda, noexttienda = :noexttienda, nointtienda = :nointtienda, coltienda = :coltienda, cdtienda = :cdtienda, edotienda = :edotienda, cptienda = :cptienda, emailtienda = :emailtienda, teltienda = :teltienda WHERE idtienda = :idtienda");
-  return $stmt->execute($data);
-}
-
-
-function eliminarTienda($dbh, $idtienda)
-{
-  $stmt = $dbh->prepare("DELETE FROM tiendas WHERE idtienda = :idtienda");
-  $stmt->bindParam(':idtienda', $idtienda);
-  return $stmt->execute();
-}
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-  // Recoger y limpiar los datos del formulario
-  $nomtienda = filter_input(INPUT_POST, 'nomtienda', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $reptienda = filter_input(INPUT_POST, 'reptienda', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $rfctienda = filter_input(INPUT_POST, 'rfctienda', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $domtienda = filter_input(INPUT_POST, 'domtienda', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $noexttienda = filter_input(INPUT_POST, 'noexttienda', FILTER_SANITIZE_NUMBER_INT);
-  $nointtienda = filter_input(INPUT_POST, 'nointtienda', FILTER_SANITIZE_NUMBER_INT);
-  $coltienda = filter_input(INPUT_POST, 'coltienda', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $cdtienda = filter_input(INPUT_POST, 'cdtienda', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $edotienda = filter_input(INPUT_POST, 'edotienda', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $cptienda = filter_input(INPUT_POST, 'cptienda', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $emailtienda = filter_input(
-    INPUT_POST,
-    'emailtienda',
-    FILTER_SANITIZE_EMAIL
-  );
-  //Validación para email
-  if (!filter_var($emailtienda, FILTER_VALIDATE_EMAIL)) {
-    $error = "El email no es válido.";
-  }
-  $teltienda = filter_input(INPUT_POST, 'teltienda', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $idtienda = filter_input(INPUT_POST, 'idtienda', FILTER_SANITIZE_NUMBER_INT); // Obtener el ID del tienda
-
-  //Validaciones
-  if (empty($nomtienda) || empty($reptienda) || empty($rfctienda) || empty($domtienda) || empty($noexttienda) || empty($coltienda) || empty($cdtienda) || empty($edotienda) || empty($cptienda) || empty($emailtienda) || empty($teltienda)) {
-    $error = "Todos los campos son obligatorios.";
-  } elseif (empty($nomtienda) || strlen($nomtienda) < 4) {
-    $error = "El nombre de la tienda debe tener al menos 4 caracteres.";
-  } else {
-    $data = [
-      'nomtienda' => $nomtienda,
-      'reptienda' => $reptienda,
-      'rfctienda' => $rfctienda,
-      'domtienda' => $domtienda,
-      'noexttienda' => $noexttienda,
-      'nointtienda' => $nointtienda,
-      'coltienda' => $coltienda,
-      'cdtienda' => $cdtienda,
-      'edotienda' => $edotienda,
-      'cptienda' => $cptienda,
-      'emailtienda' => $emailtienda,
-      'teltienda' => $teltienda
-    ];
-
-    // Actualizar tienda
-    // Verificar si se está actualizando o creando un nuevo tienda
-    if ($idtienda) {
-      // Actualizar Tienda
-      $data[':idtienda'] = $idtienda; // Agregar el ID del usuario para la actualización
-      if (actualizarTienda($dbh, $data)) {
-        $success = "Tienda actualizado exitosamente";
-      } else {
-        $error = "Error al actualizar Tienda: " . implode(", ", $stmt->errorInfo());
-      }
-    } else {
-      // Crear nueva tienda
-      if (crearTienda($dbh, $data)) {
-        $success = "Tienda creado exitosamente";
-      } else {
-        $error = "Error al crear el tienda";
-      }
-    }
-  }
-}
-
-
-if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['idtienda'])) {
-  if (eliminarTienda($dbh, filter_input(INPUT_GET, 'idtienda', FILTER_SANITIZE_NUMBER_INT))) {
-    $success = "Tienda eliminada exitosamente";
-  } else {
-    $error = "Error al eliminar el tienda";
-  }
+    $stmt = $dbh->prepare("SELECT * FROM tiendas");
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 $tiendas = obtenerTiendas($dbh);
-$tienda = isset($_GET['idtienda']) ? obtenerTienda($dbh, filter_input(INPUT_GET, 'idtienda', FILTER_SANITIZE_NUMBER_INT)) : null;
-//var_dump($tienda); Comprobamos los datos del tienda
 ?>
-<div class="container">
-  <div class="button">
-    <input type="button" id="botonNuevo" value="Nuevo">
-  </div>
-</div>
-<h3>Lista de tiendas</h3>
-<table border="1">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Nombre</th>
-      <th>Representante</th>
-      <th>R.F.C.</th>
-      <th>Email</th>
-      <th>Teléfono</th>
-      <th>Acciones</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <?php foreach ($tiendas as $u): ?>
-      <tr>
-        <td><?php echo $u['idtienda']; ?></td>
-        <td><?php echo htmlspecialchars($u['nomtienda']); ?></td>
-        <td><?php echo htmlspecialchars($u['reptienda']); ?></td>
-        <td><?php echo htmlspecialchars($u['rfctienda']); ?></td>
-        <td><?php echo htmlspecialchars($u['emailtienda']); ?></td>
-        <td><?php echo htmlspecialchars($u['teltienda']); ?></td>
-        <td>
-          <a href="#" title="Editar" onclick="cargarEditarTienda(<?php echo $u['idtienda']; ?>); return false;"><i id="btneditar" class="fa-solid fa-pen-to-square"></i></a>
-          &nbsp;&nbsp; &nbsp;
 
-          <a href="#" title="Eliminar" onclick="eliminarTienda(<?php echo $u['idtienda']; ?>); return false;"><i id="btneliminar" class="fa-solid fa-trash"></i></a>
-        </td>
-      </tr>
-    <?php endforeach; ?>
-  </tbody>
+<div class="containerr">
+    <button class="boton" onclick="abrirModal('crear-modal')">Nuevo</button>
+    <label class="buscarlabel" for="buscarbox">Buscar:</label>
+    <input class="buscar--box" id="buscarbox" type="search" placeholder="Qué estas buscando?">
+    <!--Boton limpiar input de busqueda 
+    <button title="Limpiar buscar" class="fa-solid" id="limpiar-busqueda" type="button" style="display: none;">X</button>-->
+</div>
+
+
+<h3>Lista de tiendas</h3>
+<table border=" 1" id="tabla-tiendas">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Representante</th>
+            <th>R.F.C.</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($tiendas as $tienda) : ?>
+            <tr>
+                <td><?php echo $tienda['idtienda']; ?></td>
+                <td><?php echo $tienda['nomtienda']; ?></td>
+                <td><?php echo $tienda['reptienda']; ?></td>
+                <td><?php echo $tienda['rfctienda']; ?></td>
+                <td><?php echo $tienda['emailtienda']; ?></td>
+                <td><?php echo $tienda['teltienda']; ?></td>
+                <td>
+                    <button title="Editar" class="editar fa-solid fa-pen-to-square" data-id="<?php echo $tienda['idtienda']; ?>"></button>
+                    <button title="Eliminar" class="eliminar fa-solid fa-trash" data-id="<?php echo $tienda['idtienda']; ?>"></button>
+                </td>
+
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
 </table>
+<!-- Mensaje no encuentra resultados -->
+<p id="mensaje-vacio" style="display: none; color: red;">No se encontraron resultados.</p>
+
+<!-- Modal para crear tienda -->
+<div id="crear-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span title="Cerrar" class="close" onclick="cerrarModal('crear-modal')">&times;</span>
+        <h2 class="tittle">Crear Tienda</h2>
+        <form id="form-crear" onsubmit="procesarFormulario(event, 'crear')">
+            <div class="form-group">
+                <label for="crear-nombre">Nombre:</label>
+                <input type="text" id="crear-nombre" name="nombre" autocomplete="off" required>
+            </div>
+            <div class="form-group">
+                <label for="crear-representante">Representante:</label>
+                <input type="text" id="crear-representante" name="representante" autocomplete="off" required>
+            </div>
+            <div class="form-group">
+                <label for="crear-rfc">R.F.C.:</label>
+                <input type="text" id="crear-rfc" name="rfc" autocomplete="off" maxlength="13" required>
+            </div>
+            <div class="form-group">
+                <label for="crear-domicilio">Calle:</label>
+                <input type="text" id="crear-domicilio" name="domicilio" autocomplete="off" required>
+            </div>
+            <div class="form-group">
+                <label for="crear-noexterior">No. Exterior:</label>
+                <input type="text" id="crear-noexterior" name="noexterior" autocomplete="off" min="0" maxlength="10"
+                    pattern="\d{1}"
+                    title="Por favor, ingrese el número exterior."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+            </div>
+            <div class="form-group">
+                <label for="crear-nointerior">No. Interior:</label>
+                <input type="text" id="crear-nointerior" name="nointerior" autocomplete="off" size="10" min="0" value="0" maxlength="10" required>
+            </div>
+            <div class="form-group">
+                <label for="crear-colonia">Colonia:</label>
+                <input type="text" id="crear-colonia" name="colonia" autocomplete="off" required>
+            </div>
+            <div class="form-group">
+                <label for="crear-ciudad">Ciudad:</label>
+                <input type="text" id="crear-ciudad" name="ciudad" autocomplete="off" required>
+            </div>
+            <div class="form-group">
+                <label for="crear-estado">Estado:</label>
+                <input type="text" id="crear-estado" name="estado" autocomplete="off" required>
+            </div>
+            <div class="form-group">
+                <label for="crear-cpostal">Código postal:</label>
+                <input type="text" id="crear-cpostal" name="cpostal" autocomplete="off" maxlength="5"
+                    pattern="\d{5}"
+                    title="Por favor, ingrese un código postal de 5 dígitos."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+            </div>
+            <div class="form-group">
+                <label for="crear-email">Email:</label>
+                <input type="email" id="crear-email" name="email" autocomplete="off" required>
+            </div>
+            <div class="form-group">
+                <label for="crear-telefono">Teléfono:</label>
+                <input type="text" id="crear-telefono" name="telefono" autocomplete="off" maxlength="10 "
+                    pattern="\d{10}"
+                    title="Por favor, ingrese un número de telefono de 10 dígitos."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+            </div>
+            <button type="submit">Guardar</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para editar tienda -->
+<div id="editar-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span title="Cerrar" class="close" onclick="cerrarModal('editar-modal')">&times;</span>
+        <h2 class="tittle">Editar Tienda</h2>
+        <form id="form-editar">
+            <input type="hidden" id="editar-id" name="editar-id" value="" />
+            <div class="form-group">
+                <label class="form-group" for="editar-nombre">Nombre:</label>
+                <input type="text" id="editar-nombre" name="nombre" required />
+            </div>
+            <div class="form-group">
+                <label for="editar-representante">Representante:</label>
+                <input type="text" id="editar-representante" name="representante" required />
+            </div>
+            <div class="form-group">
+                <label for="editar-rfc">R.F.C.:</label>
+                <input type="text" id="editar-rfc" name="rfc" maxlength="13" required />
+            </div>
+            <div class="form-group">
+                <label for="editar-domicilio">Calle:</label>
+                <input type="text" id="editar-domicilio" name="domicilio" required>
+            </div>
+            <div class="form-group">
+                <label for="editar-noexterior">No. Exterior:</label>
+                <input type="text" id="editar-noexterior" name="noexterior" autocomplete="off" maxlength="10"
+                    pattern="\d{1}"
+                    title="Por favor, ingrese el número exterior."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+            </div>
+            <div class="form-group">
+                <label for="editar-nointerior">No. Interior:</label>
+                <input type="text" id="editar-nointerior" name="nointerior" autocomplete="off" min="0" maxlength="10" required>
+            </div>
+            <div class="form-group">
+                <label for="editar-colonia">Colonia:</label>
+                <input type="text" id="editar-colonia" name="colonia" autocomplete="off" required>
+            </div>
+            <div class="form-group">
+                <label for="editar-ciudad">Ciudad:</label>
+                <input type="text" id="editar-ciudad" name="ciudad" autocomplete="off" required>
+            </div>
+            <div class="form-group">
+                <label for="editar-estado">Estado:</label>
+                <input type="text" id="editar-estado" name="estado" autocomplete="off" required>
+            </div>
+            <div class="form-group">
+                <label for="editar-cpostal">Código postal:</label>
+                <input type="text" id="editar-cpostal" name="cpostal" autocomplete="off" maxlength="5"
+                    pattern="\d{5}"
+                    title="Por favor, ingrese un código postal de 5 dígitos."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+            </div>
+            <div class="form-group">
+                <label for="editar-email">Email:</label>
+                <input type="email" id="editar-email" name="email" autocomplete="off" required />
+            </div>
+            <div class="form-group">
+                <label for="editar-telefono">Teléfono:</label>
+                <input type="numeric" id="editar-telefono" name="telefono" autocomplete="off" maxlength="10 "
+                    pattern="\d{10}"
+                    title="Por favor, ingrese un número de telefono de 10 dígitos."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+            </div>
+
+            <button type="submit">Actualizar</button>
+        </form>
+    </div>
+</div>

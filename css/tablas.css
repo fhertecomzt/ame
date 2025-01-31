@@ -1,6 +1,7 @@
 table {
   background-color: white;
   border-collapse: collapse;
+  font-size: 12px;
   text-align: left;
   width: 100%;
 }
@@ -20,9 +21,32 @@ tr:hover td {
   background-color: #6d73e4;
   color: rgb(255, 255, 255);
 }
-#btneditar {
+.editar,
+.editarRol,
+.editarUser {
   color: #002cee;
+  cursor: pointer;
 }
-#btneliminar {
+.eliminar,
+.eliminarRol,
+.eliminarUser {
   color: #ff0000;
+  margin-left: 6px;
+  cursor: pointer;
+}
+
+#limpiar-busqueda {
+  padding: 5px 10px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  height: 21px;
+  margin-top: 15px;
+  width: 30px;
+}
+
+#limpiar-busqueda:hover {
+  background-color: #d32f2f;
 }

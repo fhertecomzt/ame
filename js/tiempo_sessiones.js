@@ -1,5 +1,5 @@
 // Tiempo máximo de inactividad en segundos (sincronizado con el servidor)
-const tiempoInactividad = 3600; // 5 minutos
+const tiempoInactividad = 3600; // 60 minutos
 let tiempoUltimaActividad = Date.now();
 let advertenciaMostrada = false; // Bandera para evitar mostrar múltiples advertencias
 

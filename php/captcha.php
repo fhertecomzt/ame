@@ -20,7 +20,7 @@ imagefilledrectangle($imagen, 0, 0, 120, 40, $fondo);
 
 // Añadir el texto
 $texto_captcha = "$num1 + $num2 = ?";
-imagettftext($imagen, 20, 0, 10, 30, $texto, __DIR__ . '/arial.ttf');
+imagettftext($imagen, 20, 0, 10, 30, $texto, __DIR__ . 'arial.ttf');
 
 // Establecer encabezados para la imagen
 header("Content-Type: image/png");

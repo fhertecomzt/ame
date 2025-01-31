@@ -1,8 +1,15 @@
 <?php
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start(); // Inicia la sesión con configuraciones seguras
+session_start();
+// Manejar mensajes de error y añadirlos a la sesión
+if (isset($_GET['session_expired'])) {
+    $_SESSION['errores'][] = "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.";
 }
+
+if (isset($_GET['error']) && $_GET['error'] === 'acceso_denegado') {
+    $_SESSION['errores'][] = "No tienes permisos para acceder a esa página.";
+}
+//Captcha suma basico
 $num1 = rand(1, 9);
 $num2 = rand(1, 9);
 $_SESSION['captcha_result'] = $num1 + $num2;

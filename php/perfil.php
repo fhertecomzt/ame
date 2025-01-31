@@ -5,7 +5,7 @@ if (
     !isset($_SESSION['idusuario']) ||
     !in_array($_SESSION['rol'], ['SISTEMAS', 'GERENCIA', 'VENTAS'])
 ) {
-    header("Location: ../../logout.php");
+    header("Location: ../../index.php");
     exit;
 }
 

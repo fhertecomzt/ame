@@ -3,6 +3,62 @@
   padding: 0;
   box-sizing: border-box;
 }
+.containerr {
+  background-color: #ffff;
+  border-radius: 5px;
+  display: flex;
+  height: 60px;
+  margin-bottom: 5px;
+  padding: 1px 5px;
+  width: 100%;
+}
+.boton {
+  width: 7%;
+  height: 70%;
+}
+.boton {
+  background: linear-gradient(130deg, blue, skyblue);
+  border: none;
+  border-radius: 5px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  margin: 8px;
+}
+.buscarlabel {
+  align-items: center;
+  display: flex;
+  margin-left: 30px;
+  text-align: center;
+}
+.buscar--box {
+  align-items: center;
+  background: rgb(237, 237, 237);
+  border-radius: 15px;
+  color: rgba(113, 99, 186, 255);
+  display: flex;
+  gap: 5px;
+  height: 60%;
+  padding: 5px 4px;
+  margin: 10px;
+  margin-left: 10px;
+  width: 25%;
+}
+.search--box input {
+  background: transparent;
+  padding: 10px;
+}
+.search--box i {
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.5s ease-out;
+}
+.search--box i:hover {
+  transform: scale(1.2);
+}
+
 .container {
   width: 100%;
   padding: 25px 30px;
@@ -20,17 +76,18 @@
   margin: 10px 12px 0;
 }
 form .form-group {
-  margin-bottom: 15px;
-  width: calc(100% / 4 - 10px);
+  margin-bottom: 2px;
+  width: calc(100% / 1 - 10px);
 }
-form span {
+form label {
   display: block;
+  font-size: 12px;
   font-weight: 500;
-  margin-bottom: 5px;
+  margin-bottom: 1px;
 }
 .form-group input,
 select {
-  height: 40px;
+  height: 30px;
   width: 100%;
   outline: none;
   border-radius: 5px;
@@ -38,6 +95,7 @@ select {
   padding-left: 15px;
   border-bottom-width: 2px;
   transition: 0.3s ease;
+  font-size: 12px;
 }
 .form-group input:focus,
 .form-group input:valid {
@@ -59,4 +117,74 @@ form .button input {
   font-weight: 500;
   border: none;
   border-radius: 5px;
+}
+
+/* Estilo general del modal */
+.modal {
+  display: none; /* Ocultar por defecto */
+  position: fixed; /* Posicionarlo encima del contenido */
+  z-index: 1000; /* Asegurarse de que esté por encima de otros elementos */
+  left: 0;
+  top: 0;
+  width: 100%; /* Ocupa todo el ancho de la pantalla */
+  height: 100%; /* Ocupa todo el alto de la pantalla */
+  overflow: auto; /* Habilitar scroll si es necesario */
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
+}
+
+/* Contenido del modal */
+.modal-content {
+  background-color: #fff; /* Fondo blanco */
+  margin: 3% auto; /* Centrarse vertical y horizontalmente */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 30%; /* Ancho del modal */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+.modal .tittle {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+/* Botón de cierre */
+.close {
+  background-color: #ebedf0;
+  border-radius: 15px;
+  color: #aaaaaaf0;
+  cursor: pointer;
+  float: right;
+  font-size: 17px;
+  font-weight: bold;
+  text-align: center;
+  width: 24px;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+}
+
+/* Opcional: Botones dentro del modal */
+.modal button {
+  background-color: #4caf50; /* Verde */
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  color: white;
+  cursor: pointer;
+  margin-top: 8px;
+  padding: 10px 20px;
+}
+
+.modal button:hover {
+  background-color: #45a049; /* Verde oscuro */
+}
+
+/* Opcional: Ajustar para pantallas más pequeñas */
+@media (max-width: 600px) {
+  .modal-content {
+    width: 90%; /* Ajustar el ancho para pantallas pequeñas */
+  }
 }

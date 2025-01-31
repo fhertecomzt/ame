@@ -2,11 +2,41 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-//Restricción por rol
+
 $roles_permitidos = ["GERENCIA"];
 include "verificar_sesion.php";
 
+// Encabezados para evitar el caché
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
+// Verificar si hay una sesión activa y si el rol está permitido
+if (!isset($_SESSION['rol']) || !in_array($_SESSION['rol'], $roles_permitidos)) {
+    header("Location: ../index.php?error=acceso_denegado");
+    exit;
+}
+
+// Generar un token único en cada acceso
+$current_token = bin2hex(random_bytes(32));
+$_SESSION['current_token'] = $current_token;
+
+// Verificar el token de navegación para detectar inconsistencias
+if (isset($_SESSION['last_token'])) {
+    $page_token = $_POST['page_token'] ?? '';
+    if ($_SESSION['last_token'] !== $page_token) {
+        // Destruir la sesión y redirigir al inicio con un mensaje
+        session_unset();
+        session_destroy();
+        header("Location: ../index.php?session_expired=1&error=navegacion_inconsistente");
+        exit;
+    }
+}
+
+// Actualizar el último token utilizado
+$_SESSION['last_token'] = $current_token;
 ?>
+
 <!DOCTYPE html>
 <html>
 
@@ -32,7 +62,7 @@ include "verificar_sesion.php";
             <div class="logo"></div>
             <ul class="menu">
                 <li>
-                    <a href="gm.php" id="inicio-link">
+                    <a href="gm.php#" id="inicio-link">
                         <i class="fas fa-tachometer-alt"></i>
                         <span>INICIO</span>
                     </a>

@@ -43,26 +43,29 @@ body {
   color: #555;
 }
 .form button {
-  background-color: transparent;
-  outline: none;
+  background-color: #0866ff;
   border: solid 2px #9191bd;
-  border-radius: 20px;
-  padding: 10px 20px;
-  color: #9191bd;
+  border-radius: 6px;
+  color: #ffffff;
   cursor: pointer;
+  font-size: 17px;
+  font-family: SFProText-Semibold, Helvetica, Arial, sans-serif;
+  outline: none;
+  padding: 10px 20px;
   transition: background-color 0.3s ease;
+  width: 100%;
 }
 .form button:hover {
+  color: #fff;
   background-color: #9191bd;
   border: none;
-  color: #fff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 .form-information {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60%;
+  width: 50%;
   text-align: center;
   background-color: #f8f8f8;
   border-top-right-radius: 20px;
@@ -76,8 +79,9 @@ body {
   font-size: 2rem;
 }
 .form-information-childs p {
-  color: #555;
+  color: red;
   font-size: 20px;
+  background: white;
 }
 .form {
   margin: 30px 0 0 0;
@@ -94,23 +98,23 @@ input[autofocus] {
   display: flex;
   align-items: center;
   margin-bottom: 15px;
-  border-radius: 20px;
+  border-radius: 6px;
   padding: 0 10 px;
   background-color: #fff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .form label input {
-  width: 100%;
-  padding: 10px;
   background-color: #fff;
   border: none;
-  border-radius: 20px;
+  border-radius: 6px;
   color: #ac3bbf;
+  padding: 10px;
+  width: 100%;
 }
 /*Alerta de error*/
 .errror {
-  background-color: red;
+  background-color: #ffffff;
   border-radius: 20px;
   margin: 10px;
   padding: 10px;

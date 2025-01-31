@@ -1,10 +1,10 @@
 <?php
 session_start();
 if (!isset($_SESSION['idusuario']) || $_SESSION["rol"] !== "VENTAS") {
-    header("Location: ../logout.php");
+    header("Location: ../../index.php");
     exit;
 }
-//$sucursal_nombre = $_SESSION['sucursal_nombre'];
+
 ?>
 <!DOCTYPE html>
 <html>

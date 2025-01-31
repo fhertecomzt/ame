@@ -1,0 +1,90 @@
+document.addEventListener("DOMContentLoaded", () => {
+  const parentContainer = document.body; // Usa un contenedor que siempre esté disponible
+
+  // Escucha el evento del botón para abrir el modal
+  parentContainer.addEventListener("click", (event) => {
+    if (event.target && event.target.id === "openModal") {
+      const modal = document.getElementById("customModal");
+      if (modal) {
+        modal.style.display = "flex";
+      }
+    }
+  });
+
+  // Cerrar el modal al hacer clic en el botón "close"
+  parentContainer.addEventListener("click", (event) => {
+    if (event.target && event.target.classList.contains("close-btn")) {
+      const modal = document.getElementById("customModal");
+      if (modal) {
+        modal.style.display = "none";
+      }
+    }
+  });
+
+  // Confirmar acción desde el modal
+  parentContainer.addEventListener("click", (event) => {
+    if (event.target && event.target.id === "confirmButton") {
+      alert("¡Acción confirmada!");
+      const modal = document.getElementById("customModal");
+      if (modal) {
+        modal.style.display = "none";
+      }
+    }
+  });
+
+  // Cerrar el modal al hacer clic fuera de él
+  window.addEventListener("click", (event) => {
+    const modal = document.getElementById("customModal");
+    if (modal && event.target === modal) {
+      modal.style.display = "none";
+    }
+  });
+});
+
+// Abre el modal Editar
+document.addEventListener("DOMContentLoaded", () => {
+  // Seleccionar el modal y sus elementos
+  const editModal = document.getElementById("editModal");
+  const closeEditModal = document.getElementById("closeEditModal");
+
+  // Seleccionar todos los botones de edición
+  document.querySelectorAll(".edit-btn").forEach((button) => {
+    button.addEventListener("click", async function () {
+      const tiendaId = this.getAttribute("data-id");
+
+      try {
+        const response = await fetch(`tiendas.php?id=${tiendaId}`);
+        const tienda = await response.json();
+
+        if (tienda) {
+          // Llenar los campos del modal con los datos obtenidos
+          document.getElementById("editId").value = tienda.idtienda;
+          document.getElementById("editNomtienda").value = tienda.nomtienda;
+          document.getElementById("editReptienda").value = tienda.reptienda;
+          document.getElementById("editRfctienda").value = tienda.rfctienda;
+          document.getElementById("editDomtienda").value = tienda.domtienda;
+          document.getElementById("editNoexttienda").value = tienda.noexttienda;
+          document.getElementById("editNointtienda").value = tienda.nointtienda;
+          document.getElementById("editColtienda").value = tienda.coltienda;
+          document.getElementById("editCdtienda").value = tienda.cdtienda;
+          document.getElementById("editEdotienda").value = tienda.edotienda;
+          document.getElementById("editCptienda").value = tienda.cptienda;
+          document.getElementById("editEmailtienda").value = tienda.emailtienda;
+          document.getElementById("editTeltienda").value = tienda.teltienda;
+
+          // Mostrar el modal de edición
+          editModal.style.display = "block";
+        }
+      } catch (error) {
+        console.error("Error al cargar los datos de la tienda:", error);
+      }
+    });
+  });
+
+  // Cerrar al hacer clic fuera del modal
+  window.addEventListener("click", (event) => {
+    if (event.target === editModal) {
+      editModal.style.display = "none";
+    }
+  });
+});
