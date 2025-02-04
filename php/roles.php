@@ -4,16 +4,11 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $roles_permitidos = ["SISTEMAS", "GERENCIA"];
+//Includes
 include "verificar_sesion.php";
-
 include "conexion.php";
+include "funciones/funciones.php";
 
-function obtenerRoles($dbh)
-{
-    $stmt = $dbh->prepare("SELECT * FROM roles");
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
 
 $roles = obtenerRoles($dbh);
 
@@ -31,7 +26,6 @@ $roles = obtenerRoles($dbh);
 <table border="1" id="tabla-roles">
     <thead>
         <tr>
-            <th>Id</th>
             <th>Rol</th>
             <th>Descripción</th>
             <th>Acciones</th>
@@ -40,7 +34,6 @@ $roles = obtenerRoles($dbh);
     <tbody>
         <?php foreach ($roles as $u): ?>
             <tr>
-                <td><?php echo $u['idrol']; ?></td>
                 <td><?php echo htmlspecialchars($u['nomrol']); ?></td>
                 <td><?php echo htmlspecialchars($u['descrol']); ?></td>
                 <td>

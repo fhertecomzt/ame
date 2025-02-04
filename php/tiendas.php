@@ -4,16 +4,12 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $roles_permitidos = ["SISTEMAS", "GERENCIA"];
+
+//Includes
 include "verificar_sesion.php";
-
 include "conexion.php";
+include "funciones/funciones.php";
 
-function obtenerTiendas($dbh)
-{
-    $stmt = $dbh->prepare("SELECT * FROM tiendas");
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
 
 $tiendas = obtenerTiendas($dbh);
 ?>
@@ -31,7 +27,6 @@ $tiendas = obtenerTiendas($dbh);
 <table border=" 1" id="tabla-tiendas">
     <thead>
         <tr>
-            <th>ID</th>
             <th>Nombre</th>
             <th>Representante</th>
             <th>R.F.C.</th>
@@ -43,7 +38,6 @@ $tiendas = obtenerTiendas($dbh);
     <tbody>
         <?php foreach ($tiendas as $tienda) : ?>
             <tr>
-                <td><?php echo $tienda['idtienda']; ?></td>
                 <td><?php echo $tienda['nomtienda']; ?></td>
                 <td><?php echo $tienda['reptienda']; ?></td>
                 <td><?php echo $tienda['rfctienda']; ?></td>
@@ -66,7 +60,7 @@ $tiendas = obtenerTiendas($dbh);
     <div class="modal-content">
         <span title="Cerrar" class="close" onclick="cerrarModal('crear-modal')">&times;</span>
         <h2 class="tittle">Crear Tienda</h2>
-        <form id="form-crear" onsubmit="procesarFormulario(event, 'crear')">
+        <form id="form-crear" onsubmit="validarFormularioTienda(event)">
             <div class="form-group">
                 <label for="crear-nombre">Nombre:</label>
                 <input type="text" id="crear-nombre" name="nombre" autocomplete="off" required>
@@ -85,14 +79,12 @@ $tiendas = obtenerTiendas($dbh);
             </div>
             <div class="form-group">
                 <label for="crear-noexterior">No. Exterior:</label>
-                <input type="text" id="crear-noexterior" name="noexterior" autocomplete="off" min="0" maxlength="10"
-                    pattern="\d{1}"
-                    title="Por favor, ingrese el número exterior."
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                <input type="number" id="crear-noexterior" name="noexterior" autocomplete="off" size="10" maxlength="10"
+                    required>
             </div>
             <div class="form-group">
                 <label for="crear-nointerior">No. Interior:</label>
-                <input type="text" id="crear-nointerior" name="nointerior" autocomplete="off" size="10" min="0" value="0" maxlength="10" required>
+                <input type="number" id="crear-nointerior" name="nointerior" autocomplete="off" size="10" min="0" value="0" maxlength="10" required>
             </div>
             <div class="form-group">
                 <label for="crear-colonia">Colonia:</label>
@@ -154,10 +146,7 @@ $tiendas = obtenerTiendas($dbh);
             </div>
             <div class="form-group">
                 <label for="editar-noexterior">No. Exterior:</label>
-                <input type="text" id="editar-noexterior" name="noexterior" autocomplete="off" maxlength="10"
-                    pattern="\d{1}"
-                    title="Por favor, ingrese el número exterior."
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                <input type="numeric" id="editar-noexterior" name="noexterior" autocomplete="off" maxlength="10" required>
             </div>
             <div class="form-group">
                 <label for="editar-nointerior">No. Interior:</label>

@@ -1,4 +1,5 @@
 <?php
+//Encabezados para evitar el caché
 ini_set('session.cookie_secure', '1'); // Requiere HTTPS
 ini_set('session.cookie_httponly', '1'); // Evita acceso por JavaScript
 ini_set('session.use_strict_mode', '1'); // Rechaza IDs inválidas

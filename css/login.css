@@ -9,8 +9,10 @@ body {
   align-items: center;
   justify-content: center;
   height: 100vh;
+  /* Fondo con imagen
   background-image: url(../imgs/fondoweb.png);
-  background-size: cover;
+  background-size: cover;*/
+  background: #32474f;
 }
 .contenedor-form {
   display: flex;
@@ -23,7 +25,7 @@ body {
 }
 
 .information {
-  width: 40%;
+  width: 35%;
   display: flex;
   align-items: center;
   text-align: center;
@@ -65,7 +67,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50%;
+  width: 65%;
   text-align: center;
   background-color: #f8f8f8;
   border-top-right-radius: 20px;
@@ -118,8 +120,13 @@ input[autofocus] {
   border-radius: 20px;
   margin: 10px;
   padding: 10px;
+  width: 400px;
 }
-
+.bx {
+  cursor: pointer;
+  font-size: 20px;
+  transform: translate(-5px);
+}
 /*RESPOSIVE FORM*/
 @media screen and (max-width: 750px) {
   html {

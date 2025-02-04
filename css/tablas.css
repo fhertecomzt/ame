@@ -23,13 +23,15 @@ tr:hover td {
 }
 .editar,
 .editarRol,
-.editarUser {
+.editarUser,
+.editarCat {
   color: #002cee;
   cursor: pointer;
 }
 .eliminar,
 .eliminarRol,
-.eliminarUser {
+.eliminarUser,
+.eliminarCat {
   color: #ff0000;
   margin-left: 6px;
   cursor: pointer;

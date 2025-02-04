@@ -26,9 +26,12 @@ $_SESSION['captcha_result'] = $num1 + $num2;
     <title>AME LOGIN</title>
     <meta name="description" content="Sistema de gestión y administración multiempresa.">
     <link rel="stylesheet" type="text/css" href="css/login.css">
+    <!-- CDn Font Google link Fuente iconos-->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <!-- CDn Font Awesome link Fuente iconos-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body>
@@ -48,7 +51,8 @@ $_SESSION['captcha_result'] = $num1 + $num2;
                         <input type="text" placeholder="Usuario" name="txtusuario" autofocus required>
                     </label>
                     <label>
-                        <input type="password" placeholder="Contraseña" name="txtpassword1" autocomplete="off" required>
+                        <input type="password" placeholder="Contraseña" id="pass" name="txtpassword1" autocomplete="off" required>
+                        <i class="bx fa-solid fa-eye" style="position:absolute; margin-left: 378px;"></i>
                     </label>
                     <label>
                         <input type="number" placeholder="<?php echo $num1; ?> + <?php echo $num2; ?>=   " name="captcha" style="width: 100%;" required>
@@ -63,7 +67,7 @@ $_SESSION['captcha_result'] = $num1 + $num2;
                     <button type="submit" name="btn_iniciar" class="btn_iniciar" id="botoniniciar">Iniciar sesión</button>
                 </form>
                 <!-- Mostrar el error si existe -->
-                <div>
+                <div style="width: 400px;">
                     <?php
                     if (session_status() === PHP_SESSION_NONE) {
                         session_start();
@@ -83,6 +87,7 @@ $_SESSION['captcha_result'] = $num1 + $num2;
     </div>
     <!-- Script de reCAPTCHA -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="js/ojito.js"></script>
 </body>
 
 </html>

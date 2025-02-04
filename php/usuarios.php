@@ -35,7 +35,6 @@ $usuarios = obtenerUsuarios($dbh);
 <table border="1" id="tabla-usuarios">
     <thead>
         <tr>
-            <th>ID</th>
             <th>Imagen</th>
             <th>Usuario</th>
             <th>Nombre</th>
@@ -51,7 +50,6 @@ $usuarios = obtenerUsuarios($dbh);
     <tbody>
         <?php foreach ($usuarios as $u): ?>
             <tr>
-                <td><?php echo $u['idusuario']; ?></td>
                 <td><?php if (!empty($u['imagen'])): ?>
                         <img src="<?php echo htmlspecialchars($u['imagen']); ?>" alt="Imagen de perfil" width="50" height="50">
                     <?php else: ?>

@@ -1,4 +1,14 @@
 <?php
+// Rellenamos la lista de roles "Superusuario"
+$consulta_rolesfull = $dbh->prepare("SELECT * FROM roles ");
+$consulta_rolesfull->execute();
+
+$lista_rolesfull = []; // Inicializa como un array
+
+while ($rolfull = $consulta_rolesfull->fetch(PDO::FETCH_ASSOC)) {
+  $lista_rolesfull[] = $rolfull; // Agrega cada rol al array
+}
+
 // Rellenamos la lista de roles excluyendo "Superusuario"
 $consulta_roles = $dbh->prepare("SELECT * FROM roles WHERE nomrol != 'SISTEMAS'");
 $consulta_roles->execute();

@@ -1,5 +1,6 @@
 <?php
-// Encabezados para evitar el caché
+
+//Encabezados para evitar el caché
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
@@ -12,7 +13,7 @@ $roles_permitidos = ["SISTEMAS"];
 include "verificar_sesion.php";
 
 
-// Verificar si hay una sesión activa y si el rol está permitido
+/* Verificar si hay una sesión activa y si el rol está permitido
 if (!isset($_SESSION['rol']) || !in_array($_SESSION['rol'], $roles_permitidos)) {
     header("Location: ../index.php?error=acceso_denegado");
     exit;
@@ -35,7 +36,7 @@ if (isset($_SESSION['last_token'])) {
 }
 
 // Actualizar el último token utilizado
-$_SESSION['last_token'] = $current_token;
+$_SESSION['last_token'] = $current_token;*/
 
 ?>
 
@@ -47,7 +48,7 @@ $_SESSION['last_token'] = $current_token;
     <meta charset="utf8mb4">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Administrador AME</title>
-    <!-- CDn Font Awesome link-->
+    <!-- CDn Font Awesome link fuente iconos-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!--Estilo Css admin -->
     <link rel="stylesheet" href="../css/estiloadmin.css">
