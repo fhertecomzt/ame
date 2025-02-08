@@ -1,7 +1,7 @@
 <?php
 
+//Includes
 include "../conexion.php";
-include "validaciones_tienda.php";
 
 $response = ["success" => false, "message" => ""];
 
@@ -23,14 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 
   try {
-    // Validar los datos recibidos
-    $errores = validarDatosTienda($_POST, $dbh);
 
-    if (!empty($errores)) {
-      $response["message"] = implode(" ", $errores);
-      echo json_encode($response);
-      exit;
-    }
     // Preparar la consulta SQL
     $stmt = $dbh->prepare(
       "UPDATE tiendas 

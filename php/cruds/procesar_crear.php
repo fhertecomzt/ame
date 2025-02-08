@@ -2,20 +2,10 @@
 
 //Includes
 include "../conexion.php";
-include "validaciones_tienda.php";
 
 $response = ["success" => false, "message" => ""];
 
 try {
-  // Validar los datos recibidos
-  $errores = validarDatosTienda($_POST, $dbh);
-
-  if (!empty($errores)) {
-    $response["message"] = implode(" ", $errores);
-    echo json_encode($response);
-    exit;
-  }
-
   // Insertar en la base de datos
   $stmt = $dbh->prepare("
         INSERT INTO tiendas (

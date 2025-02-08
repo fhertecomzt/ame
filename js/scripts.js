@@ -70,7 +70,6 @@ function procesarFormulario(event, tipo) {
           text: data.message, // Usar el mensaje del backend
           icon: "success",
         });
-
       } else {
         // Mostrar un mensaje de error específico del backend
         Swal.fire({
@@ -168,6 +167,8 @@ function validarFormularioTienda(event) {
     });
 }
 function verificarDuplicado(nombre) {
+  console.log("Nombre:", nombre);
+
   return fetch("cruds/verificar_nombre.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -175,121 +176,258 @@ function verificarDuplicado(nombre) {
   })
     .then((response) => response.json())
     .then((data) => {
-      return data.existe; // Devuelve true si el nombre ya existe
+      console.log("Respuesta de verificar_nombre.php:", data);
+      if (data.existe) {
+        mostrarAlerta("error", "Error", "El nombre de la tienda ya existe.");
+      }
+      return data.existe;
+    })
+    .catch((error) => {
+      console.error("Error al verificar duplicado:", error);
+      return true; // Asume duplicado en caso de error
     });
 }
 
-//Para editar
+//Editar************
 document.addEventListener("DOMContentLoaded", function () {
-  document.addEventListener("click", function (event) {
+  // Escuchar clic en el botón de editar
+  document.body.addEventListener("click", function (event) {
     if (event.target.classList.contains("editar")) {
       const id = event.target.dataset.id;
-      console.log("Botón editar clickeado. ID:", id);
 
       fetch(`cruds/obtener_tienda.php?id=${id}`)
         .then((response) => response.json())
         .then((data) => {
-          console.log("Datos recibidos del servidor:", data);
-
           if (data.success) {
             const formulario = document.getElementById("form-editar");
             if (formulario) {
-              formulario["editar-id"].value = data.tienda.id || "";
-              formulario["editar-nombre"].value = data.tienda.nombre || "";
-              formulario["editar-representante"].value =
-                data.tienda.representante || "";
-              formulario["editar-rfc"].value = data.tienda.rfc || "";
-              formulario["editar-domicilio"].value =
-                data.tienda.domicilio || "";
-              formulario["editar-noexterior"].value =
-                data.tienda.noexterior || "";
-              formulario["editar-nointerior"].value =
-                data.tienda.nointerior || "";
-              formulario["editar-colonia"].value = data.tienda.colonia || "";
-              formulario["editar-ciudad"].value = data.tienda.ciudad || "";
-              formulario["editar-estado"].value = data.tienda.estado || "";
-              formulario["editar-cpostal"].value = data.tienda.cpostal || "";
-              formulario["editar-email"].value = data.tienda.email || "";
-              formulario["editar-telefono"].value = data.tienda.telefono || "";
+              const campos = [
+                "id",
+                "nombre",
+                "representante",
+                "rfc",
+                "domicilio",
+                "noexterior",
+                "nointerior",
+                "colonia",
+                "ciudad",
+                "estado",
+                "cpostal",
+                "email",
+                "telefono",
+              ];
+              campos.forEach((campo) => {
+                formulario[`editar-${campo}`].value = data.tienda[campo] || "";
+              });
 
               abrirModal("editar-modal");
             } else {
               console.error("Formulario de edición no encontrado.");
             }
           } else {
-            alert(data.message || "Error al cargar los datos de la tienda.");
-          }
-        })
-        .catch((error) => console.error("Error al obtener tienda:", error));
-    }
-  });
-
-  // Delegación de eventos para el formulario dinámico
-  document.body.addEventListener("submit", function (event) {
-    if (event.target && event.target.id === "form-editar") {
-      event.preventDefault(); // Esto evita el comportamiento predeterminado de recargar la página.
-
-      const formData = new FormData(event.target);
-
-      // Validaciones antes de enviar
-      if (!formData.get("nombre") || !formData.get("email")) {
-        Swal.fire({
-          title: "Atención",
-          text: "Por favor, completa todos los campos obligatorios.",
-          icon: "warning",
-        });
-        return; // Detener si no pasa las validaciones
-      }
-
-      fetch("cruds/editar_tienda.php", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Respuesta del servidor:", data); // Para depuración
-          if (data.success) {
-            // Mensaje de éxito con SweetAlert
-            Swal.fire({
-              title: "¡Éxito!",
-              text:
-                data.message || "La actualización se realizó correctamente.",
-              icon: "success",
-            });
-
-            // Actualizar la fila de la tabla sin recargar
-            const fila = document
-              .querySelector(`button[data-id="${formData.get("editar-id")}"]`)
-              .closest("tr");
-            if (fila) {
-              fila.cells[0].textContent = formData.get("nombre");
-              fila.cells[1].textContent = formData.get("representante");
-              fila.cells[2].textContent = formData.get("rfc");
-              fila.cells[3].textContent = formData.get("email");
-              fila.cells[4].textContent = formData.get("telefono");
-            }
-            cerrarModal("editar-modal");
-          } else {
-            // Mensaje de error o advertencia del servidor con SweetAlert
-            Swal.fire({
-              title: "Atención",
-              text: data.message || "Hubo un error al actualizar la tienda.",
-              icon: "warning",
-            });
+            mostrarAlerta(
+              "error",
+              "Error",
+              data.message || "No se pudo cargar la tienda."
+            );
           }
         })
         .catch((error) => {
-          console.error("Error al intentar actualizar la tienda:", error);
-          // Mensaje de error general con SweetAlert
-          Swal.fire({
-            title: "Error",
-            text: "Ocurrió un problema al intentar actualizar la tienda.",
-            icon: "error",
-          });
+          console.error("Error al obtener tienda:", error);
+          mostrarAlerta(
+            "error",
+            "Error",
+            "Ocurrió un problema al obtener los datos."
+          );
         });
     }
   });
+
+  // Validar y enviar el formulario de edición
+  document.body.addEventListener("submit", function (event) {
+    if (event.target && event.target.id === "form-editar") {
+      event.preventDefault();
+      validarFormularioEdicion(event.target);
+    }
+  });
 });
+
+// Función genérica para mostrar alertas
+function mostrarAlerta(tipo, titulo, mensaje) {
+  Swal.fire({ title: titulo, text: mensaje, icon: tipo });
+}
+
+//Validar duplicados en edicion
+
+function verificarDuplicadoEditarTienda(nombre, id = 0) {
+  console.log("Nombre:", nombre);
+  console.log("ID (si aplica):", id);
+
+  return fetch("cruds/verificar_nombre.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nombre, id }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Respuesta de verificar_nombre.php:", data);
+      if (data.existe) {
+        mostrarAlerta("error", "Error", "El nombre de la tienda ya existe.");
+      }
+      return data.existe;
+    })
+    .catch((error) => {
+      console.error("Error al verificar duplicado:", error);
+      return true; // Asume duplicado en caso de error
+    });
+}
+
+// Validación del formulario de edición
+async function validarFormularioEdicion(formulario) {
+  const campos = [
+    {
+      nombrec: "nombre",
+      min: 3,
+      mensaje: "El nombre debe tener al menos 3 caracteres.",
+    },
+    {
+      nombrec: "representante",
+      min: 3,
+      mensaje: "El representante debe tener al menos 3 caracteres.",
+    },
+    {
+      nombrec: "rfc",
+      min: 12,
+      mensaje: "El RFC debe tener al menos 12 caracteres.",
+    },
+    {
+      nombrec: "domicilio",
+      min: 3,
+      mensaje: "La calle debe tener al menos 3 caracteres.",
+    },
+    {
+      nombrec: "noexterior",
+      min: 1,
+      mensaje: "El número exterior debe ser mayor a 0",
+      numerico: true,
+    },
+    {
+      nombrec: "nointerior",
+      min: 0,
+      mensaje: "El número interior debe ser mayor o igual a 0",
+      numerico: true,
+    },
+    {
+      nombrec: "colonia",
+      min: 3,
+      mensaje: "La colonia debe tener al menos 3 caracteres.",
+    },
+    {
+      nombrec: "ciudad",
+      min: 3,
+      mensaje: "La ciudad debe tener al menos 3 caracteres.",
+    },
+    {
+      nombrec: "estado",
+      min: 3,
+      mensaje: "El estado debe tener al menos 3 caracteres.",
+    },
+  ];
+
+  const errores = campos
+    .filter((campo) => {
+      const campoFormulario = document.getElementById(
+        `editar-${campo.nombrec}`
+      );
+      if (!campoFormulario) {
+        console.error(`El campo editar-${campo.nombrec} no se encontró.`);
+        return true; // Considerar como un error si el campo no existe
+      }
+
+      const valor = campoFormulario.value.trim();
+
+      if (campo.numerico) {
+        return isNaN(parseInt(valor)) || parseInt(valor) < campo.min;
+      }
+
+      return valor.length < campo.min;
+    })
+    .map((campo) => campo.mensaje);
+
+  if (errores.length > 0) {
+    mostrarAlerta("error", "Errores en el formulario", errores.join("<br>"));
+    return;
+  }
+
+  // Verificar duplicado antes de enviar el formulario
+  const nombre = document.getElementById("editar-nombre").value.trim();
+  const id = document.getElementById("editar-id").value;
+
+  try {
+    const esDuplicado = await verificarDuplicadoEditarTienda(nombre, id);
+    console.log("Nombre duplicado:", esDuplicado);
+    if (esDuplicado) {
+      return; // No enviar el formulario si hay duplicados
+    } else {
+      enviarFormularioEdicion(formulario); // Proceder si no hay duplicados
+    }
+  } catch (error) {
+    console.error("Error al verificar duplicado:", error);
+  }
+}
+
+// Enviar formulario de edición
+function enviarFormularioEdicion(formulario) {
+  if (!formulario) {
+    console.error("El formulario no se encontró.");
+    return;
+  }
+  const formData = new FormData(formulario);
+
+  fetch("cruds/editar_tienda.php", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        mostrarAlerta(
+          "success",
+          "¡Éxito!",
+          data.message || "Tienda actualizada correctamente."
+        );
+        actualizarFilaTabla(formData);
+        cerrarModal("editar-modal");
+      } else {
+        mostrarAlerta(
+          "error",
+          "Error",
+          data.message || "No se pudo actualizar la tienda."
+        );
+      }
+    })
+    .catch((error) => {
+      console.error("Error al actualizar tienda:", error);
+      mostrarAlerta(
+        "error",
+        "Error",
+        "Ocurrió un problema al actualizar la tienda."
+      );
+    });
+}
+
+// Actualizar fila de la tabla
+function actualizarFilaTabla(formData) {
+  const fila = document
+    .querySelector(`button[data-id="${formData.get("editar-id")}"]`)
+    .closest("tr");
+  if (fila) {
+    fila.cells[0].textContent = formData.get("nombre");
+    fila.cells[1].textContent = formData.get("representante");
+    fila.cells[2].textContent = formData.get("rfc");
+    fila.cells[3].textContent = formData.get("email");
+  }
+}
 
 // Eliminar
 document.addEventListener("click", function (event) {
