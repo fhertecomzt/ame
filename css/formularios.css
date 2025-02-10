@@ -82,20 +82,21 @@ form .form-group {
 form label {
   display: block;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 1px;
 }
 .form-group input,
 select {
-  height: 30px;
-  width: 100%;
-  outline: none;
-  border-radius: 5px;
+  background: #f6f6f6;
   border: 1px solid #ccc;
-  padding-left: 15px;
   border-bottom-width: 2px;
-  transition: 0.3s ease;
+  border-radius: 5px;
   font-size: 12px;
+  height: 30px;
+  outline: none;
+  padding-left: 15px;
+  transition: 0.3s ease;
+  width: 100%;
 }
 .form-group input:focus,
 .form-group input:valid {
@@ -180,6 +181,16 @@ form .button input {
 
 .modal button:hover {
   background-color: #45a049; /* Verde oscuro */
+}
+
+.input-error {
+  border-color: red !important;
+  outline: none; /* Opcional: quita el borde azul al enfocar */
+}
+
+.input-error:focus {
+  outline: none;
+  box-shadow: 0 0 5px red;
 }
 
 /* Opcional: Ajustar para pantallas más pequeñas */

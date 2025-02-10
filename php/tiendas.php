@@ -63,19 +63,30 @@ $tiendas = obtenerTiendas($dbh);
         <form id="form-crear" onsubmit="validarFormularioTienda(event)">
             <div class="form-group">
                 <label for="crear-nombre">Nombre:</label>
-                <input type="text" id="crear-nombre" name="nombre" autocomplete="off" required>
+                <input type="text" id="crear-nombre" name="nombre" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
             </div>
             <div class="form-group">
                 <label for="crear-representante">Representante:</label>
-                <input type="text" id="crear-representante" name="representante" autocomplete="off" required>
+                <input type="text" id="crear-representante" name="representante" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
             </div>
             <div class="form-group">
                 <label for="crear-rfc">R.F.C.:</label>
-                <input type="text" id="crear-rfc" name="rfc" autocomplete="off" maxlength="13" required>
+                <input type="text" id="crear-rfc" name="rfc" autocomplete="off" maxlength="13"
+                    pattern="[a-zA-Z0-9]+"
+                    title="Solo se permiten letras y números."
+                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" required>
             </div>
             <div class="form-group">
                 <label for="crear-domicilio">Calle:</label>
-                <input type="text" id="crear-domicilio" name="domicilio" autocomplete="off" required>
+                <input type="text" id="crear-domicilio" name="domicilio" autocomplete="off" pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
             </div>
             <div class="form-group">
                 <label for="crear-noexterior">No. Exterior:</label>
@@ -84,19 +95,28 @@ $tiendas = obtenerTiendas($dbh);
             </div>
             <div class="form-group">
                 <label for="crear-nointerior">No. Interior:</label>
-                <input type="number" id="crear-nointerior" name="nointerior" autocomplete="off" size="10" min="0" value="0" maxlength="10" required>
+                <input type="text" id="crear-nointerior" name="nointerior" autocomplete="off" size="10" min="0" value="0" maxlength="10" required>
             </div>
             <div class="form-group">
                 <label for="crear-colonia">Colonia:</label>
-                <input type="text" id="crear-colonia" name="colonia" autocomplete="off" required>
+                <input type="text" id="crear-colonia" name="colonia" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
             </div>
             <div class="form-group">
                 <label for="crear-ciudad">Ciudad:</label>
-                <input type="text" id="crear-ciudad" name="ciudad" autocomplete="off" required>
+                <input type="text" id="crear-ciudad" name="ciudad" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
             </div>
             <div class="form-group">
                 <label for="crear-estado">Estado:</label>
-                <input type="text" id="crear-estado" name="estado" autocomplete="off" required>
+                <input type="text" id="crear-estado" name="estado" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
             </div>
             <div class="form-group">
                 <label for="crear-cpostal">Código postal:</label>

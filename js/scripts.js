@@ -109,31 +109,130 @@ function validarFormularioTienda(event) {
 
   if (nombre.length < 3) {
     errores.push("El nombre debe tener al menos 3 caracteres.");
+    const inputname = document.querySelector("#crear-nombre");
+    inputname.focus();
+    inputname.classList.add("input-error"); // Añade la clase de error
   }
+  // Elimina la clase de error al corregir
+  const inputname = document.querySelector("#crear-nombre");
+  inputname.addEventListener("input", () => {
+    if (inputname.value.length >= 3) {
+      inputname.classList.remove("input-error"); // Quita la clase si el campo es válido
+    }
+  });
+
   if (representante.length < 3) {
     errores.push("El representante debe tener al menos 3 caracteres.");
+    const inputrep = document.querySelector("#crear-representante");
+    inputrep.focus();
+    inputrep.classList.add("input-error"); // Añade la clase de error
   }
+  // Elimina la clase de error al corregir
+  const inputrep = document.querySelector("#crear-representante");
+  inputrep.addEventListener("input", () => {
+    if (inputrep.value.length >= 3) {
+      inputrep.classList.remove("input-error"); // Quita la clase si el campo es válido
+    }
+  });
+
   if (rfc.length < 12) {
     errores.push("El RFC debe tener al menos 12 caracteres.");
+    const inputrfc = document.querySelector("#crear-rfc");
+    inputrfc.focus();
+    inputrfc.classList.add("input-error"); // Añade la clase de error
   }
+  // Elimina la clase de error al corregir
+  const inputrfc = document.querySelector("#crear-rfc");
+  inputrfc.addEventListener("input", () => {
+    if (inputrfc.value.length >= 12) {
+      inputrfc.classList.remove("input-error"); // Quita la clase si el campo es válido
+    }
+  });
+
   if (domicilio.length < 3) {
     errores.push("La calle debe tener al menos 3 caracteres.");
+    const inputdomicilio = document.querySelector("#crear-domicilio");
+    inputdomicilio.focus();
+    inputdomicilio.classList.add("input-error"); // Añade la clase de error
   }
+  // Elimina la clase de error al corregir
+  const inputdomicilio = document.querySelector("#crear-domicilio");
+  inputdomicilio.addEventListener("input", () => {
+    if (inputdomicilio.value.length >= 3) {
+      inputdomicilio.classList.remove("input-error"); // Quita la clase si el campo es válido
+    }
+  });
+
   if (isNaN(parseInt(noexterior)) || parseInt(noexterior) < 1) {
     errores.push("El número exterior debe ser mayor a 0");
+    const inputnoexterior = document.querySelector("#crear-noexterior");
+    inputnoexterior.focus();
+    inputnoexterior.classList.add("input-error"); // Añade la clase de error
   }
+  // Elimina la clase de error al corregir
+  const inputnoexterior = document.querySelector("#crear-noexterior");
+  inputnoexterior.addEventListener("input", () => {
+    if (inputnoexterior.value.length >= 1) {
+      inputnoexterior.classList.remove("input-error"); // Quita la clase si el campo es válido
+    }
+  });
+
   if (isNaN(parseInt(nointerior)) || parseInt(nointerior) < 0) {
     errores.push("El número interior debe ser mayor o igual a 0");
+    const inputnointerior = document.querySelector("#crear-nointerior");
+    inputnointerior.focus();
+    inputnointerior.classList.add("input-error"); // Añade la clase de error
   }
+  // Elimina la clase de error al corregir
+  const inputnointerior = document.querySelector("#crear-nointerior");
+  inputnointerior.addEventListener("input", () => {
+    if (inputnointerior.value.length >= 1) {
+      inputnointerior.classList.remove("input-error"); // Quita la clase si el campo es válido
+    }
+  });
+
   if (colonia.length < 3) {
     errores.push("La colonia debe tener al menos 3 caracteres.");
+    const inputcolonia = document.querySelector("#crear-colonia");
+    inputcolonia.focus();
+    inputcolonia.classList.add("input-error"); // Añade la clase de error
   }
+  // Elimina la clase de error al corregir
+  const inputcolonia = document.querySelector("#crear-colonia");
+  inputcolonia.addEventListener("input", () => {
+    if (inputcolonia.value.length >= 3) {
+      inputcolonia.classList.remove("input-error"); // Quita la clase si el campo es válido
+    }
+  });
+
   if (ciudad.length < 3) {
     errores.push("La ciudad debe tener al menos 3 caracteres.");
+    const inputciudad = document.querySelector("#crear-ciudad");
+    inputciudad.focus();
+    inputciudad.classList.add("input-error"); // Añade la clase de error
   }
+  // Elimina la clase de error al corregir
+  const inputciudad = document.querySelector("#crear-ciudad");
+  inputciudad.addEventListener("input", () => {
+    if (inputciudad.value.length >= 3) {
+      inputciudad.classList.remove("input-error"); // Quita la clase si el campo es válido
+    }
+  });
+
   if (estado.length < 3) {
     errores.push("El estado debe tener al menos 3 caracteres.");
+    const inputestado = document.querySelector("#crear-estado");
+    inputestado.focus();
+    inputestado.classList.add("input-error"); // Añade la clase de error
   }
+  // Elimina la clase de error al corregir
+  const inputestado = document.querySelector("#crear-estado");
+  inputestado.addEventListener("input", () => {
+    if (inputestado.value.length >= 3) {
+      inputestado.classList.remove("input-error"); // Quita la clase si el campo es válido
+    }
+  });
+
   if (errores.length > 0) {
     Swal.fire({
       title: "Errores en el formulario",
@@ -167,7 +266,7 @@ function validarFormularioTienda(event) {
     });
 }
 function verificarDuplicado(nombre) {
-  console.log("Nombre:", nombre);
+  //console.log("Nombre:", nombre);
 
   return fetch("cruds/verificar_nombre.php", {
     method: "POST",
@@ -176,7 +275,7 @@ function verificarDuplicado(nombre) {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log("Respuesta de verificar_nombre.php:", data);
+      //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre de la tienda ya existe.");
       }
@@ -260,8 +359,8 @@ function mostrarAlerta(tipo, titulo, mensaje) {
 //Validar duplicados en edicion
 
 function verificarDuplicadoEditarTienda(nombre, id = 0) {
-  console.log("Nombre:", nombre);
-  console.log("ID (si aplica):", id);
+  //console.log("Nombre:", nombre);
+  //console.log("ID (si aplica):", id);
 
   return fetch("cruds/verificar_nombre.php", {
     method: "POST",
@@ -270,14 +369,14 @@ function verificarDuplicadoEditarTienda(nombre, id = 0) {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log("Respuesta de verificar_nombre.php:", data);
+      // console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre de la tienda ya existe.");
       }
       return data.existe;
     })
     .catch((error) => {
-      console.error("Error al verificar duplicado:", error);
+      //    console.error("Error al verificar duplicado:", error);
       return true; // Asume duplicado en caso de error
     });
 }
@@ -334,28 +433,61 @@ async function validarFormularioEdicion(formulario) {
     },
   ];
 
-  const errores = campos
-    .filter((campo) => {
-      const campoFormulario = document.getElementById(
-        `editar-${campo.nombrec}`
-      );
-      if (!campoFormulario) {
-        console.error(`El campo editar-${campo.nombrec} no se encontró.`);
-        return true; // Considerar como un error si el campo no existe
+  let primerError = null;
+  const errores = [];
+
+  // Validar cada campo
+  campos.forEach((campo) => {
+    const campoFormulario = document.getElementById(`editar-${campo.nombrec}`);
+    if (!campoFormulario) {
+      console.error(`El campo editar-${campo.nombrec} no se encontró.`);
+      return; // Continúa con el siguiente campo
+    }
+    campoFormulario.addEventListener("input", () => {
+      //Quita lo rojo del error al validar que es mayor o igual a su validación
+      if (campoFormulario.value.length >= campo.min) {
+        campoFormulario.classList.remove("input-error"); // Quita la clase si el campo es válido
       }
+    });
 
-      const valor = campoFormulario.value.trim();
+    const valor = campoFormulario.value.trim();
 
-      if (campo.numerico) {
-        return isNaN(parseInt(valor)) || parseInt(valor) < campo.min;
+    // Verificar si es numérico
+    if (campo.numerico) {
+      if (isNaN(parseInt(valor)) || parseInt(valor) < campo.min) {
+        errores.push(campo.mensaje);
+        campoFormulario.classList.add("input-error");
+        campoFormulario.focus(); // Establece el foco en el campo inválido
+        if (!primerError) primerError = campoFormulario; // Guardar el primer error
+      } else {
+        campoFormulario.addEventListener("input", () => {
+          if (campoFormulario.value.length >= campo.min) {
+            campoFormulario.classList.remove("input-error"); // Quita la clase si el campo es válido
+          }
+        });
+        campoFormulario.classList.remove("input-error");
       }
+    } else {
+      // Validar por longitud mínima
+      if (valor.length < campo.min) {
+        errores.push(campo.mensaje);
+        campoFormulario.classList.add("input-error");
+        campoFormulario.focus(); // Establece el foco en el campo inválido
+        if (!primerError) primerError = campoFormulario; // Guardar el primer error
+      } else {
+        campoFormulario.classList.remove("input-error");
+      }
+    }
+  });
 
-      return valor.length < campo.min;
-    })
-    .map((campo) => campo.mensaje);
-
+  // Si hay errores, mostrar la alerta y enfocar el primer campo con error
   if (errores.length > 0) {
-    mostrarAlerta("error", "Errores en el formulario", errores.join("<br>"));
+    Swal.fire({
+      title: "Errores en el formulario",
+      html: errores.join("<br>"),
+      icon: "error",
+    });
+    if (primerError) primerError.focus(); // Enfocar el primer campo con error
     return;
   }
 
@@ -365,7 +497,6 @@ async function validarFormularioEdicion(formulario) {
 
   try {
     const esDuplicado = await verificarDuplicadoEditarTienda(nombre, id);
-    console.log("Nombre duplicado:", esDuplicado);
     if (esDuplicado) {
       return; // No enviar el formulario si hay duplicados
     } else {
