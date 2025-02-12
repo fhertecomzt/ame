@@ -52,7 +52,7 @@ $roles = obtenerRoles($dbh);
     <div class="modal-content" style="height: 269px;">
         <span title="Cerrar" class="close" onclick="cerrarModalRol('crear-modalRol')">&times;</span>
         <h2 class="tittle">Crear Rol</h2>
-        <form id="form-crearRol" onsubmit="procesarFormularioRol(event, 'crear')">
+        <form id="form-crearRol" onsubmit="validarFormularioRol(event)">
 
             <div class="form-group">
                 <label for="crear-rol">Nombre del Rol:</label>
@@ -80,8 +80,8 @@ $roles = obtenerRoles($dbh);
                 <input type="text" id="editar-rol" name="rol" autocomplete="off" required>
             </div>
             <div class="form-group">
-                <label for="editar_desc_rol">Descripción:</label>
-                <input type="text" id="editar_desc_rol" name="desc_rol" autocomplete="off" required>
+                <label for="editar-desc_rol">Descripción:</label>
+                <input type="text" id="editar-desc_rol" name="desc_rol" autocomplete="off" required>
             </div>
             <button type="submit">Actualizar</button>
         </form>

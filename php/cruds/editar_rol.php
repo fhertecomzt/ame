@@ -1,5 +1,5 @@
 <?php
-
+//Includes
 include "../conexion.php";
 
 // Inicializamos la respuesta
@@ -11,54 +11,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   $rol = $_POST["rol"] ?? null;
   $descripcion = $_POST["desc_rol"] ?? null;
 
-  // Sanitización y validación de datos
-  $idrol = filter_var($idrol, FILTER_SANITIZE_NUMBER_INT);
-  if (!$idrol || !filter_var($idrol, FILTER_VALIDATE_INT)) {
-    $response["message"] = "El ID del rol es inválido.";
-    echo json_encode($response);
-    exit;
-  }
-
-  $rol = filter_var($rol, FILTER_SANITIZE_STRING);
-  if (empty($rol)) {
-    $response["message"] = "El nombre del rol es obligatorio.";
-    echo json_encode($response);
-    exit;
-  }
-
-  $descripcion = filter_var($descripcion, FILTER_SANITIZE_STRING);
-  if (empty($descripcion)) {
-    $response["message"] = "La descripción del rol es obligatoria.";
-    echo json_encode($response);
-    exit;
-  }
-
-  // **Validación de tamaño máximo**
-  if (strlen($rol) > 20) {
-    $response["message"] = "El nombre del rol no debe exceder los 20 caracteres.";
-    echo json_encode($response);
-    exit;
-  }
-
-  if (strlen($descripcion) > 100) {
-    $response["message"] = "La descripción no debe exceder los 100 caracteres.";
-    echo json_encode($response);
-    exit;
-  }
-
   try {
     // Preparar la consulta SQL
     $stmt = $dbh->prepare(
       "UPDATE roles 
-             SET nomrol = :rol, descrol = :descripcion 
-             WHERE idrol = :idrol"
+         SET nomrol = :rol, 
+             descrol = :descripcion 
+       WHERE idrol = :id"
     );
 
     // Ejecutar la consulta con los parámetros
     $stmt->execute([
       ":rol" => $rol,
       ":descripcion" => $descripcion,
-      ":idrol" => $idrol,
+      ":id" => $idrol
     ]);
 
     // Verificamos si hubo una actualización

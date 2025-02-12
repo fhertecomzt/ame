@@ -3,29 +3,33 @@ include "../conexion.php";
 
 $response = ["success" => false, "message" => ""];
 
-if (!empty($_GET['id'])) {
+// Validar si el ID es proporcionado y es un número
+if (!empty($_GET['id']) && ctype_digit($_GET['id'])) {
   $idrol = $_GET['id'];
 
   try {
+    // Consulta segura con consulta preparada
     $stmt = $dbh->prepare("SELECT * FROM roles WHERE idrol = ?");
     $stmt->execute([$idrol]);
     $rol = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($rol) {
+      // Sanitizar datos antes de enviarlos en la respuesta (Llenar campos)
       $response["success"] = true;
       $response["rol"] = [
-        "id" => $rol["idrol"],
-        "nombre" => $rol["nomrol"],
-        "descripcion" => $rol["descrol"]
+        "idrol" => htmlspecialchars($rol["idrol"]),
+        "rol" => htmlspecialchars($rol["nomrol"]),
+        "desc_rol" => htmlspecialchars($rol["descrol"])
       ];
     } else {
       $response["message"] = "Rol no encontrado.";
     }
   } catch (PDOException $e) {
-    $response["message"] = "Error al obtener el Rol: " . $e->getMessage();
+    // Respuesta genérica en caso de error
+    $response["message"] = "Hubo un error al procesar la solicitud. Intente más tarde.";
   }
 } else {
-  $response["message"] = "ID de rol no proporcionado.";
+  $response["message"] = "ID de tienda no proporcionado o inválido.";
 }
-
+// Enviar respuesta en formato JSON
 echo json_encode($response);

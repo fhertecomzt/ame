@@ -287,7 +287,7 @@ function verificarDuplicado(nombre) {
     });
 }
 
-//Editar************
+//Editar tienda *************************************
 document.addEventListener("DOMContentLoaded", function () {
   // Escuchar clic en el botón de editar
   document.body.addEventListener("click", function (event) {
@@ -318,7 +318,7 @@ document.addEventListener("DOMContentLoaded", function () {
               campos.forEach((campo) => {
                 formulario[`editar-${campo}`].value = data.tienda[campo] || "";
               });
-
+             // console.log("Ese fer", campos); 
               abrirModal("editar-modal");
             } else {
               console.error("Formulario de edición no encontrado.");
@@ -494,6 +494,8 @@ async function validarFormularioEdicion(formulario) {
   // Verificar duplicado antes de enviar el formulario
   const nombre = document.getElementById("editar-nombre").value.trim();
   const id = document.getElementById("editar-id").value;
+  //console.log("Ver verificado duplicado id: ", id);
+  //console.log("Ver verificado duplicado nombre: ", id);
 
   try {
     const esDuplicado = await verificarDuplicadoEditarTienda(nombre, id);
@@ -710,7 +712,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-// Llamar pagina de roles *********************************************
+// Llamar pagina de roles ***************************************************************************************************************
 document
   .getElementById("roles-link")
   .addEventListener("click", function (event) {
@@ -735,7 +737,7 @@ function cerrarModalRol(id) {
 }
 
 function procesarFormularioRol(event, tipo) {
-  event.preventDefault();
+  event.preventDefault();//Para que no recergue la pagina
   const formData = new FormData(event.target);
 
   fetch(`cruds/procesar_${tipo}_rol.php`, {
@@ -768,113 +770,331 @@ function procesarFormularioRol(event, tipo) {
         }
 
         // Mostrar un mensaje de éxito
-        //alert(data.message);
         Swal.fire({
           title: "¡Éxito!",
-          text: "La acción se realizó correctamente.",
+          text: data.message, // Usar el mensaje del backend
           icon: "success",
         });
       } else {
-        // Mostrar un mensaje de error
-        //alert(`Error: ${data.message}`);
+        // Mostrar un mensaje de error específico del backend
         Swal.fire({
           title: "Error",
-          text: "Ocurrió un problema.",
+          text: data.message || "Ocurrió un problema.", // Mostrar el mensaje específico si existe
           icon: "error",
         });
       }
     })
-    .catch((error) => console.error("Error:", error));
+    .catch((error) => {
+      // Manejar errores inesperados
+      console.error("Error:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Ocurrió un error inesperado. Intente más tarde.",
+        icon: "error",
+      });
+    });
 }
-//Para editar rol
+function validarFormularioRol(event) {
+  event.preventDefault();
+
+  const nombre_rol = document.querySelector("[name='rol']").value.trim();
+  const desc_rol = document.querySelector("[name='desc_rol']").value.trim();
+
+  const errores = [];
+
+  if (nombre_rol.length < 3) {
+    errores.push("El nombre debe tener al menos 3 caracteres.");
+    const inputname = document.querySelector("#crear-rol");
+    inputname.focus();
+    inputname.classList.add("input-error"); // Añade la clase de error
+  }
+  // Elimina la clase de error al corregir
+  const inputname = document.querySelector("#crear-rol");
+  inputname.addEventListener("input", () => {
+    if (inputname.value.length >= 3) {
+      inputname.classList.remove("input-error"); // Quita la clase si el campo es válido
+    }
+  });
+
+  if (desc_rol.length < 3) {
+    errores.push("La descripción debe tener al menos 3 caracteres.");
+    const inputdesc = document.querySelector("#crear-desc_rol");
+    inputdesc.focus();
+    inputdesc.classList.add("input-error"); // Añade la clase de error
+  }
+  // Elimina la clase de error al corregir
+  const inputdesc = document.querySelector("#crear-desc_rol");
+  inputdesc.addEventListener("input", () => {
+    if (inputdesc.value.length >= 3) {
+      inputdesc.classList.remove("input-error"); // Quita la clase si el campo es válido
+    }
+  });
+
+  if (errores.length > 0) {
+    Swal.fire({
+      title: "Errores en el formulario",
+      html: errores.join("<br>"),
+      icon: "error",
+    });
+    return;
+  }
+
+  // Verificar duplicados
+  verificarDuplicadoRol(nombre_rol)
+    .then((esDuplicado) => {
+      if (esDuplicado) {
+        Swal.fire({
+          title: "Error",
+          text: "El nombre del Rol ya existe. Por favor, elige otro.",
+          icon: "error",
+        });
+      } else {
+        // Si no hay errores, enviar el formulario
+        procesarFormularioRol(event, "crear");
+      }
+    })
+    .catch((error) => {
+      console.error("Error al verificar duplicados:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Ocurrió un problema al validar el nombre.",
+        icon: "error",
+      });
+    });
+}
+function verificarDuplicadoRol(nombre_rol) {
+  //console.log("Nombre verificar:", nombre_rol); 
+
+  return fetch("cruds/verificar_nombre_rol.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nombre_rol }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Respuesta de verificar_nombre.php:", data);
+      if (data.existe) {
+        mostrarAlerta("error", "Error", "El nombre del Rol ya existe.");
+      }
+      return data.existe;
+    })
+    .catch((error) => {
+      console.error("Error al verificar duplicado:", error);
+      return true; // Asume duplicado en caso de error
+    });
+}
+//Editar rol************************************************************
 document.addEventListener("DOMContentLoaded", function () {
+  // Escuchar clic en el botón de editar
   document.addEventListener("click", function (event) {
     if (event.target.classList.contains("editarRol")) {
       const id = event.target.dataset.id;
-      console.log("Botón editar clickeado. ID:", id);
+      //console.log("Botón editar clickeado. ID:", id);
 
       fetch(`cruds/obtener_rol.php?id=${id}`)
         .then((response) => response.json())
         .then((data) => {
-          console.log("Datos recibidos del servidor:", data);
-
+        //console.log("Datos recibidos del servidor:", data);
           if (data.success) {
             const formularioRol = document.getElementById("form-editarRol");
             if (formularioRol) {
-              formularioRol["editar-idrol"].value = data.rol.id || "";
-              formularioRol["editar-rol"].value = data.rol.nombre || "";
-              formularioRol["editar_desc_rol"].value =
-                data.rol.descripcion || "";
-
+              const campos =[
+                "idrol",
+                "rol",
+                "desc_rol",
+              ];
+              campos.forEach((campo) =>{
+               // console.log(`Asignando ${campo}:`, data.rol[campo]);
+                formularioRol[`editar-${campo}`].value = data.rol[campo] || "";
+              });             
               abrirModalRol("editar-modalRol");
             } else {
               console.error("Formulario de edición no encontrado.");
             }
           } else {
-            alert(data.message || "Error al cargar los datos del Rol.");
+            mostrarAlerta(
+              "error",
+              "Error",
+              data.message || "No se pudo cargar el Rol."
+            );
           }
         })
-        .catch((error) => console.error("Error al obtener Rol:", error));
+        .catch((error) => {
+          console.error("Error al obtener Rol:", error);
+          mostrarAlerta(
+            "error",
+            "Error",
+            "Ocurrió un problema al obtener los datos."
+          );
+        });
     }
   });
 
-  // Delegación de eventos para el formulario dinámico
+   // Validar y enviar el formulario de edición
   document.body.addEventListener("submit", function (event) {
     if (event.target && event.target.id === "form-editarRol") {
       event.preventDefault(); // Esto evita el comportamiento predeterminado de recargar la página.
+      validarFormularioEdicionRol(event.target);
+    }
+  });
+});
 
-      const formData = new FormData(event.target);
+// Función genérica para mostrar alertas
+function mostrarAlerta(tipo, titulo, mensaje) {
+  Swal.fire({ title: titulo, text: mensaje, icon: tipo });
+}
 
+//Validar duplicados en edicion rol
+function verificarDuplicadoEditarRol(rol, id = 0) {
+  //console.log("Validando duplicados. ID:", id, "Rol:", rol);
+
+  return fetch("cruds/verificar_nombre_rol.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ rol, id }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      // console.log("Respuesta de verificar_nombre.php:", data);
+      if (data.existe) {
+        mostrarAlerta("error", "Error", "El nombre del Rol ya existe.");
+      }
+      return data.existe;
+    })
+    .catch((error) => {
+      console.error("Error al verificar duplicado:", error);
+      return true; // Asume duplicado en caso de error
+    });
+}
+// Validación del formulario de edición Rol
+async function validarFormularioEdicionRol(formulario) {
+  const campos = [
+    {
+      nombre: "rol",
+      min: 3,
+      mensaje: "El rol debe tener al menos 3 caracteres.",
+    },
+    {
+      nombre: "desc_rol",
+      min: 3,
+      mensaje: "La descripción debe tener al menos 3 caracteres.",
+    },
+  ];
+  let primerError = null;
+  const errores = [];
+  
+   // Validar cada campo
+  campos.forEach((campo) => {
+    const campoFormulario = document.getElementById(`editar-${campo.nombre}`);
+    if (!campoFormulario) {
+      console.error(`El campo editar-${campo.nombre} no se encontró.`);
+      return; // Continúa con el siguiente campo
+    }
+    campoFormulario.addEventListener("input", () => {
+      //Quita lo rojo del error al validar que es mayor o igual a su validación
+      if (campoFormulario.value.length >= campo.min) {
+        campoFormulario.classList.remove("input-error"); // Quita la clase si el campo es válido
+      }
+    });
+const valor = campoFormulario.value.trim();
+      // Validar por longitud mínima
+      if (valor.length < campo.min) {
+        errores.push(campo.mensaje);
+        campoFormulario.classList.add("input-error");
+        campoFormulario.focus(); // Establece el foco en el campo inválido
+        if (!primerError) primerError = campoFormulario; // Guardar el primer error
+      } else {
+        campoFormulario.classList.remove("input-error");
+      }
+    });
+    // Si hay errores, mostrar la alerta y enfocar el primer campo con error
+  if (errores.length > 0) {
+    Swal.fire({
+      title: "Errores en el formulario",
+      html: errores.join("<br>"),
+      icon: "error",
+    });
+    if (primerError) primerError.focus(); // Enfocar el primer campo con error
+    return;
+  }
+
+  // Verificar duplicado antes de enviar el formulario
+  const rolInput = document.getElementById("editar-rol");
+  const idInput = document.getElementById("editar-idrol");
+  if(!rolInput || !idInput){
+    console.log("Error: No se encontró el campo de Rol o ID.");
+    return;
+  }
+  const rol = rolInput.value.trim();
+  const id = idInput.value;
+
+  try {
+    //console.log("Verificando duplicado. ID:", id, "Rol:", rol);
+    const esDuplicado = await verificarDuplicadoEditarRol(rol, id);    
+    if (esDuplicado) {
+      return; // No enviar el formulario si hay duplicados
+    } else {
+      //cerrarModalRol("editar-modalRol");
+      enviarFormularioEdicionRol(formulario); // Proceder si no hay duplicados
+    }
+  } catch (error) {
+    console.error("Error al verificar duplicado:", error);
+  }
+}
+// Enviar formulario de edición rol
+function enviarFormularioEdicionRol(formulario) {
+  if (!formulario) {
+    console.error("El formulario no se encontró.");
+    return;
+  }
+  const formData = new FormData(formulario);
+    
       fetch("cruds/editar_rol.php", {
         method: "POST",
         body: formData,
       })
         .then((response) => response.json())
         .then((data) => {
-          //Prueba console.log("Respuesta del servidorEdit:", data); // Para depuración
+          //console.log("Respuesta del servidorEdit:", data);
           if (data.success) {
-            // Mensaje de éxito con SweetAlert
             Swal.fire({
               title: "¡Éxito!",
               text:
                 data.message || "La actualización se realizó correctamente.",
               icon: "success",
             });
-
             // Actualizar la fila de la tabla sin recargar
-            const fila = document
-              .querySelector(
-                `button[data-id="${formData.get("editar-idrol")}"]`
-              )
-              .closest("tr");
-            if (fila) {
-              fila.cells[0].textContent = formData.get("rol");
-              fila.cells[1].textContent = formData.get("desc_rol");
+            actualizarFilaTablaRol(formData);
+            cerrarModal("editar-modalRol");
+            } else {
+              mostrarAlerta(
+                "error",
+                "Error",
+                data.message || "No se pudo actualizar la tienda."
+              );
             }
-            cerrarModalRol("editar-modalRol");
-          } else {
-            // Mensaje de error o advertencia del servidor con SweetAlert
-            Swal.fire({
-              title: "Atención",
-              text: data.message || "Hubo un error al actualizar el registro.",
-              icon: "warning",
-            });
-          }
         })
         .catch((error) => {
-          console.error("Error al intentar actualizar el registro:", error);
-          // Mensaje de error general con SweetAlert
-          Swal.fire({
-            title: "Error",
-            text: "Ocurrió un problema al intentar el registro.",
-            icon: "error",
-          });
+          console.error("Error al actualizar tienda:", error);
+          mostrarAlerta(
+            "error",
+            "Error",
+            "Ocurrió un problema al actualizar la tienda."
+            );
         });
+  }
+// Actualizar fila de la tabla
+function actualizarFilaTablaRol(formData) {
+  const fila = document
+    .querySelector(`button[data-id="${formData.get("editar-idrol")}"]`)
+    .closest("tr");
+    //console.log(formData.get("editar-idrol"));
+    if (fila) {
+      fila.cells[0].textContent = formData.get("rol");
+      fila.cells[1].textContent = formData.get("desc_rol");
     }
-  });
-});
-
-// Eliminar
+}
+// Eliminar rol
 document.addEventListener("click", function (event) {
   if (event.target.classList.contains("eliminarRol")) {
     const id = event.target.dataset.id;

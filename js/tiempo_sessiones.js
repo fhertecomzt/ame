@@ -18,10 +18,10 @@ document.addEventListener("scroll", actualizarActividad);
 // Verificar periódicamente si se excedió el tiempo de inactividad
 setInterval(() => {
   const tiempoActual = Date.now();
-  const tiempoInactivo = (tiempoActual - tiempoUltimaActividad) / 3500; // Convertir a segundos
+  const tiempoInactivo = (tiempoActual - tiempoUltimaActividad) / 1000; // Convertir a segundos
 
   // Mostrar advertencia 1 minuto antes de la redirección
-  if (tiempoInactivo > tiempoInactividad - 3550 && !advertenciaMostrada) {
+  if (tiempoInactivo > tiempoInactividad - 3000 && !advertenciaMostrada) {
     // 170 antes y 540 son 10 min
     console.log("Tu sesión está a punto de expirar.");
     alert("Tu sesión está a punto de expirar en menos de un minuto.");

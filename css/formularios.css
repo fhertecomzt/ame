@@ -96,11 +96,19 @@ select {
   outline: none;
   padding-left: 15px;
   transition: 0.3s ease;
-  width: 100%;
+  width: 94%;
 }
 .form-group input:focus,
 .form-group input:valid {
   border-color: skyblue;
+}
+/*Para validaciones en tiempo real*/
+.form-group .crearNameIcon {
+  color: #888;
+  font-size: 20px;
+  position: absolute;
+  right: 39%;
+  transform: translateY(17%);
 }
 form .button {
   width: 40%;

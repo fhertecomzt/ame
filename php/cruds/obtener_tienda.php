@@ -41,6 +41,5 @@ if (!empty($_GET['id']) && ctype_digit($_GET['id'])) {
 } else {
   $response["message"] = "ID de tienda no proporcionado o inválido.";
 }
-
 // Enviar respuesta en formato JSON
 echo json_encode($response);
