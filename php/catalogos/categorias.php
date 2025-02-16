@@ -21,11 +21,11 @@ $categorias = obtenerCategorias($dbh);
     <input class="buscar--box" id="buscarboxcat" type="search" placeholder="Qué estas buscando?">
 </div>
 
-<h3>Lista de categorias</h3>
+<h3>Lista de categorías</h3>
 <table border="1" id="tabla-categorias">
     <thead>
         <tr>
-            <th>Categoria</th>
+            <th>Categoría</th>
             <th>Descripción</th>
             <th>Acciones</th>
         </tr>
@@ -50,12 +50,15 @@ $categorias = obtenerCategorias($dbh);
 <div id="crear-modalCat" class="modal" style="display: none;">
     <div class="modal-content" style="height: 269px;">
         <span title="Cerrar" class="close" onclick="cerrarModalCat('crear-modalCat')">&times;</span>
-        <h2 class="tittle">Crear Cat</h2>
-        <form id="form-crearCat" onsubmit="procesarFormularioCat(event, 'crear')">
+        <h2 class="tittle">Crear Categoría</h2>
+        <form id="form-crearCat" onsubmit="validarFormularioCat(event, 'crear')">
 
             <div class="form-group">
-                <label for="crear-cat">Nombre de la categoria:</label>
-                <input type="text" id="crear-cat" name="cat" autocomplete="off" required>
+                <label for="crear-cat">Nombre:</label>
+                <input type="text" id="crear-cat" name="cat" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
             </div>
 
             <div class="form-group">
@@ -71,16 +74,19 @@ $categorias = obtenerCategorias($dbh);
 <div id="editar-modalCat" class="modal" style="display: none;">
     <div class="modal-content" style="height: 269px;">
         <span title="Cerrar" class="close" onclick="cerrarModalCat('editar-modalCat')">&times;</span>
-        <h2 class="tittle">Editar Cat</h2>
+        <h2 class="tittle">Editar Categoría</h2>
         <form id="form-editarCat">
             <input type="hidden" id="editar-idcat" name="editar-idcat" value="" />
             <div class="form-group">
-                <label for="editar-cat">Nombre del Cat:</label>
-                <input type="text" id="editar-cat" name="cat" autocomplete="off" required>
+                <label for="editar-cat">Nombre:</label>
+                <input type="text" id="editar-cat" name="cat" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
             </div>
             <div class="form-group">
-                <label for="editar_desc_cat">Descripción:</label>
-                <input type="text" id="editar_desc_cat" name="desc_cat" autocomplete="off" required>
+                <label for="editar-desc_cat">Descripción:</label>
+                <input type="text" id="editar-desc_cat" name="desc_cat" autocomplete="off" required>
             </div>
             <button type="submit">Actualizar</button>
         </form>

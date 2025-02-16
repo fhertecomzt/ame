@@ -44,3 +44,51 @@ function obtenerCategorias($dbh)
   $stmt->execute();
   return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+function obtenerUmedidas($dbh)
+{
+  $stmt = $dbh->prepare("SELECT * FROM umedidas");
+  $stmt->execute();
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+function obtenerMarcas($dbh)
+{
+  $stmt = $dbh->prepare("SELECT * FROM marcas");
+  $stmt->execute();
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+function obtenerTallas($dbh)
+{
+  $stmt = $dbh->prepare("SELECT * FROM tallas");
+  $stmt->execute();
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+function obtenerColores($dbh)
+{
+  $stmt = $dbh->prepare("SELECT * FROM colores");
+  $stmt->execute();
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+function obtenerGeneros($dbh)
+{
+  $stmt = $dbh->prepare("SELECT * FROM generos");
+  $stmt->execute();
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+function obtenerEstilos($dbh)
+{
+  $stmt = $dbh->prepare("SELECT * FROM estilos");
+  $stmt->execute();
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+function obtenerMpagos($dbh)
+{
+  $stmt = $dbh->prepare("SELECT * FROM mpagos");
+  $stmt->execute();
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+function obtenerImpuestos($dbh)
+{
+  $stmt = $dbh->prepare("SELECT * FROM impuestos");
+  $stmt->execute();
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}

@@ -6,135 +6,25 @@ if (!isset($_SESSION['idusuario']) || ($_SESSION["rol"] !== "SISTEMAS" && $_SESS
     exit;
 }
 
+//Includes
 include "../conexion.php";
+include "../funciones/funciones.php";
 
-function obtenerUmedidas($dbh)
-{
-    $stmt = $dbh->prepare("SELECT * FROM umedidas");
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function obtenerUmedida($dbh, $idumedida)
-{
-    $stmt = $dbh->prepare("SELECT * FROM umedidas WHERE idumedida = :idumedida");
-    $stmt->bindParam(':idumedida', $idumedida);
-    $stmt->execute();
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-}
-
-function crearUmedida($dbh, $data)
-{
-    // Validación de datos
-    if (empty($data['nomumedida'])) {
-        return false;
-    }
-    $stmt = $dbh->prepare("INSERT INTO umedidas (nomumedida, descumedida) VALUES (:nomumedida, :descumedida)");
-
-    $params = [
-        ':nomumedida' => $data['nomumedida'],
-        ':descumedida' => $data['descumedida'],
-    ];
-
-    // Para Debug var_dump($params); Aquí verificamos si manda todos los datos esperados
-    if ($stmt->execute($params)) {
-        return true; //Indicamos que tuvimos exito
-    } else {
-        $errorInfo = $stmt->errorInfo();
-        error_log(print_r($errorInfo, true)); // Esto te ayudará a ver el error en el log
-        return false;
-    }
-}
-
-function actualizarUmedida($dbh, $data)
-{
-    $stmt = $dbh->prepare("UPDATE umedidas SET nomumedida = :nomumedida, descumedida = :descumedida WHERE idumedida = :idumedida");
-    return $stmt->execute($data);
-}
-
-function eliminarUmedida($dbh, $idumedida)
-{
-    $stmt = $dbh->prepare("DELETE FROM umedidas WHERE idumedida = :idumedida");
-    $stmt->bindParam(':idumedida', $idumedida);
-    return $stmt->execute();
-}
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nomumedida = filter_input(INPUT_POST, 'nomumedida', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $descumedida = filter_input(INPUT_POST, 'descumedida', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $idumedida = filter_input(INPUT_POST, 'idumedida', FILTER_SANITIZE_NUMBER_INT); // Obtener el ID del usuario
-
-    if (empty($nomumedida) || strlen($nomumedida) < 4) {
-        $error = "El nombre de la umedida debe tener al menos 4 caracteres.";
-    } elseif (empty(trim($nomumedida))) {
-        $error = "Los campos no pueden estar vacios";
-    } else {
-
-        $data = [
-            ':nomumedida' => $nomumedida,
-            ':descumedida' => $descumedida,
-            ':idumedida' => $idumedida
-        ];
-
-        if ($idumedida) {
-            // Actualizar umedida
-            $data[':idumedida'] = $idumedida;
-            if (actualizarUmedida($dbh, $data)) {
-                $success = "Umedida actualizado exitosamente";
-            } else {
-                $error = "Error al actualizar la Umedida"
-                    . implode(", ", $stmt->errorInfo());
-            }
-        } else {
-            // Crear nueva Umedida, todos los campos a insertar
-            if (crearUmedida($dbh, ['nomumedida' => $nomumedida, 'descumedida' => $descumedida])) {
-                $success = "Umedida creada exitosamente";
-            } else {
-                $error = "Error al crear el Umedida";
-            }
-        }
-    }
-}
-
-if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['idumedida'])) {
-    if (eliminarUmedida($dbh, filter_input(INPUT_GET, 'idumedida', FILTER_SANITIZE_NUMBER_INT))) {
-        $success = "Umedida eliminado exitosamente";
-    } else {
-        $error = "Error al eliminar el Umedida";
-    }
-}
 
 $umedidas = obtenerUmedidas($dbh);
-$nomumedida = isset($_GET['idumedida']) ? obtenerUmedida($dbh, filter_input(INPUT_GET, 'idumedida', FILTER_SANITIZE_NUMBER_INT)) : null;
+
 ?>
 
-<div class="container">
-    <div class="tittle">Formulario de Unidades de medidas</div>
-    <?php include "../mensajeestado.php"; ?>
-    <form method="post" action="umedidas.php" id="frmUmedidas">
-        <input type="hidden" name="idumedida" value="<?php echo htmlspecialchars($nomumedida['idumedida'] ?? ''); ?>">
-        <div class="form-group">
-            <span>Unidad de medida:</span>
-            <input type="text" id="nomumedida" name="nomumedida" autocomplete="off" placeholder="Debe contener al menos 4 caracteres" value="<?php echo htmlspecialchars($nomumedida['nomumedida'] ?? ''); ?>" required>
-        </div>
-        <div class="form-group">
-            <span>Descripción:</span>
-            <input type="text" id="descumedida" name="descumedida" autocomplete="off" value="<?php echo htmlspecialchars($nomumedida['descumedida'] ?? ''); ?>">
-        </div>
-        <div class="button">
-            <input type="button" id="botonNuevo" onclick="limpiarFormularioUmedidas(); cambiarTextoBoton();" value="Nuevo">
-        </div>
-        <div class="button">
-            <input type="submit" id="botonGuardarActualizar" value="<?php echo isset($nomumedida) ? 'Actualizar' : 'Guardar'; ?>"></input>
-        </div>
-    </form>
+<div class="containerr">
+    <button class="boton" onclick="abrirModalUmed('crear-modalUmed')">Nuevo</button>
+    <label class="buscarlabel" for="buscarboxumed">Buscar:</label>
+    <input class="buscar--box" id="buscarboxumed" type="search" placeholder="Qué estas buscando?">
 </div>
 
-<h3>Lista de Unidades de medidas</h3>
-<table border="1">
+<h3>Lista de unidad de medida</h3>
+<table border="1" id="tabla-umed">
     <thead>
         <tr>
-            <th>Id</th>
             <th>U. Medida</th>
             <th>Descripción</th>
             <th>Acciones</th>
@@ -143,15 +33,62 @@ $nomumedida = isset($_GET['idumedida']) ? obtenerUmedida($dbh, filter_input(INPU
     <tbody>
         <?php foreach ($umedidas as $u): ?>
             <tr>
-                <td><?php echo $u['idumedida']; ?></td>
                 <td><?php echo htmlspecialchars($u['nomumedida']); ?></td>
                 <td><?php echo htmlspecialchars($u['descumedida']); ?></td>
                 <td>
-                    <a href="#" title="Editar" onclick="cargarEditarUmedida(<?php echo $u['idumedida']; ?>); return false;"><i id="btneditar" class="fa-solid fa-pen-to-square"></i></a>
-                    &nbsp;&nbsp; &nbsp;
-                    <a href="#" title="Eliminar" onclick="eliminarUmedida(<?php echo $u['idumedida']; ?>); return false;"><i id="btneliminar" class="fa-solid fa-trash"></i></a>
+                    <button title="Editar" class="editarUmed fa-solid fa-pen-to-square" data-id="<?php echo $u['idumedida']; ?>"></button>
+                    <button title="Eliminar" class="eliminarUmed fa-solid fa-trash" data-id="<?php echo $u['idumedida']; ?>"></button>
                 </td>
             </tr>
         <?php endforeach; ?>
     </tbody>
 </table>
+<!-- Mensaje no encuentra resultados -->
+<p id="mensaje-vacio" style="display: none; color: red;">No se encontraron resultados.</p>
+
+<!-- Modal para crear U Medida -->
+<div id="crear-modalUmed" class="modal" style="display: none;">
+    <div class="modal-content" style="height: 269px;">
+        <span title="Cerrar" class="close" onclick="cerrarModalUmed('crear-modalUmed')">&times;</span>
+        <h2 class="tittle">Crear U. de medida</h2>
+        <form id="form-crearUmed" onsubmit="validarFormularioUmed(event, 'crear')">
+
+            <div class="form-group">
+                <label for="crear-umed">Nombre:</label>
+                <input type="text" id="crear-umed" name="umed" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-desc_umed">Descripción:</label>
+                <input type="text" id="crear-desc_umed" name="desc_umed" autocomplete="off" required>
+            </div>
+            <button type="submit">Guardar</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para editar U Medida -->
+<div id="editar-modalUmed" class="modal" style="display: none;">
+    <div class="modal-content" style="height: 269px;">
+        <span title="Cerrar" class="close" onclick="cerrarModalUmed('editar-modalUmed')">&times;</span>
+        <h2 class="tittle">Editar U. Medida</h2>
+        <form id="form-editarUmed">
+            <input type="hidden" id="editar-idumed" name="editar-idumed" value="" />
+            <div class="form-group">
+                <label for="editar-umed">Nombre:</label>
+                <input type="text" id="editar-umed" name="umed" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
+            </div>
+            <div class="form-group">
+                <label for="editar-desc_umed">Descripción:</label>
+                <input type="text" id="editar-desc_umed" name="desc_umed" autocomplete="off" required>
+            </div>
+            <button type="submit">Actualizar</button>
+        </form>
+    </div>
+</div>

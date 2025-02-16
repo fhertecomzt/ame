@@ -5,31 +5,31 @@ $response = ["success" => false, "message" => ""];
 
 // Validar si el ID es proporcionado y es un número
 if (!empty($_GET['id']) && ctype_digit($_GET['id'])) {
-  $idrol = $_GET['id'];
+  $idtalla = $_GET['id'];
 
   try {
     // Consulta segura con consulta preparada
-    $stmt = $dbh->prepare("SELECT * FROM roles WHERE idrol = ?");
-    $stmt->execute([$idrol]);
-    $rol = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt = $dbh->prepare("SELECT * FROM tallas WHERE idtalla = ?");
+    $stmt->execute([$idtalla]);
+    $talla = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($rol) {
+    if ($talla) {
       // Sanitizar datos antes de enviarlos en la respuesta (Llenar campos)
       $response["success"] = true;
-      $response["rol"] = [
-        "idrol" => htmlspecialchars($rol["idrol"]),
-        "rol" => htmlspecialchars($rol["nomrol"]),
-        "desc_rol" => htmlspecialchars($rol["descrol"])
+      $response["talla"] = [
+        "idtalla" => htmlspecialchars($talla["idtalla"]),
+        "talla" => htmlspecialchars($talla["nomtalla"]),
+        "desc_talla" => htmlspecialchars($talla["desctalla"])
       ];
     } else {
-      $response["message"] = "Rol no encontrado.";
+      $response["message"] = "No sé encontro.";
     }
   } catch (PDOException $e) {
     // Respuesta genérica en caso de error
     $response["message"] = "Hubo un error al procesar la solicitud. Intente más tarde.";
   }
 } else {
-  $response["message"] = "ID no proporcionado o inválido.";
+  $response["message"] = "ID de tienda no proporcionado o inválido.";
 }
 // Enviar respuesta en formato JSON
 echo json_encode($response);

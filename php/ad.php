@@ -113,7 +113,7 @@ $_SESSION['last_token'] = $current_token;*/
                 </li>
                 <li><a href="#">
                         <i class="fa-solid fa-folder-tree"></i>
-                        <span>CATALOGOS</span>
+                        <span>CATÁLOGOS</span>
                     </a>
                     <ul>
                         <li>
@@ -156,7 +156,7 @@ $_SESSION['last_token'] = $current_token;*/
                         <li>
                             <a href="#" id="generos-link">
                                 <i class="fa-solid fa-venus-mars"></i>
-                                <span>GENEROS</span>
+                                <span>GÉNEROS</span>
                             </a>
                         </li>
                         <li>
@@ -168,7 +168,7 @@ $_SESSION['last_token'] = $current_token;*/
                         <li>
                             <a href="#" id="mpagos-link">
                                 <i class="fa-solid fa-file-invoice-dollar"></i>
-                                <span>METODOS DE PAGO</span>
+                                <span>MÉTODOS DE PAGO</span>
                             </a>
                         </li>
                         <li>

@@ -55,8 +55,11 @@ $roles = obtenerRoles($dbh);
         <form id="form-crearRol" onsubmit="validarFormularioRol(event)">
 
             <div class="form-group">
-                <label for="crear-rol">Nombre del Rol:</label>
-                <input type="text" id="crear-rol" name="rol" autocomplete="off" required>
+                <label for="crear-rol">Nombre:</label>
+                <input type="text" id="crear-rol" name="rol" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
             </div>
 
             <div class="form-group">
@@ -76,8 +79,11 @@ $roles = obtenerRoles($dbh);
         <form id="form-editarRol">
             <input type="hidden" id="editar-idrol" name="editar-idrol" value="" />
             <div class="form-group">
-                <label for="editar-rol">Nombre del Rol:</label>
-                <input type="text" id="editar-rol" name="rol" autocomplete="off" required>
+                <label for="editar-rol">Nombre:</label>
+                <input type="text" id="editar-rol" name="rol" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
             </div>
             <div class="form-group">
                 <label for="editar-desc_rol">Descripción:</label>

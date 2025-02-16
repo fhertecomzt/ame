@@ -8,36 +8,36 @@ $response = ["success" => false, "message" => ""];
 
 // Verificamos que el método sea POST
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-  $idrol = $_POST["editar-idrol"] ?? null;
-  $rol = $_POST["rol"] ?? null;
-  $descripcion = $_POST["desc_rol"] ?? null;
+  $idtalla = $_POST["editar-idtalla"] ?? null;
+  $talla = $_POST["talla"] ?? null;
+  $descripcion = $_POST["desc_talla"] ?? null;
 
   try {
     // Preparar la consulta SQL
     $stmt = $dbh->prepare(
-      "UPDATE roles 
-         SET nomrol = :rol, 
-             descrol = :descripcion 
-       WHERE idrol = :id"
+      "UPDATE tallas 
+         SET nomtalla = :talla, 
+             desctalla = :descripcion 
+       WHERE idtalla = :id"
     );
 
     // Ejecutar la consulta con los parámetros
     $stmt->execute([
-      ":rol" => $rol,
+      ":talla" => $talla,
       ":descripcion" => $descripcion,
-      ":id" => $idrol
+      ":id" => $idtalla
     ]);
 
     // Verificamos si hubo una actualización
     if ($stmt->rowCount() > 0) {
       $response["success"] = true;
-      $response["message"] = "Rol actualizado correctamente.";
+      $response["message"] = "Registro actualizado correctamente.";
     } else {
-      $response["message"] = "No se realizaron cambios en el rol.";
+      $response["message"] = "No se realizaron cambios.";
     }
   } catch (PDOException $e) {
     // Mensaje genérico para evitar exponer detalles técnicos
-    $response["message"] = "Error al actualizar el rol. Intente nuevamente más tarde.";
+    $response["message"] = "Error al actualizar. Intente nuevamente más tarde.";
   }
 } else {
   $response["message"] = "Método no permitido.";

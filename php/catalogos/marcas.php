@@ -6,135 +6,25 @@ if (!isset($_SESSION['idusuario']) || ($_SESSION["rol"] !== "SISTEMAS" && $_SESS
     exit;
 }
 
+//Includes
 include "../conexion.php";
+include "../funciones/funciones.php";
 
-function obtenerMarcas($dbh)
-{
-    $stmt = $dbh->prepare("SELECT * FROM marcas");
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function obtenerMarca($dbh, $idmarca)
-{
-    $stmt = $dbh->prepare("SELECT * FROM marcas WHERE idmarca = :idmarca");
-    $stmt->bindParam(':idmarca', $idmarca);
-    $stmt->execute();
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-}
-
-function crearMarca($dbh, $data)
-{
-    // Validación de datos
-    if (empty($data['nommarca'])) {
-        return false;
-    }
-    $stmt = $dbh->prepare("INSERT INTO marcas (nommarca, descmarca) VALUES (:nommarca, :descmarca)");
-
-    $params = [
-        ':nommarca' => $data['nommarca'],
-        ':descmarca' => $data['descmarca'],
-    ];
-
-    // Para Debug var_dump($params); Aquí verificamos si manda todos los datos esperados
-    if ($stmt->execute($params)) {
-        return true; //Indicamos que tuvimos exit
-    } else {
-        $errorInfo = $stmt->errorInfo();
-        error_log(print_r($errorInfo, true)); // Esto te ayudará a ver el error en el log
-        return false;
-    }
-}
-
-function actualizarMarca($dbh, $data)
-{
-    $stmt = $dbh->prepare("UPDATE marcas SET nommarca = :nommarca, descmarca = :descmarca WHERE idmarca = :idmarca");
-    return $stmt->execute($data);
-}
-
-function eliminarMarca($dbh, $idmarca)
-{
-    $stmt = $dbh->prepare("DELETE FROM marcas WHERE idmarca = :idmarca");
-    $stmt->bindParam(':idmarca', $idmarca);
-    return $stmt->execute();
-}
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nommarca = filter_input(INPUT_POST, 'nommarca', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $descmarca = filter_input(INPUT_POST, 'descmarca', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $idmarca = filter_input(INPUT_POST, 'idmarca', FILTER_SANITIZE_NUMBER_INT); // Obtener el ID del usuario
-
-    if (empty($nommarca) || strlen($nommarca) < 4) {
-        $error = "El nombre de la marca debe tener al menos 4 caracteres.";
-    } elseif (empty(trim($nommarca))) {
-        $error = "Los campos no pueden estar vacios";
-    } else {
-
-        $data = [
-            ':nommarca' => $nommarca,
-            ':descmarca' => $descmarca,
-            ':idmarca' => $idmarca
-        ];
-
-        if ($idmarca) {
-            // Actualizar marca
-            $data[':idmarca'] = $idmarca;
-            if (actualizarMarca($dbh, $data)) {
-                $success = "Marca actualizado exitosamente";
-            } else {
-                $error = "Error al actualizar la Marca"
-                    . implode(", ", $stmt->errorInfo());
-            }
-        } else {
-            // Crear nueva Marca, todos los campos a insertar
-            if (crearMarca($dbh, ['nommarca' => $nommarca, 'descmarca' => $descmarca])) {
-                $success = "Marca creada exitosamente";
-            } else {
-                $error = "Error al crear el Marca";
-            }
-        }
-    }
-}
-
-if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['idmarca'])) {
-    if (eliminarMarca($dbh, filter_input(INPUT_GET, 'idmarca', FILTER_SANITIZE_NUMBER_INT))) {
-        $success = "Marca eliminado exitosamente";
-    } else {
-        $error = "Error al eliminar el Marca";
-    }
-}
 
 $marcas = obtenerMarcas($dbh);
-$nommarca = isset($_GET['idmarca']) ? obtenerMarca($dbh, filter_input(INPUT_GET, 'idmarca', FILTER_SANITIZE_NUMBER_INT)) : null;
+
 ?>
 
-<div class="container">
-    <div class="tittle">Formulario de Marcas</div>
-    <?php include "../mensajeestado.php"; ?>
-    <form method="post" action="marcas.php" id="frmMarcas">
-        <input type="hidden" name="idmarca" value="<?php echo htmlspecialchars($nommarca['idmarca'] ?? ''); ?>">
-        <div class="form-group">
-            <span>Marca:</span>
-            <input type="text" id="nommarca" name="nommarca" autocomplete="off" placeholder="Debe contener al menos 4 caracteres" value="<?php echo htmlspecialchars($nommarca['nommarca'] ?? ''); ?>" required>
-        </div>
-        <div class="form-group">
-            <span>Descripción:</span>
-            <input type="text" id="descmarca" name="descmarca" autocomplete="off" value="<?php echo htmlspecialchars($nommarca['descmarca'] ?? ''); ?>">
-        </div>
-        <div class="button">
-            <input type="button" id="botonNuevo" onclick="limpiarFormularioMarcas(); cambiarTextoBoton();" value="Nuevo">
-        </div>
-        <div class="button">
-            <input type="submit" id="botonGuardarActualizar" value="<?php echo isset($nommarca) ? 'Actualizar' : 'Guardar'; ?>"></input>
-        </div>
-    </form>
+<div class="containerr">
+    <button class="boton" onclick="abrirModalMarca('crear-modalMarca')">Nuevo</button>
+    <label class="buscarlabel" for="buscarboxmarca">Buscar:</label>
+    <input class="buscar--box" id="buscarboxmarca" type="search" placeholder="Qué estas buscando?">
 </div>
 
-<h3>Lista de Marcas</h3>
-<table border="1">
+<h3>Lista de marcas</h3>
+<table border="1" id="tabla-marcas">
     <thead>
         <tr>
-            <th>Id</th>
             <th>Marca</th>
             <th>Descripción</th>
             <th>Acciones</th>
@@ -143,15 +33,62 @@ $nommarca = isset($_GET['idmarca']) ? obtenerMarca($dbh, filter_input(INPUT_GET,
     <tbody>
         <?php foreach ($marcas as $u): ?>
             <tr>
-                <td><?php echo $u['idmarca']; ?></td>
                 <td><?php echo htmlspecialchars($u['nommarca']); ?></td>
                 <td><?php echo htmlspecialchars($u['descmarca']); ?></td>
                 <td>
-                    <a href="#" title="Editar" onclick="cargarEditarMarca(<?php echo $u['idmarca']; ?>); return false;"><i id="btneditar" class="fa-solid fa-pen-to-square"></i></a>
-                    &nbsp;&nbsp; &nbsp;
-                    <a href="#" title="Eliminar" onclick="eliminarMarca(<?php echo $u['idmarca']; ?>); return false;"><i id="btneliminar" class="fa-solid fa-trash"></i></a>
+                    <button title="Editar" class="editarMarca fa-solid fa-pen-to-square" data-id="<?php echo $u['idmarca']; ?>"></button>
+                    <button title="Eliminar" class="eliminarMarca fa-solid fa-trash" data-id="<?php echo $u['idmarca']; ?>"></button>
                 </td>
             </tr>
         <?php endforeach; ?>
     </tbody>
 </table>
+<!-- Mensaje no encuentra resultados -->
+<p id="mensaje-vacio" style="display: none; color: red;">No se encontraron resultados.</p>
+
+<!-- Modal para crear Marca -->
+<div id="crear-modalMarca" class="modal" style="display: none;">
+    <div class="modal-content" style="height: 269px;">
+        <span title="Cerrar" class="close" onclick="cerrarModalMarca('crear-modalMarca')">&times;</span>
+        <h2 class="tittle">Crear Marca</h2>
+        <form id="form-crearMarca" onsubmit="validarFormularioMarca(event, 'crear')">
+
+            <div class="form-group">
+                <label for="crear-marca">Nombre:</label>
+                <input type="text" id="crear-marca" name="marca" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-desc_marca">Descripción:</label>
+                <input type="text" id="crear-desc_marca" name="desc_marca" autocomplete="off" required>
+            </div>
+            <button type="submit">Guardar</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para editar Marca -->
+<div id="editar-modalMarca" class="modal" style="display: none;">
+    <div class="modal-content" style="height: 269px;">
+        <span title="Cerrar" class="close" onclick="cerrarModalMarca('editar-modalMarca')">&times;</span>
+        <h2 class="tittle">Editar Marca</h2>
+        <form id="form-editarMarca">
+            <input type="hidden" id="editar-idmarca" name="editar-idmarca" value="" />
+            <div class="form-group">
+                <label for="editar-marca">Nombre de la Marca:</label>
+                <input type="text" id="editar-marca" name="marca" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
+            </div>
+            <div class="form-group">
+                <label for="editar-desc_marca">Descripción:</label>
+                <input type="text" id="editar-desc_marca" name="desc_marca" autocomplete="off" required>
+            </div>
+            <button type="submit">Actualizar</button>
+        </form>
+    </div>
+</div>

@@ -24,14 +24,30 @@ tr:hover td {
 .editar,
 .editarRol,
 .editarUser,
-.editarCat {
+.editarCat,
+.editarUmed,
+.editarMarca,
+.editarTalla,
+.editarColor,
+.editarGenero,
+.editarEstilo,
+.editarMpago,
+.editarImpuesto {
   color: #002cee;
   cursor: pointer;
 }
 .eliminar,
 .eliminarRol,
 .eliminarUser,
-.eliminarCat {
+.eliminarCat,
+.eliminarUmed,
+.eliminarMarca,
+.eliminarTalla,
+.eliminarColor,
+.eliminarGenero,
+.eliminarEstilo,
+.eliminarMpago,
+.eliminarImpuesto {
   color: #ff0000;
   margin-left: 6px;
   cursor: pointer;

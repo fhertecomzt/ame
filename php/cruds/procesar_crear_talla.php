@@ -6,26 +6,26 @@ $response = ["success" => false, "message" => ""];
 
 // Validar campos obligatorios
 if (
-  !empty($_POST['rol']) && !empty($_POST['desc_rol'])
+  !empty($_POST['talla']) && !empty($_POST['desc_talla'])
 ) {
   // Sanitización básica
-  $rol = htmlspecialchars($_POST['rol']);
-  $desc_rol = htmlspecialchars($_POST['desc_rol']);
+  $talla = htmlspecialchars($_POST['talla']);
+  $desc_talla = htmlspecialchars($_POST['desc_talla']);
 
   // Ejecutar la inserción
   try {
-    $stmt = $dbh->prepare("INSERT INTO roles (nomrol, descrol) 
+    $stmt = $dbh->prepare("INSERT INTO tallas (nomtalla, desctalla) 
                                VALUES (?, ?)");
-    $stmt->execute([$rol, $desc_rol]);
+    $stmt->execute([$talla, $desc_talla]);
 
     $lastId = $dbh->lastInsertId();
 
     $response["success"] = true;
-    $response["message"] = "Rol fue creado exitosamente.";
-    $response["rol"] = [
+    $response["message"] = "Registro creado exitosamente.";
+    $response["talla"] = [
       "id" => $lastId,
-      "nombre" => $rol,
-      "descripcion" => $desc_rol
+      "nombre" => $talla,
+      "descripcion" => $desc_talla
     ];
   } catch (PDOException $e) {
     // Respuesta genérica en caso de error

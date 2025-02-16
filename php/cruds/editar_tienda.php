@@ -3,6 +3,7 @@
 //Includes
 include "../conexion.php";
 
+// Inicializamos la respuesta
 $response = ["success" => false, "message" => ""];
 
 // Verificar que el método sea POST

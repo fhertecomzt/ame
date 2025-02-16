@@ -10,31 +10,31 @@ $response = ["existe" => false, "error" => ""];
 try {
   // Configurar el manejo de errores de PDO
   $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  
+
   // Leer el cuerpo de la solicitud y decodificar JSON
   $data = json_decode(file_get_contents("php://input"), true);
 
   // Verificar que se recibió el nombre
-  if (!empty($data['rol'])) {
-    $rol = trim($data['rol']); // Limpiar el nombre
+  if (!empty($data['cat'])) {
+    $cat = trim($data['cat']); // Limpiar el nombre
     $id = isset($data['id']) ? intval($data['id']) : 0; // ID (opcional)
 
     // Si se proporciona un ID (edición), excluir ese registro de la validación
     if ($id > 0) {
-      $query = "SELECT COUNT(*) FROM roles WHERE nomrol = ? AND idrol != ?";
+      $query = "SELECT COUNT(*) FROM categorias WHERE nomcategoria = ? AND idcategoria != ?";
       $stmt = $dbh->prepare($query);
-      $stmt->execute([$rol, $id]);
+      $stmt->execute([$cat, $id]);
     } else {
       // Si no hay ID, es un registro nuevo
-      $query = "SELECT COUNT(*) FROM roles WHERE nomrol = ?";
+      $query = "SELECT COUNT(*) FROM categorias WHERE nomcategoria = ?";
       $stmt = $dbh->prepare($query);
-      $stmt->execute([$rol]);
+      $stmt->execute([$cat]);
     }
 
     // Actualizar la respuesta en función del resultado
     $response["existe"] = $stmt->fetchColumn() > 0;
   } else {
-    $response["error"] = "Falta el parámetro 'rol'.";
+    $response["error"] = "Falta el parámetro 'cat'.";
   }
 } catch (Exception $e) {
   // Capturar errores y devolverlos en la respuesta

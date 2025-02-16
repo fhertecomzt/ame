@@ -6,26 +6,26 @@ $response = ["success" => false, "message" => ""];
 
 // Validar campos obligatorios
 if (
-  !empty($_POST['rol']) && !empty($_POST['desc_rol'])
+  !empty($_POST['impuesto']) && !empty($_POST['tasa'])
 ) {
   // Sanitización básica
-  $rol = htmlspecialchars($_POST['rol']);
-  $desc_rol = htmlspecialchars($_POST['desc_rol']);
+  $impuesto = htmlspecialchars($_POST['impuesto']);
+  $tasa = htmlspecialchars($_POST['tasa']);
 
   // Ejecutar la inserción
   try {
-    $stmt = $dbh->prepare("INSERT INTO roles (nomrol, descrol) 
+    $stmt = $dbh->prepare("INSERT INTO impuestos (nomimpuesto, tasa) 
                                VALUES (?, ?)");
-    $stmt->execute([$rol, $desc_rol]);
+    $stmt->execute([$impuesto, $tasa]);
 
     $lastId = $dbh->lastInsertId();
 
     $response["success"] = true;
-    $response["message"] = "Rol fue creado exitosamente.";
-    $response["rol"] = [
+    $response["message"] = "Registro fue creado exitosamente.";
+    $response["impuesto"] = [
       "id" => $lastId,
-      "nombre" => $rol,
-      "descripcion" => $desc_rol
+      "nombre" => $impuesto,
+      "tasa" => $tasa
     ];
   } catch (PDOException $e) {
     // Respuesta genérica en caso de error

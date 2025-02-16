@@ -15,26 +15,26 @@ try {
   $data = json_decode(file_get_contents("php://input"), true);
 
   // Verificar que se recibió el nombre
-  if (!empty($data['rol'])) {
-    $rol = trim($data['rol']); // Limpiar el nombre
+  if (!empty($data['marca'])) {
+    $marca = trim($data['marca']); // Limpiar el nombre
     $id = isset($data['id']) ? intval($data['id']) : 0; // ID (opcional)
 
     // Si se proporciona un ID (edición), excluir ese registro de la validación
     if ($id > 0) {
-      $query = "SELECT COUNT(*) FROM roles WHERE nomrol = ? AND idrol != ?";
+      $query = "SELECT COUNT(*) FROM marcas WHERE nommarca = ? AND idmarca != ?";
       $stmt = $dbh->prepare($query);
-      $stmt->execute([$rol, $id]);
+      $stmt->execute([$marca, $id]);
     } else {
       // Si no hay ID, es un registro nuevo
-      $query = "SELECT COUNT(*) FROM roles WHERE nomrol = ?";
+      $query = "SELECT COUNT(*) FROM marcas WHERE nommarca = ?";
       $stmt = $dbh->prepare($query);
-      $stmt->execute([$rol]);
+      $stmt->execute([$marca]);
     }
 
     // Actualizar la respuesta en función del resultado
     $response["existe"] = $stmt->fetchColumn() > 0;
   } else {
-    $response["error"] = "Falta el parámetro 'rol'.";
+    $response["error"] = "Falta el parámetro 'marca'.";
   }
 } catch (Exception $e) {
   // Capturar errores y devolverlos en la respuesta

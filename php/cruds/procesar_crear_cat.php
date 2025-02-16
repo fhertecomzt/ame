@@ -9,22 +9,22 @@ if (
   !empty($_POST['cat']) && !empty($_POST['desc_cat'])
 ) {
   // Sanitización básica
-  $nombrecat = htmlspecialchars($_POST['cat']);
+  $cat = htmlspecialchars($_POST['cat']);
   $desc_cat = htmlspecialchars($_POST['desc_cat']);
 
   // Ejecutar la inserción
   try {
     $stmt = $dbh->prepare("INSERT INTO categorias (nomcategoria, desccategoria) 
                                VALUES (?, ?)");
-    $stmt->execute([$nombrecat, $desc_cat]);
+    $stmt->execute([$cat, $desc_cat]);
 
     $lastId = $dbh->lastInsertId();
 
     $response["success"] = true;
-    $response["message"] = "Categoría fue creado exitosamente.";
-    $response["categoria"] = [
+    $response["message"] = "Categoría fue creada exitosamente.";
+    $response["cat"] = [
       "id" => $lastId,
-      "nombre" => $nombrecat,
+      "nombre" => $cat,
       "descripcion" => $desc_cat
     ];
   } catch (PDOException $e) {
