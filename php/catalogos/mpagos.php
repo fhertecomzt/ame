@@ -11,7 +11,7 @@ include "../conexion.php";
 include "../funciones/funciones.php";
 
 
-$mpagos = obtenerMpagos($dbh);
+$mpagos = obtenerRegistros($dbh, "mpagos", "idmpago, nommpago, descmpago", "ASC", "idmpago");
 
 ?>
 

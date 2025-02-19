@@ -6,222 +6,190 @@ if (!isset($_SESSION['idusuario']) || ($_SESSION["rol"] !== "SISTEMAS" && $_SESS
     exit;
 }
 
+//Includes
 include "../conexion.php";
+include "../funciones/funciones.php";
 
-function obtenerProveedores($dbh)
-{
-    $stmt = $dbh->prepare("SELECT * FROM proveedores");
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function obtenerProveedor($dbh, $idproveedor)
-{
-    $stmt = $dbh->prepare("SELECT * FROM proveedores WHERE idproveedor = :idproveedor");
-    $stmt->bindParam(':idproveedor', $idproveedor);
-    $stmt->execute();
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-}
-
-function crearProveedor($dbh, $data)
-{
-    // Validación de datos
-    if (empty($data['nomproveedor']) || empty($data['celproveedor']) || empty($data['emailproveedor'])) {
-        return false;
-    }
-
-    $stmt = $dbh->prepare("INSERT INTO proveedores (nomproveedor, contacproveedor, rfcproveedor, telproveedor, celproveedor, emailproveedor, limitecredproveedor, dicredproveedor) VALUES (:nomproveedor, :contacproveedor, :rfcproveedor, :telproveedor, :celproveedor, :emailproveedor, :limitecredproveedor, :dicredproveedor)");
-
-    $params = [
-        ':nomproveedor' => $data['nomproveedor'],
-        ':contacproveedor' => $data['contacproveedor'],
-        ':rfcproveedor' => $data['rfcproveedor'],
-        ':telproveedor' => $data['telproveedor'],
-        ':celproveedor' => $data['celproveedor'],
-        ':emailproveedor' => $data['emailproveedor'],
-        ':limitecredproveedor' => $data['limitecredproveedor'],
-        ':dicredproveedor' => $data['dicredproveedor']
-    ];
-    // var_dump($params); Aquí verificamos si manda todos los datos esperados
-
-    if ($stmt->execute($params)) {
-        return true; //Indicamos que tuvimos exito
-    } else {
-        $errorInfo = $stmt->errorInfo();
-        error_log(print_r($errorInfo, true)); // Esto te ayudará a ver el error en el log
-        return false;
-    }
-}
-
-function actualizarProveedor($dbh, $data)
-{
-    $stmt = $dbh->prepare("UPDATE proveedores SET nomproveedor = :nomproveedor, contacproveedor = :contacproveedor, rfcproveedor = :rfcproveedor, telproveedor = :telproveedor, celproveedor = :celproveedor, emailproveedor = :emailproveedor, limitecredproveedor = :limitecredproveedor, dicredproveedor = :dicredproveedor WHERE idproveedor = :idproveedor");
-    return $stmt->execute($data);
-}
-
-
-function eliminarProveedor($dbh, $idproveedor)
-{
-    $stmt = $dbh->prepare("DELETE FROM proveedores WHERE idproveedor = :idproveedor");
-    $stmt->bindParam(':idproveedor', $idproveedor);
-    return $stmt->execute();
-}
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Recoger y limpiar los datos del formulario
-    $nomproveedor = filter_input(INPUT_POST, 'nomproveedor', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $contacproveedor = filter_input(INPUT_POST, 'contacproveedor', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $rfcproveedor = filter_input(INPUT_POST, 'rfcproveedor', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $telproveedor = filter_input(INPUT_POST, 'telproveedor', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $celproveedor = filter_input(INPUT_POST, 'celproveedor', FILTER_SANITIZE_NUMBER_INT);
-    $emailproveedor = filter_input(
-        INPUT_POST,
-        'emailproveedor',
-        FILTER_SANITIZE_EMAIL
-    );
-    //Validación para email
-    if (!filter_var($emailproveedor, FILTER_VALIDATE_EMAIL)) {
-        $error = "El email no es válido.";
-    }
-    $limitecredproveedor = filter_input(INPUT_POST, 'limitecredproveedor', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $dicredproveedor = filter_input(INPUT_POST, 'dicredproveedor', FILTER_SANITIZE_NUMBER_INT);
-    $idproveedor = filter_input(INPUT_POST, 'idproveedor', FILTER_SANITIZE_NUMBER_INT); // Obtener el ID del proveedor
-
-    //Validaciones de datos
-    if (empty($nomproveedor) || empty($celproveedor) || empty($emailproveedor)) {
-        $error = "Todos los campos con * son obligatorios.";
-    } elseif (empty($nomproveedor) || strlen($nomproveedor) < 4) {
-        $error = "El nombre de proveedor debe tener al menos 4 caracteres.";
-    } else {
-        $data = [
-            'nomproveedor' => $nomproveedor,
-            'contacproveedor' => $contacproveedor,
-            'rfcproveedor' => $rfcproveedor,
-            'telproveedor' => $telproveedor,
-            'celproveedor' => $celproveedor,
-            'emailproveedor' => $emailproveedor,
-            'limitecredproveedor' => $limitecredproveedor,
-            'dicredproveedor' => $dicredproveedor
-        ];
-
-
-        // Actualizar proveedor
-        // Verificar si se está actualizando o creando un nuevo proveedor
-        if ($idproveedor) {
-            // Actualizar Proveedor
-            $data[':idproveedor'] = $idproveedor; // Agregar el ID del usuario para la actualización
-            if (actualizarProveedor($dbh, $data)) {
-                $success = "Provedor actualizado exitosamente";
-            } else {
-                $error = "Error al actualizar Proveedor: " . implode(", ", $stmt->errorInfo());
-            }
-        } else {
-            // Crear nuevo proveedor
-            if (crearProveedor($dbh, $data)) {
-                $success = "Proveedor creado exitosamente";
-            } else {
-                $error = "Error al crear el proveedor";
-            }
-        }
-    }
-}
-
-
-if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['idproveedor'])) {
-    if (eliminarProveedor($dbh, filter_input(INPUT_GET, 'idproveedor', FILTER_SANITIZE_NUMBER_INT))) {
-        $success = "Proveedor eliminado exitosamente";
-    } else {
-        $error = "Error al eliminar el proveedor";
-    }
-}
-
-$proveedores = obtenerProveedores($dbh);
-$proveedor = isset($_GET['idproveedor']) ? obtenerProveedor($dbh, filter_input(INPUT_GET, 'idproveedor', FILTER_SANITIZE_NUMBER_INT)) : null;
-//var_dump($proveedor); Comprobamos los datos del proveedor
+$proveedores = obtenerRegistros($dbh, "proveedores", "idproveedor, nomproveedor, contacproveedor, rfcproveedor, telproveedor, celproveedor, emailproveedor, limitecredproveedor, dicredproveedor", "ASC", "idproveedor");
 ?>
 
-<div class="container">
-    <div class="tittle">Formulario de Proveedores</div>
-    <!--Incluimos archivo de mensajes de estado para saber si es exito o error-->
-    <?php include "../mensajeestado.php"; ?>
-
-    <form method="post" action="proveedores.php" id="frmProveedores">
-        <input type="hidden" name="idproveedor" value="<?php echo $proveedor['idproveedor'] ?? ''; ?>">
-        <div class="form-group">
-            <span class="is-required">Nombre Proveedor:</span>
-            <input type="text" id="nomproveedor" name="nomproveedor" placeholder="Debe contener al menos 4 caracteres" value="<?php echo htmlspecialchars($proveedor['nomproveedor'] ?? ''); ?>" required>
-        </div>
-        <div class="form-group">
-            <span>Contacto:</span>
-            <input type="text" id="contacproveedor" name="contacproveedor" value="<?php echo htmlspecialchars($proveedor['contacproveedor'] ?? ''); ?>">
-        </div>
-        <div class="form-group">
-            <span>R.F.C.:</span>
-            <input type="text" id="rfcproveedor" name="rfcproveedor" value="<?php echo htmlspecialchars($proveedor['rfcproveedor'] ?? ''); ?>">
-        </div>
-        <div class="form-group">
-            <span>Télefono:</span>
-            <input type="number" id="telproveedor" name="telproveedor" value="<?php echo htmlspecialchars($proveedor['telproveedor'] ?? ''); ?>">
-        </div>
-        <div class="form-group">
-            <span class="is-required">Celular:</span>
-            <input type="number" id="celproveedor" name="celproveedor" value="<?php echo htmlspecialchars($proveedor['celproveedor'] ?? ''); ?>" required>
-        </div>
-        <div class="form-group">
-            <span class="is-required">Email:</span>
-            <input type="email" id="emailproveedor" name="emailproveedor" value="<?php echo htmlspecialchars($proveedor['emailproveedor'] ?? ''); ?>" required>
-        </div>
-        <div class="form-group">
-            <span>Limite de credito:</span>
-            <input type="number" id="limitecredproveedor" name="limitecredproveedor" value="<?php echo htmlspecialchars($proveedor['limitecredproveedor'] ?? ''); ?>">
-        </div>
-        <div class="form-group">
-            <span>Días de credito:</span>
-            <!--Limitamos a los 365 días de un año y a solo 3 digitos-->
-            <input type="number" id="dicredproveedor" name="dicredproveedor" value="<?php echo htmlspecialchars($proveedor['dicredproveedor'] ?? ''); ?>" max="365" oninput="if(this.value.length > 3) this.value = this.value.slice(0, 3);">
-        </div>
-
-        <div class="button">
-            <input type="button" id="botonNuevo" onclick="limpiarFormularioProveedores(); cambiarTextoBoton();" value="Nuevo">
-        </div>
-        <div class="button">
-            <input type="submit" id="botonGuardarActualizar" value="<?php echo isset($proveedor) ? 'Actualizar' : 'Guardar'; ?>"></input>
-        </div>
-    </form>
+<div class="containerr">
+    <button class="boton" onclick="abrirModalProveedor('crear-modalProveedor')">Nuevo</button>
+    <label class="buscarlabel" for="buscarboxproveedor">Buscar:</label>
+    <input class="buscar--box" id="buscarboxproveedor" type="search" placeholder="Qué estas buscando?">
 </div>
 
-<h3>Lista de Proveedores</h3>
-<table border="1">
+<h3>Lista de proveedores</h3>
+<table border="1" id="tabla-proveedores">
     <thead>
         <tr>
-            <th>ID</th>
             <th>Nombre</th>
             <th>Contacto</th>
             <th>Teléfono</th>
-            <th>Celular</th>
-            <th>Limite de credito</th>
-            <th>Días de credito</th>
+            <th>Email</th>
             <th>Acciones</th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
         <?php foreach ($proveedores as $u): ?>
             <tr>
-                <td><?php echo $u['idproveedor']; ?></td>
                 <td><?php echo htmlspecialchars($u['nomproveedor']); ?></td>
                 <td><?php echo htmlspecialchars($u['contacproveedor']); ?></td>
                 <td><?php echo htmlspecialchars($u['telproveedor']); ?></td>
-                <td><?php echo htmlspecialchars($u['celproveedor']); ?></td>
-                <td><?php echo htmlspecialchars($u['limitecredproveedor']); ?></td>
-                <td><?php echo htmlspecialchars($u['dicredproveedor']); ?></td>
+                <td><?php echo htmlspecialchars($u['emailproveedor']); ?></td>
                 <td>
-                    <a href="#" title="Editar" onclick="cargarEditarProveedor(<?php echo $u['idproveedor']; ?>); return false;"><i id="btneditar" class="fa-solid fa-pen-to-square"></i></a>
-                    &nbsp;&nbsp; &nbsp;
-
-                    <a href="#" title="Eliminar" onclick="eliminarProveedor(<?php echo $u['idproveedor']; ?>); return false;"><i id="btneliminar" class="fa-solid fa-trash"></i></a>
+                    <button title="Editar" class="editarProveedor fa-solid fa-pen-to-square" data-id="<?php echo $u['idproveedor']; ?>"></button>
+                    <button title="Eliminar" class="eliminarProveedor fa-solid fa-trash" data-id="<?php echo $u['idproveedor']; ?>"></button>
                 </td>
             </tr>
         <?php endforeach; ?>
     </tbody>
 </table>
+<!-- Mensaje no encuentra resultados -->
+<p id="mensaje-vacio" style="display: none; color: red;">No se encontraron resultados.</p>
+
+<!-- Modal para crear Proveedor -->
+<div id="crear-modalProveedor" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span title="Cerrar" class="close" onclick="cerrarModalProveedor('crear-modalProveedor')">&times;</span>
+        <h2 class="tittle">Crear Proveedor</h2>
+        <form id="form-crearProveedor" onsubmit="validarFormularioProveedor(event, 'crear')">
+
+            <div class="form-group">
+                <label for="crear-proveedor">Nombre:</label>
+                <input type="text" id="crear-proveedor" name="proveedor" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ0-9\s]+"
+                    title="Solo se permiten letras, números y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ0-9\s]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-contacto">Contacto:</label>
+                <input type="text" id="crear-contacto" name="contacto" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ0-9\s]+"
+                    title="Solo se permiten letras, números y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ0-9\s]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-rfc">R.F.C.:</label>
+                <input type="text" id="crear-rfc" name="rfc" autocomplete="off"
+                    pattern="[a-zA-Z0-9]+"
+                    title="Solo se permiten letras y números."
+                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" maxlength="13" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-telefono">Teléfono:</label>
+                <input type="text" id="crear-telefono" name="telefono" autocomplete="off" maxlength="10 "
+                    pattern="\d{10}"
+                    title="Por favor, ingrese un número de telefono de 10 dígitos."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-celular">Celular:</label>
+                <input type="text" id="crear-celular" name="celular" autocomplete="off" maxlength="10 "
+                    pattern="\d{10}"
+                    title="Por favor, ingrese un número de telefono de 10 dígitos."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-email">Email:</label>
+                <input type="email" id="crear-email" name="email" autocomplete="off" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-limitecred">Limite de crédito:</label>
+                <input type="text" id="crear-limitecred" name="limitecred" autocomplete="off"
+                    pattern="[0-9]+"
+                    title="Solo se permiten números."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" size="10" min="0" value="0" maxlength="10" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-diacred">Días de crédito:</label>
+                <input type="text" id="crear-diacred" name="diacred" autocomplete="off"
+                    pattern="^(?:[0-9]|[1-9][0-9]|[1-3][0-6][0-5])$"
+                    title="Ingrese un número entre 1 y 365." size="3" min="0" value="0" max="365" required>
+            </div>
+
+            <button type="submit">Guardar</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para editar Proveedor -->
+<div id="editar-modalProveedor" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span title="Cerrar" class="close" onclick="cerrarModalProveedor('editar-modalProveedor')">&times;</span>
+        <h2 class="tittle">Editar Proveedor</h2>
+        <form id="form-editarProveedor">
+
+            <input type="hidden" id="editar-idproveedor" name="editar-idproveedor" value="" />
+
+            <div class="form-group">
+                <label for="editar-proveedor">Nombre:</label>
+                <input type="text" id="editar-proveedor" name="proveedor" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ0-9\s]+"
+                    title="Solo se permiten letras, números y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ0-9\s]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-contacto">Contacto:</label>
+                <input type="text" id="editar-contacto" name="contacto" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ0-9\s]+"
+                    title="Solo se permiten letras, números y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ0-9\s]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-rfc">R.F.C.:</label>
+                <input type="text" id="editar-rfc" name="rfc" autocomplete="off"
+                    pattern="[a-zA-Z0-9]+"
+                    title="Solo se permiten letras y números."
+                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" maxlength="13" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-telefono">Teléfono:</label>
+                <input type="text" id="editar-telefono" name="telefono" autocomplete="off" maxlength="10 "
+                    pattern="\d{10}"
+                    title="Por favor, ingrese un número de telefono de 10 dígitos."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-celular">Celular:</label>
+                <input type="text" id="editar-celular" name="celular" autocomplete="off" maxlength="10 "
+                    pattern="\d{10}"
+                    title="Por favor, ingrese un número de telefono de 10 dígitos."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-email">Email:</label>
+                <input type="email" id="editar-email" name="email" autocomplete="off" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-limitecred">Limite de crédito:</label>
+                <input type="text" id="editar-limitecred" name="limitecred" autocomplete="off"
+                    pattern="^\d+(\.\d{1,2})?$"
+                    title="Ingrese un número válido con hasta 2 decimales (ej. 100.50)"
+                    size="10" min="0" value="0" maxlength="10" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-diacred">Días de crédito:</label>
+                <input type="text" id="editar-diacred" name="diacred" autocomplete="off"
+                    pattern="^(?:[0-9]|[1-9][0-9]|[1-3][0-6][0-5])$"
+                    title="Ingrese un número entre 0 y 365." size="3" min="0" value="0" max="365" required>
+            </div>
+
+            <button type="submit">Actualizar</button>
+        </form>
+    </div>
+</div>

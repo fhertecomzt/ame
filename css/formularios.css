@@ -77,7 +77,7 @@
 }
 form .form-group {
   margin-bottom: 2px;
-  width: calc(100% / 1 - 10px);
+  /*width: calc(100% / 1 - 10px);*/
 }
 form label {
   display: block;
@@ -128,6 +128,20 @@ form .button input {
   border-radius: 5px;
 }
 
+/*Hacer que noexterior e interior queden en la misma fila*/
+.form-containernum {
+    display: flex;
+    gap: 26px; /* Espaciado entre los inputs */
+    align-items: center; /* Alineación vertical */
+    flex-wrap: wrap; /* Permite que se acomoden en pantallas pequeñas */
+}
+
+.ladoble {
+    display: flex;
+    flex-direction: column; /* Mantiene el label encima del input */
+    width: calc(100% / 2 - 19px);
+}
+
 /* Estilo general del modal */
 .modal {
   display: none; /* Ocultar por defecto */
@@ -144,7 +158,7 @@ form .button input {
 /* Contenido del modal */
 .modal-content {
   background-color: #fff; /* Fondo blanco */
-  margin: 3% auto; /* Centrarse vertical y horizontalmente */
+  margin: auto auto; /* Centrarse vertical y horizontalmente */
   padding: 20px;
   border: 1px solid #888;
   width: 30%; /* Ancho del modal */
@@ -159,19 +173,20 @@ form .button input {
 /* Botón de cierre */
 .close {
   background-color: #ebedf0;
-  border-radius: 15px;
+  border-radius: 100%;
   color: #aaaaaaf0;
   cursor: pointer;
-  float: right;
-  font-size: 17px;
+  float: right;  
   font-weight: bold;
+  height: 24px;
   text-align: center;
   width: 24px;
 }
 
 .close:hover,
 .close:focus {
-  color: #000;
+  background-color: #ff0000;
+  color: #ffffff;
   text-decoration: none;
 }
 

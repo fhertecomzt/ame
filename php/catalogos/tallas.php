@@ -10,9 +10,7 @@ if (!isset($_SESSION['idusuario']) || ($_SESSION["rol"] !== "SISTEMAS" && $_SESS
 include "../conexion.php";
 include "../funciones/funciones.php";
 
-
-$tallas = obtenerTallas($dbh);
-
+$tallas = obtenerRegistros($dbh, "tallas", "idtalla, nomtalla, desctalla", "ASC", "idtalla");
 ?>
 
 <div class="containerr">
@@ -43,6 +41,7 @@ $tallas = obtenerTallas($dbh);
         <?php endforeach; ?>
     </tbody>
 </table>
+<p id="mensaje-vacio-categorias" style="display: none; color: red;">No se encontraron resultados.</p>
 <!-- Mensaje no encuentra resultados -->
 <p id="mensaje-vacio" style="display: none; color: red;">No se encontraron resultados.</p>
 

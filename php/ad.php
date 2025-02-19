@@ -268,8 +268,8 @@ $_SESSION['last_token'] = $current_token;*/
     <div class="main--content" id="main-content">
         <div class="header--wrapper">
             <div class="header--title">
-                <h2>Usuario: <?php echo $_SESSION['nombre'] . " " . $_SESSION['appaterno'] . " " . $_SESSION['apmaterno']; ?></h2>
-                <span>Rol: <?php echo $_SESSION['rol'] ?> &nbsp;&nbsp;&nbsp;<span>Tienda: <?php echo $_SESSION['sucursal_nombre'] ?></span></span>
+                <h2>Tienda: <?php echo $_SESSION['sucursal_nombre'] ?></h2>
+                <span>Rol: <?php echo $_SESSION['rol'] ?> &nbsp;&nbsp;&nbsp;<span>Usuario: <?php echo $_SESSION['nombre'] . " " . $_SESSION['appaterno'] . " " . $_SESSION['apmaterno']; ?></span></span>
             </div>
             <div class="user--info">
 

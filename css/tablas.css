@@ -32,7 +32,9 @@ tr:hover td {
 .editarGenero,
 .editarEstilo,
 .editarMpago,
-.editarImpuesto {
+.editarImpuesto,
+.editarCliente,
+.editarProveedor {
   color: #002cee;
   cursor: pointer;
 }
@@ -47,7 +49,9 @@ tr:hover td {
 .eliminarGenero,
 .eliminarEstilo,
 .eliminarMpago,
-.eliminarImpuesto {
+.eliminarImpuesto,
+.eliminarCliente,
+.eliminarProveedor {
   color: #ff0000;
   margin-left: 6px;
   cursor: pointer;

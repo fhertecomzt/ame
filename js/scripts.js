@@ -299,6 +299,7 @@ document.addEventListener("DOMContentLoaded", function () {
       fetch(`cruds/obtener_tienda.php?id=${id}`)
         .then((response) => response.json())
         .then((data) => {
+          //console.log("Datos recibidos del servidor:", data);
           if (data.success) {
             const formulario = document.getElementById("form-editar");
             if (formulario) {
@@ -320,7 +321,7 @@ document.addEventListener("DOMContentLoaded", function () {
               campos.forEach((campo) => {
                 formulario[`editar-${campo}`].value = data.tienda[campo] || "";
               });
-             // console.log("Ese fer", campos); 
+              // console.log("Ese fer", campos);
               abrirModal("editar-modal");
             } else {
               console.error("Formulario de edición no encontrado.");
@@ -378,7 +379,7 @@ function verificarDuplicadoEditarTienda(nombre, id = 0) {
       return data.existe;
     })
     .catch((error) => {
-        console.error("Error al verificar duplicado:", error);
+      console.error("Error al verificar duplicado:", error);
       return true; // Asume duplicado en caso de error
     });
 }
@@ -739,7 +740,7 @@ function cerrarModalRol(id) {
 }
 
 function procesarFormularioRol(event, tipo) {
-  event.preventDefault();//Para que no recergue la pagina
+  event.preventDefault(); //Para que no recergue la pagina
   const formData = new FormData(event.target);
 
   fetch(`cruds/procesar_${tipo}_rol.php`, {
@@ -853,7 +854,7 @@ function validarFormularioRol(event) {
           icon: "error",
         });
       } else {
-        // Si no hay errores, enviar el formulario        
+        // Si no hay errores, enviar el formulario
         procesarFormularioRol(event, "crear");
       }
     })
@@ -867,15 +868,15 @@ function validarFormularioRol(event) {
     });
 }
 function verificarDuplicadoRol(rol) {
-  //console.log("Nombre verificar:", nombre_rol); 
+  //console.log("Nombre verificar:", nombre_rol);
 
   return fetch("cruds/verificar_nombre_rol.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ rol }),
   })
-  .then((response) => response.json())
-  .then((data) => {      
+    .then((response) => response.json())
+    .then((data) => {
       //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre del Rol ya existe.");
@@ -893,24 +894,20 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("click", function (event) {
     if (event.target.classList.contains("editarRol")) {
       const id = event.target.dataset.id;
-      console.log("Botón editar clickeado. ID:", id);
+      //console.log("Botón editar clickeado. ID:", id);
 
       fetch(`cruds/obtener_rol.php?id=${id}`)
         .then((response) => response.json())
         .then((data) => {
-        //console.log("Datos recibidos del servidor:", data);
+          console.log("Datos recibidos del servidor:", data);
           if (data.success) {
             const formularioRol = document.getElementById("form-editarRol");
             if (formularioRol) {
-              const campos =[
-                "idrol",
-                "rol",
-                "desc_rol",
-              ];
-              campos.forEach((campo) =>{
-               //console.log(`Asignando ${campo}:`, data.rol[campo]);
+              const campos = ["idrol", "rol", "desc_rol"];
+              campos.forEach((campo) => {
+                //console.log(`Asignando ${campo}:`, data.rol[campo]);
                 formularioRol[`editar-${campo}`].value = data.rol[campo] || "";
-              });             
+              });
               abrirModalRol("editar-modalRol");
             } else {
               console.error("Formulario de edición no encontrado.");
@@ -934,7 +931,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-   // Validar y enviar el formulario de edición
+  // Validar y enviar el formulario de edición
   document.body.addEventListener("submit", function (event) {
     if (event.target && event.target.id === "form-editarRol") {
       event.preventDefault(); // Esto evita el comportamiento predeterminado de recargar la página.
@@ -959,7 +956,7 @@ function verificarDuplicadoEditarRol(rol, id = 0) {
   })
     .then((response) => response.json())
     .then((data) => {
-       console.log("Respuesta de verificar_nombre.php:", data);
+      //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre del Rol ya existe.");
       }
@@ -986,8 +983,8 @@ async function validarFormularioEdicionRol(formulario) {
   ];
   let primerError = null;
   const errores = [];
-  
-   // Validar cada campo
+
+  // Validar cada campo
   campos.forEach((campo) => {
     const campoFormulario = document.getElementById(`editar-${campo.nombre}`);
     if (!campoFormulario) {
@@ -1000,18 +997,18 @@ async function validarFormularioEdicionRol(formulario) {
         campoFormulario.classList.remove("input-error"); // Quita la clase si el campo es válido
       }
     });
-const valor = campoFormulario.value.trim();
-      // Validar por longitud mínima
-      if (valor.length < campo.min) {
-        errores.push(campo.mensaje);
-        campoFormulario.classList.add("input-error");
-        campoFormulario.focus(); // Establece el foco en el campo inválido
-        if (!primerError) primerError = campoFormulario; // Guardar el primer error
-      } else {
-        campoFormulario.classList.remove("input-error");
-      }
-    });
-    // Si hay errores, mostrar la alerta y enfocar el primer campo con error
+    const valor = campoFormulario.value.trim();
+    // Validar por longitud mínima
+    if (valor.length < campo.min) {
+      errores.push(campo.mensaje);
+      campoFormulario.classList.add("input-error");
+      campoFormulario.focus(); // Establece el foco en el campo inválido
+      if (!primerError) primerError = campoFormulario; // Guardar el primer error
+    } else {
+      campoFormulario.classList.remove("input-error");
+    }
+  });
+  // Si hay errores, mostrar la alerta y enfocar el primer campo con error
   if (errores.length > 0) {
     Swal.fire({
       title: "Errores en el formulario",
@@ -1025,7 +1022,7 @@ const valor = campoFormulario.value.trim();
   // Verificar duplicado antes de enviar el formulario
   const rolInput = document.getElementById("editar-rol");
   const idInput = document.getElementById("editar-idrol");
-  if(!rolInput || !idInput){
+  if (!rolInput || !idInput) {
     console.log("Error: No se encontró el campo de Rol o ID.");
     return;
   }
@@ -1034,7 +1031,7 @@ const valor = campoFormulario.value.trim();
 
   try {
     //console.log("Verificando duplicado. ID:", id, "Rol:", rol);
-    const esDuplicado = await verificarDuplicadoEditarRol(rol, id);    
+    const esDuplicado = await verificarDuplicadoEditarRol(rol, id);
     if (esDuplicado) {
       return; // No enviar el formulario si hay duplicados
     } else {
@@ -1052,15 +1049,15 @@ function enviarFormularioEdicionRol(formulario) {
     return;
   }
   const formData = new FormData(formulario);
-    
-      fetch("cruds/editar_rol.php", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          //console.log("Respuesta del servidorEdit:", data);
-          if (data.success) {
+
+  fetch("cruds/editar_rol.php", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Respuesta del servidorEdit:", data);
+      if (data.success) {
         mostrarAlerta(
           "success",
           "¡Éxito!",
@@ -1090,11 +1087,11 @@ function actualizarFilaTablaRol(formData) {
   const fila = document
     .querySelector(`button[data-id="${formData.get("editar-idrol")}"]`)
     .closest("tr");
-    //console.log(formData.get("editar-idrol"));
-    if (fila) {
-      fila.cells[0].textContent = formData.get("rol");
-      fila.cells[1].textContent = formData.get("desc_rol");
-    }
+  //console.log(formData.get("editar-idrol"));
+  if (fila) {
+    fila.cells[0].textContent = formData.get("rol");
+    fila.cells[1].textContent = formData.get("desc_rol");
+  }
 }
 // Eliminar Roles*****************
 document.addEventListener("click", function (event) {
@@ -1600,7 +1597,7 @@ function cerrarModalCat(id) {
 }
 
 function procesarFormularioCat(event, tipo) {
-  event.preventDefault();//Para que no recergue la pagina
+  event.preventDefault(); //Para que no recergue la pagina
   const formData = new FormData(event.target);
 
   fetch(`cruds/procesar_${tipo}_cat.php`, {
@@ -1649,7 +1646,7 @@ function procesarFormularioCat(event, tipo) {
         });
       }
     })
-   .catch((error) => {
+    .catch((error) => {
       // Manejar errores inesperados
       console.error("Error:", error);
       Swal.fire({
@@ -1706,8 +1703,8 @@ function validarFormularioCat(event) {
 
   // Verificar duplicados
   verificarDuplicadoCat(cat)
-  .then((esDuplicado) => {
-    if (esDuplicado) {        
+    .then((esDuplicado) => {
+      if (esDuplicado) {
         Swal.fire({
           title: "Error",
           text: "El nombre de la Categoría ya existe. Por favor, elige otro.",
@@ -1728,7 +1725,7 @@ function validarFormularioCat(event) {
     });
 }
 function verificarDuplicadoCat(cat) {
-  //console.log("Nombre verificar duplicado:", nombre_cat); 
+  //console.log("Nombre verificar duplicado:", nombre_cat);
 
   return fetch("cruds/verificar_nombre_cat.php", {
     method: "POST",
@@ -1749,7 +1746,7 @@ function verificarDuplicadoCat(cat) {
     });
 }
 //Editar Categorias************************************************************
-  document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
   // Escuchar clic en el botón de editar
   document.addEventListener("click", function (event) {
     if (event.target.classList.contains("editarCat")) {
@@ -1759,19 +1756,15 @@ function verificarDuplicadoCat(cat) {
       fetch(`cruds/obtener_cat.php?id=${id}`)
         .then((response) => response.json())
         .then((data) => {
-        //console.log("Datos recibidos del servidor:", data);
+          //console.log("Datos recibidos del servidor:", data);
           if (data.success) {
             const formularioCat = document.getElementById("form-editarCat");
             if (formularioCat) {
-              const campos =[
-                "idcat",
-                "cat",
-                "desc_cat",
-              ];
-              campos.forEach((campo) =>{
-              //console.log(`Asignando ${campo}:`, data.cat[campo]);
+              const campos = ["idcat", "cat", "desc_cat"];
+              campos.forEach((campo) => {
+                //console.log(`Asignando ${campo}:`, data.cat[campo]);
                 formularioCat[`editar-${campo}`].value = data.cat[campo] || "";
-              });             
+              });
               abrirModalCat("editar-modalCat");
             } else {
               console.error("Formulario de edición no encontrado.");
@@ -1795,7 +1788,7 @@ function verificarDuplicadoCat(cat) {
     }
   });
 
-   // Validar y enviar el formulario de edición
+  // Validar y enviar el formulario de edición
   document.body.addEventListener("submit", function (event) {
     if (event.target && event.target.id === "form-editarCat") {
       event.preventDefault(); // Esto evita el comportamiento predeterminado de recargar la página.
@@ -1820,7 +1813,7 @@ function verificarDuplicadoEditarCat(cat, id = 0) {
   })
     .then((response) => response.json())
     .then((data) => {
-    // console.log("Respuesta de verificar_nombre.php:", data);
+      // console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre de la Categoría ya existe.");
       }
@@ -1847,8 +1840,8 @@ async function validarFormularioEdicionCat(formulario) {
   ];
   let primerError = null;
   const errores = [];
-  
-   // Validar cada campo
+
+  // Validar cada campo
   campos.forEach((campo) => {
     const campoFormulario = document.getElementById(`editar-${campo.nombre}`);
     if (!campoFormulario) {
@@ -1861,18 +1854,18 @@ async function validarFormularioEdicionCat(formulario) {
         campoFormulario.classList.remove("input-error"); // Quita la clase si el campo es válido
       }
     });
-const valor = campoFormulario.value.trim();
-      // Validar por longitud mínima
-      if (valor.length < campo.min) {
-        errores.push(campo.mensaje);
-        campoFormulario.classList.add("input-error");
-        campoFormulario.focus(); // Establece el foco en el campo inválido
-        if (!primerError) primerError = campoFormulario; // Guardar el primer error
-      } else {
-        campoFormulario.classList.remove("input-error");
-      }
-    });
-    // Si hay errores, mostrar la alerta y enfocar el primer campo con error
+    const valor = campoFormulario.value.trim();
+    // Validar por longitud mínima
+    if (valor.length < campo.min) {
+      errores.push(campo.mensaje);
+      campoFormulario.classList.add("input-error");
+      campoFormulario.focus(); // Establece el foco en el campo inválido
+      if (!primerError) primerError = campoFormulario; // Guardar el primer error
+    } else {
+      campoFormulario.classList.remove("input-error");
+    }
+  });
+  // Si hay errores, mostrar la alerta y enfocar el primer campo con error
   if (errores.length > 0) {
     Swal.fire({
       title: "Errores en el formulario",
@@ -1886,7 +1879,7 @@ const valor = campoFormulario.value.trim();
   // Verificar duplicado antes de enviar el formulario
   const catInput = document.getElementById("editar-cat");
   const idInput = document.getElementById("editar-idcat");
-  if(!catInput || !idInput){
+  if (!catInput || !idInput) {
     console.log("Error: No se encontró el campo de Cat o ID.");
     return;
   }
@@ -1895,10 +1888,10 @@ const valor = campoFormulario.value.trim();
 
   try {
     //console.log("Verificando duplicado. ID:", id, "Cat:", cat);
-    const esDuplicado = await verificarDuplicadoEditarCat(cat, id);    
+    const esDuplicado = await verificarDuplicadoEditarCat(cat, id);
     if (esDuplicado) {
       return; // No enviar el formulario si hay duplicados
-    } else {      
+    } else {
       enviarFormularioEdicionCat(formulario); // Proceder si no hay duplicados
     }
   } catch (error) {
@@ -1912,51 +1905,50 @@ function enviarFormularioEdicionCat(formulario) {
     return;
   }
   const formData = new FormData(formulario);
-    
-      fetch("cruds/editar_cat.php", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          //console.log("Respuesta del servidorEdit:", data);
-          if (data.success) {
-            Swal.fire({
-              title: "¡Éxito!",
-              text:
-                data.message || "La actualización se realizó correctamente.",
-              icon: "success",
-            });
-            // Actualizar la fila de la tabla sin recargar
-            actualizarFilaTablaCat(formData);
-            cerrarModal("editar-modalCat");
-            } else {
-              mostrarAlerta(
-                "error",
-                "Error",
-                data.message || "No se pudo actualizar la Categoría."
-              );
-            }
-        })
-        .catch((error) => {
-          console.error("Error al actualizar Categoría:", error);
-          mostrarAlerta(
-            "error",
-            "Error",
-            "Ocurrió un problema al actualizar la Categoría."
-            );
+
+  fetch("cruds/editar_cat.php", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Respuesta del servidorEdit:", data);
+      if (data.success) {
+        Swal.fire({
+          title: "¡Éxito!",
+          text: data.message || "La actualización se realizó correctamente.",
+          icon: "success",
         });
-  }
+        // Actualizar la fila de la tabla sin recargar
+        actualizarFilaTablaCat(formData);
+        cerrarModal("editar-modalCat");
+      } else {
+        mostrarAlerta(
+          "error",
+          "Error",
+          data.message || "No se pudo actualizar la Categoría."
+        );
+      }
+    })
+    .catch((error) => {
+      console.error("Error al actualizar Categoría:", error);
+      mostrarAlerta(
+        "error",
+        "Error",
+        "Ocurrió un problema al actualizar la Categoría."
+      );
+    });
+}
 // Actualizar fila de la tabla
 function actualizarFilaTablaCat(formData) {
   const fila = document
     .querySelector(`button[data-id="${formData.get("editar-idcat")}"]`)
     .closest("tr");
-    //console.log(formData.get("editar-idcat"));
-    if (fila) {
-      fila.cells[0].textContent = formData.get("cat");
-      fila.cells[1].textContent = formData.get("desc_cat");
-    }
+  //console.log(formData.get("editar-idcat"));
+  if (fila) {
+    fila.cells[0].textContent = formData.get("cat");
+    fila.cells[1].textContent = formData.get("desc_cat");
+  }
 }
 // Eliminar Categorias****************************************
 document.addEventListener("click", function (event) {
@@ -2132,7 +2124,7 @@ function cerrarModalUmed(id) {
 }
 
 function procesarFormularioUmed(event, tipo) {
-  event.preventDefault();//Para que no recergue la pagina
+  event.preventDefault(); //Para que no recergue la pagina
   const formData = new FormData(event.target);
 
   fetch(`cruds/procesar_${tipo}_umed.php`, {
@@ -2242,11 +2234,11 @@ function validarFormularioUmed(event) {
       if (esDuplicado) {
         Swal.fire({
           title: "Error",
-          text: "El nombre de la unidad de medida ya existe. Por favor, elige otro.",
+          text: "El ya existe. Por favor, elige otro.",
           icon: "error",
         });
       } else {
-        // Si no hay errores, enviar el formulario        
+        // Si no hay errores, enviar el formulario
         procesarFormularioUmed(event, "crear");
       }
     })
@@ -2260,18 +2252,22 @@ function validarFormularioUmed(event) {
     });
 }
 function verificarDuplicadoUmed(umed) {
-  //console.log("Nombre verificar:", umed); 
+  //console.log("Nombre verificar:", umed);
 
   return fetch("cruds/verificar_nombre_umed.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ umed }),
   })
-  .then((response) => response.json())
-  .then((data) => {      
+    .then((response) => response.json())
+    .then((data) => {
       //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
-        mostrarAlerta("error", "Error", "El nombre de la unidad de medida ya existe.");
+        mostrarAlerta(
+          "error",
+          "Error",
+          "El nombre de la unidad de medida ya existe."
+        );
       }
       return data.existe;
     })
@@ -2291,19 +2287,16 @@ document.addEventListener("DOMContentLoaded", function () {
       fetch(`cruds/obtener_umed.php?id=${id}`)
         .then((response) => response.json())
         .then((data) => {
-        //console.log("Datos recibidos del servidor:", data);
+          //console.log("Datos recibidos del servidor:", data);
           if (data.success) {
             const formularioUmed = document.getElementById("form-editarUmed");
             if (formularioUmed) {
-              const campos =[
-                "idumed",
-                "umed",
-                "desc_umed",
-              ];
-              campos.forEach((campo) =>{
-               //console.log(`Asignando ${campo}:`, data.umed[campo]);
-                formularioUmed[`editar-${campo}`].value = data.umed[campo] || "";
-              });             
+              const campos = ["idumed", "umed", "desc_umed"];
+              campos.forEach((campo) => {
+                //console.log(`Asignando ${campo}:`, data.umed[campo]);
+                formularioUmed[`editar-${campo}`].value =
+                  data.umed[campo] || "";
+              });
               abrirModalUmed("editar-modalUmed");
             } else {
               console.error("Formulario de edición no encontrado.");
@@ -2327,7 +2320,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-   // Validar y enviar el formulario de edición
+  // Validar y enviar el formulario de edición
   document.body.addEventListener("submit", function (event) {
     if (event.target && event.target.id === "form-editarUmed") {
       event.preventDefault(); // Esto evita el comportamiento predeterminado de recargar la página.
@@ -2352,7 +2345,7 @@ function verificarDuplicadoEditarUmed(umed, id = 0) {
   })
     .then((response) => response.json())
     .then((data) => {
-       //console.log("Respuesta de verificar_nombre.php:", data);
+      //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre del U. medida ya existe.");
       }
@@ -2379,8 +2372,8 @@ async function validarFormularioEdicionUmed(formulario) {
   ];
   let primerError = null;
   const errores = [];
-  
-   // Validar cada campo
+
+  // Validar cada campo
   campos.forEach((campo) => {
     const campoFormulario = document.getElementById(`editar-${campo.nombre}`);
     if (!campoFormulario) {
@@ -2393,18 +2386,18 @@ async function validarFormularioEdicionUmed(formulario) {
         campoFormulario.classList.remove("input-error"); // Quita la clase si el campo es válido
       }
     });
-const valor = campoFormulario.value.trim();
-      // Validar por longitud mínima
-      if (valor.length < campo.min) {
-        errores.push(campo.mensaje);
-        campoFormulario.classList.add("input-error");
-        campoFormulario.focus(); // Establece el foco en el campo inválido
-        if (!primerError) primerError = campoFormulario; // Guardar el primer error
-      } else {
-        campoFormulario.classList.remove("input-error");
-      }
-    });
-    // Si hay errores, mostrar la alerta y enfocar el primer campo con error
+    const valor = campoFormulario.value.trim();
+    // Validar por longitud mínima
+    if (valor.length < campo.min) {
+      errores.push(campo.mensaje);
+      campoFormulario.classList.add("input-error");
+      campoFormulario.focus(); // Establece el foco en el campo inválido
+      if (!primerError) primerError = campoFormulario; // Guardar el primer error
+    } else {
+      campoFormulario.classList.remove("input-error");
+    }
+  });
+  // Si hay errores, mostrar la alerta y enfocar el primer campo con error
   if (errores.length > 0) {
     Swal.fire({
       title: "Errores en el formulario",
@@ -2418,7 +2411,7 @@ const valor = campoFormulario.value.trim();
   // Verificar duplicado antes de enviar el formulario
   const umedInput = document.getElementById("editar-umed");
   const idInput = document.getElementById("editar-idumed");
-  if(!umedInput || !idInput){
+  if (!umedInput || !idInput) {
     console.log("Error: No se encontró el campo de Umed o ID.");
     return;
   }
@@ -2427,7 +2420,7 @@ const valor = campoFormulario.value.trim();
 
   try {
     //console.log("Verificando duplicado. ID:", id, "Umed:", umed);
-    const esDuplicado = await verificarDuplicadoEditarUmed(umed, id);    
+    const esDuplicado = await verificarDuplicadoEditarUmed(umed, id);
     if (esDuplicado) {
       return; // No enviar el formulario si hay duplicados
     } else {
@@ -2445,15 +2438,15 @@ function enviarFormularioEdicionUmed(formulario) {
     return;
   }
   const formData = new FormData(formulario);
-    
-      fetch("cruds/editar_umed.php", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          //console.log("Respuesta del servidorEdit:", data);
-          if (data.success) {
+
+  fetch("cruds/editar_umed.php", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Respuesta del servidorEdit:", data);
+      if (data.success) {
         mostrarAlerta(
           "success",
           "¡Éxito!",
@@ -2483,11 +2476,11 @@ function actualizarFilaTablaUmed(formData) {
   const fila = document
     .querySelector(`button[data-id="${formData.get("editar-idumed")}"]`)
     .closest("tr");
-    //console.log(formData.get("editar-idumed"));
-    if (fila) {
-      fila.cells[0].textContent = formData.get("umed");
-      fila.cells[1].textContent = formData.get("desc_umed");
-    }
+  //console.log(formData.get("editar-idumed"));
+  if (fila) {
+    fila.cells[0].textContent = formData.get("umed");
+    fila.cells[1].textContent = formData.get("desc_umed");
+  }
 }
 // Eliminar Unidades*****************************
 document.addEventListener("click", function (event) {
@@ -2586,7 +2579,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target.id === "buscarboxumed") {
       const buscarBox = event.target; // El input dinámico
       const filtro = buscarBox.value.toLowerCase();
-      const limpiarBusquedaUmed = document.getElementById("limpiar-busquedaUmed"); // Botón dinámico
+      const limpiarBusquedaUmed = document.getElementById(
+        "limpiar-busquedaUmed"
+      ); // Botón dinámico
       const filas = document.querySelectorAll("#tabla-umed tbody tr");
       const mensajeVacio = document.getElementById("mensaje-vacio");
 
@@ -2663,7 +2658,7 @@ function cerrarModalMarca(id) {
 }
 
 function procesarFormularioMarca(event, tipo) {
-  event.preventDefault();//Para que no recergue la pagina
+  event.preventDefault(); //Para que no recergue la pagina
   const formData = new FormData(event.target);
 
   fetch(`cruds/procesar_${tipo}_marca.php`, {
@@ -2777,7 +2772,7 @@ function validarFormularioMarca(event) {
           icon: "error",
         });
       } else {
-        // Si no hay errores, enviar el formulario        
+        // Si no hay errores, enviar el formulario
         procesarFormularioMarca(event, "crear");
       }
     })
@@ -2791,15 +2786,15 @@ function validarFormularioMarca(event) {
     });
 }
 function verificarDuplicadoMarca(marca) {
-  //console.log("Nombre verificar:", marca); 
+  //console.log("Nombre verificar:", marca);
 
   return fetch("cruds/verificar_nombre_marca.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ marca }),
   })
-  .then((response) => response.json())
-  .then((data) => {      
+    .then((response) => response.json())
+    .then((data) => {
       //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre de la marca ya existe.");
@@ -2822,19 +2817,16 @@ document.addEventListener("DOMContentLoaded", function () {
       fetch(`cruds/obtener_marca.php?id=${id}`)
         .then((response) => response.json())
         .then((data) => {
-        //console.log("Datos recibidos del servidor:", data);
+          //console.log("Datos recibidos del servidor:", data);
           if (data.success) {
             const formularioMarca = document.getElementById("form-editarMarca");
             if (formularioMarca) {
-              const campos =[
-                "idmarca",
-                "marca",
-                "desc_marca",
-              ];
-              campos.forEach((campo) =>{
-               //console.log(`Asignando ${campo}:`, data.marca[campo]);
-                formularioMarca[`editar-${campo}`].value = data.marca[campo] || "";
-              });             
+              const campos = ["idmarca", "marca", "desc_marca"];
+              campos.forEach((campo) => {
+                //console.log(`Asignando ${campo}:`, data.marca[campo]);
+                formularioMarca[`editar-${campo}`].value =
+                  data.marca[campo] || "";
+              });
               abrirModalMarca("editar-modalMarca");
             } else {
               console.error("Formulario de edición no encontrado.");
@@ -2858,7 +2850,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-   // Validar y enviar el formulario de edición
+  // Validar y enviar el formulario de edición
   document.body.addEventListener("submit", function (event) {
     if (event.target && event.target.id === "form-editarMarca") {
       event.preventDefault(); // Esto evita el comportamiento predeterminado de recargar la página.
@@ -2883,7 +2875,7 @@ function verificarDuplicadoEditarMarca(marca, id = 0) {
   })
     .then((response) => response.json())
     .then((data) => {
-       //console.log("Respuesta de verificar_nombre.php:", data);
+      //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre de la marca ya existe.");
       }
@@ -2910,8 +2902,8 @@ async function validarFormularioEdicionMarca(formulario) {
   ];
   let primerError = null;
   const errores = [];
-  
-   // Validar cada campo
+
+  // Validar cada campo
   campos.forEach((campo) => {
     const campoFormulario = document.getElementById(`editar-${campo.nombre}`);
     if (!campoFormulario) {
@@ -2924,18 +2916,18 @@ async function validarFormularioEdicionMarca(formulario) {
         campoFormulario.classList.remove("input-error"); // Quita la clase si el campo es válido
       }
     });
-const valor = campoFormulario.value.trim();
-      // Validar por longitud mínima
-      if (valor.length < campo.min) {
-        errores.push(campo.mensaje);
-        campoFormulario.classList.add("input-error");
-        campoFormulario.focus(); // Establece el foco en el campo inválido
-        if (!primerError) primerError = campoFormulario; // Guardar el primer error
-      } else {
-        campoFormulario.classList.remove("input-error");
-      }
-    });
-    // Si hay errores, mostrar la alerta y enfocar el primer campo con error
+    const valor = campoFormulario.value.trim();
+    // Validar por longitud mínima
+    if (valor.length < campo.min) {
+      errores.push(campo.mensaje);
+      campoFormulario.classList.add("input-error");
+      campoFormulario.focus(); // Establece el foco en el campo inválido
+      if (!primerError) primerError = campoFormulario; // Guardar el primer error
+    } else {
+      campoFormulario.classList.remove("input-error");
+    }
+  });
+  // Si hay errores, mostrar la alerta y enfocar el primer campo con error
   if (errores.length > 0) {
     Swal.fire({
       title: "Errores en el formulario",
@@ -2949,7 +2941,7 @@ const valor = campoFormulario.value.trim();
   // Verificar duplicado antes de enviar el formulario
   const marcaInput = document.getElementById("editar-marca");
   const idInput = document.getElementById("editar-idmarca");
-  if(!marcaInput || !idInput){
+  if (!marcaInput || !idInput) {
     console.log("Error: No se encontró el campo de marca o ID.");
     return;
   }
@@ -2958,7 +2950,7 @@ const valor = campoFormulario.value.trim();
 
   try {
     //console.log("Verificando duplicado. ID:", id, "Marca:", marca);
-    const esDuplicado = await verificarDuplicadoEditarMarca(marca, id);    
+    const esDuplicado = await verificarDuplicadoEditarMarca(marca, id);
     if (esDuplicado) {
       return; // No enviar el formulario si hay duplicados
     } else {
@@ -2976,15 +2968,15 @@ function enviarFormularioEdicionMarca(formulario) {
     return;
   }
   const formData = new FormData(formulario);
-    
-      fetch("cruds/editar_marca.php", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          //console.log("Respuesta del servidorEdit:", data);
-          if (data.success) {
+
+  fetch("cruds/editar_marca.php", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Respuesta del servidorEdit:", data);
+      if (data.success) {
         mostrarAlerta(
           "success",
           "¡Éxito!",
@@ -3014,11 +3006,11 @@ function actualizarFilaTablaMarca(formData) {
   const fila = document
     .querySelector(`button[data-id="${formData.get("editar-idmarca")}"]`)
     .closest("tr");
-    //console.log(formData.get("editar-idmarca"));
-    if (fila) {
-      fila.cells[0].textContent = formData.get("marca");
-      fila.cells[1].textContent = formData.get("desc_marca");
-    }
+  //console.log(formData.get("editar-idmarca"));
+  if (fila) {
+    fila.cells[0].textContent = formData.get("marca");
+    fila.cells[1].textContent = formData.get("desc_marca");
+  }
 }
 // Eliminar Marcas*******************************
 document.addEventListener("click", function (event) {
@@ -3117,7 +3109,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target.id === "buscarboxmarca") {
       const buscarBox = event.target; // El input dinámico
       const filtro = buscarBox.value.toLowerCase();
-      const limpiarBusquedaMarca = document.getElementById("limpiar-busquedaMarca"); // Botón dinámico
+      const limpiarBusquedaMarca = document.getElementById(
+        "limpiar-busquedaMarca"
+      ); // Botón dinámico
       const filas = document.querySelectorAll("#tabla-marcas tbody tr");
       const mensajeVacio = document.getElementById("mensaje-vacio");
 
@@ -3170,7 +3164,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-
 // Llamar formulario de Tallas****************************************************
 document
   .getElementById("tallas-link")
@@ -3196,7 +3189,7 @@ function cerrarModalTalla(id) {
 }
 
 function procesarFormularioTalla(event, tipo) {
-  event.preventDefault();//Para que no recergue la pagina
+  event.preventDefault(); //Para que no recergue la pagina
   const formData = new FormData(event.target);
 
   fetch(`cruds/procesar_${tipo}_talla.php`, {
@@ -3310,7 +3303,7 @@ function validarFormularioTalla(event) {
           icon: "error",
         });
       } else {
-        // Si no hay errores, enviar el formulario        
+        // Si no hay errores, enviar el formulario
         procesarFormularioTalla(event, "crear");
       }
     })
@@ -3324,15 +3317,15 @@ function validarFormularioTalla(event) {
     });
 }
 function verificarDuplicadoTalla(talla) {
-  //console.log("Nombre verificar:", talla); 
+  //console.log("Nombre verificar:", talla);
 
   return fetch("cruds/verificar_nombre_talla.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ talla }),
   })
-  .then((response) => response.json())
-  .then((data) => {      
+    .then((response) => response.json())
+    .then((data) => {
       //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre ya existe.");
@@ -3355,19 +3348,16 @@ document.addEventListener("DOMContentLoaded", function () {
       fetch(`cruds/obtener_talla.php?id=${id}`)
         .then((response) => response.json())
         .then((data) => {
-        //console.log("Datos recibidos del servidor:", data);
+          //console.log("Datos recibidos del servidor:", data);
           if (data.success) {
             const formularioTalla = document.getElementById("form-editarTalla");
             if (formularioTalla) {
-              const campos =[
-                "idtalla",
-                "talla",
-                "desc_talla",
-              ];
-              campos.forEach((campo) =>{
-               //console.log(`Asignando ${campo}:`, data.talla[campo]);
-                formularioTalla[`editar-${campo}`].value = data.talla[campo] || "";
-              });             
+              const campos = ["idtalla", "talla", "desc_talla"];
+              campos.forEach((campo) => {
+                //console.log(`Asignando ${campo}:`, data.talla[campo]);
+                formularioTalla[`editar-${campo}`].value =
+                  data.talla[campo] || "";
+              });
               abrirModalTalla("editar-modalTalla");
             } else {
               console.error("Formulario de edición no encontrado.");
@@ -3391,7 +3381,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-   // Validar y enviar el formulario de edición
+  // Validar y enviar el formulario de edición
   document.body.addEventListener("submit", function (event) {
     if (event.target && event.target.id === "form-editarTalla") {
       event.preventDefault(); // Esto evita el comportamiento predeterminado de recargar la página.
@@ -3416,7 +3406,7 @@ function verificarDuplicadoEditarTalla(talla, id = 0) {
   })
     .then((response) => response.json())
     .then((data) => {
-       //console.log("Respuesta de verificar_nombre.php:", data);
+      //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre ya existe.");
       }
@@ -3443,8 +3433,8 @@ async function validarFormularioEdicionTalla(formulario) {
   ];
   let primerError = null;
   const errores = [];
-  
-   // Validar cada campo
+
+  // Validar cada campo
   campos.forEach((campo) => {
     const campoFormulario = document.getElementById(`editar-${campo.nombre}`);
     if (!campoFormulario) {
@@ -3457,18 +3447,18 @@ async function validarFormularioEdicionTalla(formulario) {
         campoFormulario.classList.remove("input-error"); // Quita la clase si el campo es válido
       }
     });
-const valor = campoFormulario.value.trim();
-      // Validar por longitud mínima
-      if (valor.length < campo.min) {
-        errores.push(campo.mensaje);
-        campoFormulario.classList.add("input-error");
-        campoFormulario.focus(); // Establece el foco en el campo inválido
-        if (!primerError) primerError = campoFormulario; // Guardar el primer error
-      } else {
-        campoFormulario.classList.remove("input-error");
-      }
-    });
-    // Si hay errores, mostrar la alerta y enfocar el primer campo con error
+    const valor = campoFormulario.value.trim();
+    // Validar por longitud mínima
+    if (valor.length < campo.min) {
+      errores.push(campo.mensaje);
+      campoFormulario.classList.add("input-error");
+      campoFormulario.focus(); // Establece el foco en el campo inválido
+      if (!primerError) primerError = campoFormulario; // Guardar el primer error
+    } else {
+      campoFormulario.classList.remove("input-error");
+    }
+  });
+  // Si hay errores, mostrar la alerta y enfocar el primer campo con error
   if (errores.length > 0) {
     Swal.fire({
       title: "Errores en el formulario",
@@ -3482,7 +3472,7 @@ const valor = campoFormulario.value.trim();
   // Verificar duplicado antes de enviar el formulario
   const tallaInput = document.getElementById("editar-talla");
   const idInput = document.getElementById("editar-idtalla");
-  if(!tallaInput || !idInput){
+  if (!tallaInput || !idInput) {
     console.log("Error: No se encontró el campo o ID.");
     return;
   }
@@ -3491,7 +3481,7 @@ const valor = campoFormulario.value.trim();
 
   try {
     //console.log("Verificando duplicado. ID:", id, "Talla:", talla);
-    const esDuplicado = await verificarDuplicadoEditarTalla(talla, id);    
+    const esDuplicado = await verificarDuplicadoEditarTalla(talla, id);
     if (esDuplicado) {
       return; // No enviar el formulario si hay duplicados
     } else {
@@ -3509,15 +3499,15 @@ function enviarFormularioEdicionTalla(formulario) {
     return;
   }
   const formData = new FormData(formulario);
-    
-      fetch("cruds/editar_talla.php", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          //console.log("Respuesta del servidorEdit:", data);
-          if (data.success) {
+
+  fetch("cruds/editar_talla.php", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Respuesta del servidorEdit:", data);
+      if (data.success) {
         mostrarAlerta(
           "success",
           "¡Éxito!",
@@ -3535,11 +3525,7 @@ function enviarFormularioEdicionTalla(formulario) {
     })
     .catch((error) => {
       console.error("Error al actualizar:", error);
-      mostrarAlerta(
-        "error",
-        "Error",
-        "Ocurrió un problema al actualizar."
-      );
+      mostrarAlerta("error", "Error", "Ocurrió un problema al actualizar.");
     });
 }
 // Actualizar fila de la tabla
@@ -3547,11 +3533,11 @@ function actualizarFilaTablaTalla(formData) {
   const fila = document
     .querySelector(`button[data-id="${formData.get("editar-idtalla")}"]`)
     .closest("tr");
-    //console.log(formData.get("editar-idtalla"));
-    if (fila) {
-      fila.cells[0].textContent = formData.get("talla");
-      fila.cells[1].textContent = formData.get("desc_talla");
-    }
+  //console.log(formData.get("editar-idtalla"));
+  if (fila) {
+    fila.cells[0].textContent = formData.get("talla");
+    fila.cells[1].textContent = formData.get("desc_talla");
+  }
 }
 // Eliminar Tallas*****************************
 document.addEventListener("click", function (event) {
@@ -3650,7 +3636,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target.id === "buscarboxtalla") {
       const buscarBox = event.target; // El input dinámico
       const filtro = buscarBox.value.toLowerCase();
-      const limpiarBusquedaTalla = document.getElementById("limpiar-busquedaTalla"); // Botón dinámico
+      const limpiarBusquedaTalla = document.getElementById(
+        "limpiar-busquedaTalla"
+      ); // Botón dinámico
       const filas = document.querySelectorAll("#tabla-tallas tbody tr");
       const mensajeVacio = document.getElementById("mensaje-vacio");
 
@@ -3728,7 +3716,7 @@ function cerrarModalColor(id) {
 }
 
 function procesarFormularioColor(event, tipo) {
-  event.preventDefault();//Para que no recergue la pagina
+  event.preventDefault(); //Para que no recergue la pagina
   const formData = new FormData(event.target);
 
   fetch(`cruds/procesar_${tipo}_color.php`, {
@@ -3842,7 +3830,7 @@ function validarFormularioColor(event) {
           icon: "error",
         });
       } else {
-        // Si no hay errores, enviar el formulario        
+        // Si no hay errores, enviar el formulario
         procesarFormularioColor(event, "crear");
       }
     })
@@ -3856,15 +3844,15 @@ function validarFormularioColor(event) {
     });
 }
 function verificarDuplicadoColor(color) {
-  //console.log("Nombre verificar:", color); 
+  //console.log("Nombre verificar:", color);
 
   return fetch("cruds/verificar_nombre_color.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ color }),
   })
-  .then((response) => response.json())
-  .then((data) => {      
+    .then((response) => response.json())
+    .then((data) => {
       //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre ya existe.");
@@ -3887,19 +3875,16 @@ document.addEventListener("DOMContentLoaded", function () {
       fetch(`cruds/obtener_color.php?id=${id}`)
         .then((response) => response.json())
         .then((data) => {
-        //console.log("Datos recibidos del servidor:", data);
+          //console.log("Datos recibidos del servidor:", data);
           if (data.success) {
             const formularioColor = document.getElementById("form-editarColor");
             if (formularioColor) {
-              const campos =[
-                "idcolor",
-                "color",
-                "desc_color",
-              ];
-              campos.forEach((campo) =>{
-               //console.log(`Asignando ${campo}:`, data.color[campo]);
-                formularioColor[`editar-${campo}`].value = data.color[campo] || "";
-              });             
+              const campos = ["idcolor", "color", "desc_color"];
+              campos.forEach((campo) => {
+                //console.log(`Asignando ${campo}:`, data.color[campo]);
+                formularioColor[`editar-${campo}`].value =
+                  data.color[campo] || "";
+              });
               abrirModalColor("editar-modalColor");
             } else {
               console.error("Formulario de edición no encontrado.");
@@ -3923,7 +3908,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-   // Validar y enviar el formulario de edición
+  // Validar y enviar el formulario de edición
   document.body.addEventListener("submit", function (event) {
     if (event.target && event.target.id === "form-editarColor") {
       event.preventDefault(); // Esto evita el comportamiento predeterminado de recargar la página.
@@ -3948,7 +3933,7 @@ function verificarDuplicadoEditarColor(color, id = 0) {
   })
     .then((response) => response.json())
     .then((data) => {
-       //console.log("Respuesta de verificar_nombre.php:", data);
+      //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre ya existe.");
       }
@@ -3975,8 +3960,8 @@ async function validarFormularioEdicionColor(formulario) {
   ];
   let primerError = null;
   const errores = [];
-  
-   // Validar cada campo
+
+  // Validar cada campo
   campos.forEach((campo) => {
     const campoFormulario = document.getElementById(`editar-${campo.nombre}`);
     if (!campoFormulario) {
@@ -3989,18 +3974,18 @@ async function validarFormularioEdicionColor(formulario) {
         campoFormulario.classList.remove("input-error"); // Quita la clase si el campo es válido
       }
     });
-const valor = campoFormulario.value.trim();
-      // Validar por longitud mínima
-      if (valor.length < campo.min) {
-        errores.push(campo.mensaje);
-        campoFormulario.classList.add("input-error");
-        campoFormulario.focus(); // Establece el foco en el campo inválido
-        if (!primerError) primerError = campoFormulario; // Guardar el primer error
-      } else {
-        campoFormulario.classList.remove("input-error");
-      }
-    });
-    // Si hay errores, mostrar la alerta y enfocar el primer campo con error
+    const valor = campoFormulario.value.trim();
+    // Validar por longitud mínima
+    if (valor.length < campo.min) {
+      errores.push(campo.mensaje);
+      campoFormulario.classList.add("input-error");
+      campoFormulario.focus(); // Establece el foco en el campo inválido
+      if (!primerError) primerError = campoFormulario; // Guardar el primer error
+    } else {
+      campoFormulario.classList.remove("input-error");
+    }
+  });
+  // Si hay errores, mostrar la alerta y enfocar el primer campo con error
   if (errores.length > 0) {
     Swal.fire({
       title: "Errores en el formulario",
@@ -4014,7 +3999,7 @@ const valor = campoFormulario.value.trim();
   // Verificar duplicado antes de enviar el formulario
   const colorInput = document.getElementById("editar-color");
   const idInput = document.getElementById("editar-idcolor");
-  if(!colorInput || !idInput){
+  if (!colorInput || !idInput) {
     console.log("Error: No se encontró el campo o ID.");
     return;
   }
@@ -4023,7 +4008,7 @@ const valor = campoFormulario.value.trim();
 
   try {
     //console.log("Verificando duplicado. ID:", id, "Color:", color);
-    const esDuplicado = await verificarDuplicadoEditarColor(color, id);    
+    const esDuplicado = await verificarDuplicadoEditarColor(color, id);
     if (esDuplicado) {
       return; // No enviar el formulario si hay duplicados
     } else {
@@ -4041,15 +4026,15 @@ function enviarFormularioEdicionColor(formulario) {
     return;
   }
   const formData = new FormData(formulario);
-    
-      fetch("cruds/editar_color.php", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          //console.log("Respuesta del servidorEdit:", data);
-          if (data.success) {
+
+  fetch("cruds/editar_color.php", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Respuesta del servidorEdit:", data);
+      if (data.success) {
         mostrarAlerta(
           "success",
           "¡Éxito!",
@@ -4067,11 +4052,7 @@ function enviarFormularioEdicionColor(formulario) {
     })
     .catch((error) => {
       console.error("Error al actualizar:", error);
-      mostrarAlerta(
-        "error",
-        "Error",
-        "Ocurrió un problema al actualizar."
-      );
+      mostrarAlerta("error", "Error", "Ocurrió un problema al actualizar.");
     });
 }
 // Actualizar fila de la tabla
@@ -4079,11 +4060,11 @@ function actualizarFilaTablaColor(formData) {
   const fila = document
     .querySelector(`button[data-id="${formData.get("editar-idcolor")}"]`)
     .closest("tr");
-    //console.log(formData.get("editar-idcolor"));
-    if (fila) {
-      fila.cells[0].textContent = formData.get("color");
-      fila.cells[1].textContent = formData.get("desc_color");
-    }
+  //console.log(formData.get("editar-idcolor"));
+  if (fila) {
+    fila.cells[0].textContent = formData.get("color");
+    fila.cells[1].textContent = formData.get("desc_color");
+  }
 }
 // Eliminar Colores*****************************
 document.addEventListener("click", function (event) {
@@ -4182,7 +4163,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target.id === "buscarboxcolor") {
       const buscarBox = event.target; // El input dinámico
       const filtro = buscarBox.value.toLowerCase();
-      const limpiarBusquedaColor = document.getElementById("limpiar-busquedaColor"); // Botón dinámico
+      const limpiarBusquedaColor = document.getElementById(
+        "limpiar-busquedaColor"
+      ); // Botón dinámico
       const filas = document.querySelectorAll("#tabla-colores tbody tr");
       const mensajeVacio = document.getElementById("mensaje-vacio");
 
@@ -4259,7 +4242,7 @@ function cerrarModalGenero(id) {
 }
 
 function procesarFormularioGenero(event, tipo) {
-  event.preventDefault();//Para que no recergue la pagina
+  event.preventDefault(); //Para que no recergue la pagina
   const formData = new FormData(event.target);
 
   fetch(`cruds/procesar_${tipo}_genero.php`, {
@@ -4322,7 +4305,9 @@ function validarFormularioGenero(event) {
   event.preventDefault();
 
   const genero = document.querySelector("[name='genero']").value.trim();
-  const desc_genero = document.querySelector("[name='desc_genero']").value.trim();
+  const desc_genero = document
+    .querySelector("[name='desc_genero']")
+    .value.trim();
 
   const errores = [];
 
@@ -4373,7 +4358,7 @@ function validarFormularioGenero(event) {
           icon: "error",
         });
       } else {
-        // Si no hay errores, enviar el formulario        
+        // Si no hay errores, enviar el formulario
         procesarFormularioGenero(event, "crear");
       }
     })
@@ -4387,15 +4372,15 @@ function validarFormularioGenero(event) {
     });
 }
 function verificarDuplicadoGenero(genero) {
-  //console.log("Nombre verificar:", genero); 
+  //console.log("Nombre verificar:", genero);
 
   return fetch("cruds/verificar_nombre_genero.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ genero }),
   })
-  .then((response) => response.json())
-  .then((data) => {      
+    .then((response) => response.json())
+    .then((data) => {
       //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre ya existe.");
@@ -4418,19 +4403,17 @@ document.addEventListener("DOMContentLoaded", function () {
       fetch(`cruds/obtener_genero.php?id=${id}`)
         .then((response) => response.json())
         .then((data) => {
-        //console.log("Datos recibidos del servidor:", data);
+          //console.log("Datos recibidos del servidor:", data);
           if (data.success) {
-            const formularioGenero = document.getElementById("form-editarGenero");
+            const formularioGenero =
+              document.getElementById("form-editarGenero");
             if (formularioGenero) {
-              const campos =[
-                "idgenero",
-                "genero",
-                "desc_genero",
-              ];
-              campos.forEach((campo) =>{
-               //console.log(`Asignando ${campo}:`, data.genero[campo]);
-                formularioGenero[`editar-${campo}`].value = data.genero[campo] || "";
-              });             
+              const campos = ["idgenero", "genero", "desc_genero"];
+              campos.forEach((campo) => {
+                //console.log(`Asignando ${campo}:`, data.genero[campo]);
+                formularioGenero[`editar-${campo}`].value =
+                  data.genero[campo] || "";
+              });
               abrirModalGenero("editar-modalGenero");
             } else {
               console.error("Formulario de edición no encontrado.");
@@ -4454,7 +4437,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-   // Validar y enviar el formulario de edición
+  // Validar y enviar el formulario de edición
   document.body.addEventListener("submit", function (event) {
     if (event.target && event.target.id === "form-editarGenero") {
       event.preventDefault(); // Esto evita el comportamiento predeterminado de recargar la página.
@@ -4479,7 +4462,7 @@ function verificarDuplicadoEditarGenero(genero, id = 0) {
   })
     .then((response) => response.json())
     .then((data) => {
-       //console.log("Respuesta de verificar_nombre.php:", data);
+      //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre ya existe.");
       }
@@ -4506,8 +4489,8 @@ async function validarFormularioEdicionGenero(formulario) {
   ];
   let primerError = null;
   const errores = [];
-  
-   // Validar cada campo
+
+  // Validar cada campo
   campos.forEach((campo) => {
     const campoFormulario = document.getElementById(`editar-${campo.nombre}`);
     if (!campoFormulario) {
@@ -4520,18 +4503,18 @@ async function validarFormularioEdicionGenero(formulario) {
         campoFormulario.classList.remove("input-error"); // Quita la clase si el campo es válido
       }
     });
-const valor = campoFormulario.value.trim();
-      // Validar por longitud mínima
-      if (valor.length < campo.min) {
-        errores.push(campo.mensaje);
-        campoFormulario.classList.add("input-error");
-        campoFormulario.focus(); // Establece el foco en el campo inválido
-        if (!primerError) primerError = campoFormulario; // Guardar el primer error
-      } else {
-        campoFormulario.classList.remove("input-error");
-      }
-    });
-    // Si hay errores, mostrar la alerta y enfocar el primer campo con error
+    const valor = campoFormulario.value.trim();
+    // Validar por longitud mínima
+    if (valor.length < campo.min) {
+      errores.push(campo.mensaje);
+      campoFormulario.classList.add("input-error");
+      campoFormulario.focus(); // Establece el foco en el campo inválido
+      if (!primerError) primerError = campoFormulario; // Guardar el primer error
+    } else {
+      campoFormulario.classList.remove("input-error");
+    }
+  });
+  // Si hay errores, mostrar la alerta y enfocar el primer campo con error
   if (errores.length > 0) {
     Swal.fire({
       title: "Errores en el formulario",
@@ -4545,7 +4528,7 @@ const valor = campoFormulario.value.trim();
   // Verificar duplicado antes de enviar el formulario
   const generoInput = document.getElementById("editar-genero");
   const idInput = document.getElementById("editar-idgenero");
-  if(!generoInput || !idInput){
+  if (!generoInput || !idInput) {
     console.log("Error: No se encontró el campo o ID.");
     return;
   }
@@ -4554,7 +4537,7 @@ const valor = campoFormulario.value.trim();
 
   try {
     //console.log("Verificando duplicado. ID:", id, "Genero:", genero);
-    const esDuplicado = await verificarDuplicadoEditarGenero(genero, id);    
+    const esDuplicado = await verificarDuplicadoEditarGenero(genero, id);
     if (esDuplicado) {
       return; // No enviar el formulario si hay duplicados
     } else {
@@ -4572,15 +4555,15 @@ function enviarFormularioEdicionGenero(formulario) {
     return;
   }
   const formData = new FormData(formulario);
-    
-      fetch("cruds/editar_genero.php", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          //console.log("Respuesta del servidorEdit:", data);
-          if (data.success) {
+
+  fetch("cruds/editar_genero.php", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Respuesta del servidorEdit:", data);
+      if (data.success) {
         mostrarAlerta(
           "success",
           "¡Éxito!",
@@ -4598,11 +4581,7 @@ function enviarFormularioEdicionGenero(formulario) {
     })
     .catch((error) => {
       console.error("Error al actualizar:", error);
-      mostrarAlerta(
-        "error",
-        "Error",
-        "Ocurrió un problema al actualizar."
-      );
+      mostrarAlerta("error", "Error", "Ocurrió un problema al actualizar.");
     });
 }
 // Actualizar fila de la tabla
@@ -4610,11 +4589,11 @@ function actualizarFilaTablaGenero(formData) {
   const fila = document
     .querySelector(`button[data-id="${formData.get("editar-idgenero")}"]`)
     .closest("tr");
-    //console.log(formData.get("editar-idgenero"));
-    if (fila) {
-      fila.cells[0].textContent = formData.get("genero");
-      fila.cells[1].textContent = formData.get("desc_genero");
-    }
+  //console.log(formData.get("editar-idgenero"));
+  if (fila) {
+    fila.cells[0].textContent = formData.get("genero");
+    fila.cells[1].textContent = formData.get("desc_genero");
+  }
 }
 // Eliminar Generos*****************************
 document.addEventListener("click", function (event) {
@@ -4713,7 +4692,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target.id === "buscarboxgenero") {
       const buscarBox = event.target; // El input dinámico
       const filtro = buscarBox.value.toLowerCase();
-      const limpiarBusquedaGenero = document.getElementById("limpiar-busquedaGenero"); // Botón dinámico
+      const limpiarBusquedaGenero = document.getElementById(
+        "limpiar-busquedaGenero"
+      ); // Botón dinámico
       const filas = document.querySelectorAll("#tabla-generos tbody tr");
       const mensajeVacio = document.getElementById("mensaje-vacio");
 
@@ -4791,7 +4772,7 @@ function cerrarModalEstilo(id) {
 }
 
 function procesarFormularioEstilo(event, tipo) {
-  event.preventDefault();//Para que no recergue la pagina
+  event.preventDefault(); //Para que no recergue la pagina
   const formData = new FormData(event.target);
 
   fetch(`cruds/procesar_${tipo}_estilo.php`, {
@@ -4854,7 +4835,9 @@ function validarFormularioEstilo(event) {
   event.preventDefault();
 
   const estilo = document.querySelector("[name='estilo']").value.trim();
-  const desc_estilo = document.querySelector("[name='desc_estilo']").value.trim();
+  const desc_estilo = document
+    .querySelector("[name='desc_estilo']")
+    .value.trim();
 
   const errores = [];
 
@@ -4905,7 +4888,7 @@ function validarFormularioEstilo(event) {
           icon: "error",
         });
       } else {
-        // Si no hay errores, enviar el formulario        
+        // Si no hay errores, enviar el formulario
         procesarFormularioEstilo(event, "crear");
       }
     })
@@ -4919,15 +4902,15 @@ function validarFormularioEstilo(event) {
     });
 }
 function verificarDuplicadoEstilo(estilo) {
-  //console.log("Nombre verificar:", estilo); 
+  //console.log("Nombre verificar:", estilo);
 
   return fetch("cruds/verificar_nombre_estilo.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ estilo }),
   })
-  .then((response) => response.json())
-  .then((data) => {      
+    .then((response) => response.json())
+    .then((data) => {
       //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre ya existe.");
@@ -4950,19 +4933,17 @@ document.addEventListener("DOMContentLoaded", function () {
       fetch(`cruds/obtener_estilo.php?id=${id}`)
         .then((response) => response.json())
         .then((data) => {
-        //console.log("Datos recibidos del servidor:", data);
+          //console.log("Datos recibidos del servidor:", data);
           if (data.success) {
-            const formularioEstilo = document.getElementById("form-editarEstilo");
+            const formularioEstilo =
+              document.getElementById("form-editarEstilo");
             if (formularioEstilo) {
-              const campos =[
-                "idestilo",
-                "estilo",
-                "desc_estilo",
-              ];
-              campos.forEach((campo) =>{
-               //console.log(`Asignando ${campo}:`, data.estilo[campo]);
-                formularioEstilo[`editar-${campo}`].value = data.estilo[campo] || "";
-              });             
+              const campos = ["idestilo", "estilo", "desc_estilo"];
+              campos.forEach((campo) => {
+                //console.log(`Asignando ${campo}:`, data.estilo[campo]);
+                formularioEstilo[`editar-${campo}`].value =
+                  data.estilo[campo] || "";
+              });
               abrirModalEstilo("editar-modalEstilo");
             } else {
               console.error("Formulario de edición no encontrado.");
@@ -4986,7 +4967,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-   // Validar y enviar el formulario de edición
+  // Validar y enviar el formulario de edición
   document.body.addEventListener("submit", function (event) {
     if (event.target && event.target.id === "form-editarEstilo") {
       event.preventDefault(); // Esto evita el comportamiento predeterminado de recargar la página.
@@ -5011,7 +4992,7 @@ function verificarDuplicadoEditarEstilo(estilo, id = 0) {
   })
     .then((response) => response.json())
     .then((data) => {
-       //console.log("Respuesta de verificar_nombre.php:", data);
+      //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre ya existe.");
       }
@@ -5038,8 +5019,8 @@ async function validarFormularioEdicionEstilo(formulario) {
   ];
   let primerError = null;
   const errores = [];
-  
-   // Validar cada campo
+
+  // Validar cada campo
   campos.forEach((campo) => {
     const campoFormulario = document.getElementById(`editar-${campo.nombre}`);
     if (!campoFormulario) {
@@ -5052,18 +5033,18 @@ async function validarFormularioEdicionEstilo(formulario) {
         campoFormulario.classList.remove("input-error"); // Quita la clase si el campo es válido
       }
     });
-const valor = campoFormulario.value.trim();
-      // Validar por longitud mínima
-      if (valor.length < campo.min) {
-        errores.push(campo.mensaje);
-        campoFormulario.classList.add("input-error");
-        campoFormulario.focus(); // Establece el foco en el campo inválido
-        if (!primerError) primerError = campoFormulario; // Guardar el primer error
-      } else {
-        campoFormulario.classList.remove("input-error");
-      }
-    });
-    // Si hay errores, mostrar la alerta y enfocar el primer campo con error
+    const valor = campoFormulario.value.trim();
+    // Validar por longitud mínima
+    if (valor.length < campo.min) {
+      errores.push(campo.mensaje);
+      campoFormulario.classList.add("input-error");
+      campoFormulario.focus(); // Establece el foco en el campo inválido
+      if (!primerError) primerError = campoFormulario; // Guardar el primer error
+    } else {
+      campoFormulario.classList.remove("input-error");
+    }
+  });
+  // Si hay errores, mostrar la alerta y enfocar el primer campo con error
   if (errores.length > 0) {
     Swal.fire({
       title: "Errores en el formulario",
@@ -5077,7 +5058,7 @@ const valor = campoFormulario.value.trim();
   // Verificar duplicado antes de enviar el formulario
   const estiloInput = document.getElementById("editar-estilo");
   const idInput = document.getElementById("editar-idestilo");
-  if(!estiloInput || !idInput){
+  if (!estiloInput || !idInput) {
     console.log("Error: No se encontró el campo o ID.");
     return;
   }
@@ -5086,7 +5067,7 @@ const valor = campoFormulario.value.trim();
 
   try {
     //console.log("Verificando duplicado. ID:", id, "Estilo:", estilo);
-    const esDuplicado = await verificarDuplicadoEditarEstilo(estilo, id);    
+    const esDuplicado = await verificarDuplicadoEditarEstilo(estilo, id);
     if (esDuplicado) {
       return; // No enviar el formulario si hay duplicados
     } else {
@@ -5104,15 +5085,15 @@ function enviarFormularioEdicionEstilo(formulario) {
     return;
   }
   const formData = new FormData(formulario);
-    
-      fetch("cruds/editar_estilo.php", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          //console.log("Respuesta del servidorEdit:", data);
-          if (data.success) {
+
+  fetch("cruds/editar_estilo.php", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Respuesta del servidorEdit:", data);
+      if (data.success) {
         mostrarAlerta(
           "success",
           "¡Éxito!",
@@ -5130,11 +5111,7 @@ function enviarFormularioEdicionEstilo(formulario) {
     })
     .catch((error) => {
       console.error("Error al actualizar:", error);
-      mostrarAlerta(
-        "error",
-        "Error",
-        "Ocurrió un problema al actualizar."
-      );
+      mostrarAlerta("error", "Error", "Ocurrió un problema al actualizar.");
     });
 }
 // Actualizar fila de la tabla
@@ -5142,11 +5119,11 @@ function actualizarFilaTablaEstilo(formData) {
   const fila = document
     .querySelector(`button[data-id="${formData.get("editar-idestilo")}"]`)
     .closest("tr");
-    //console.log(formData.get("editar-idestilo"));
-    if (fila) {
-      fila.cells[0].textContent = formData.get("estilo");
-      fila.cells[1].textContent = formData.get("desc_estilo");
-    }
+  //console.log(formData.get("editar-idestilo"));
+  if (fila) {
+    fila.cells[0].textContent = formData.get("estilo");
+    fila.cells[1].textContent = formData.get("desc_estilo");
+  }
 }
 // Eliminar Estilos*****************************
 document.addEventListener("click", function (event) {
@@ -5245,7 +5222,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target.id === "buscarboxestilo") {
       const buscarBox = event.target; // El input dinámico
       const filtro = buscarBox.value.toLowerCase();
-      const limpiarBusquedaEstilo = document.getElementById("limpiar-busquedaEstilo"); // Botón dinámico
+      const limpiarBusquedaEstilo = document.getElementById(
+        "limpiar-busquedaEstilo"
+      ); // Botón dinámico
       const filas = document.querySelectorAll("#tabla-estilos tbody tr");
       const mensajeVacio = document.getElementById("mensaje-vacio");
 
@@ -5322,7 +5301,7 @@ function cerrarModalMpago(id) {
 }
 
 function procesarFormularioMpago(event, tipo) {
-  event.preventDefault();//Para que no recergue la pagina
+  event.preventDefault(); //Para que no recergue la pagina
   const formData = new FormData(event.target);
 
   fetch(`cruds/procesar_${tipo}_mpago.php`, {
@@ -5436,7 +5415,7 @@ function validarFormularioMpago(event) {
           icon: "error",
         });
       } else {
-        // Si no hay errores, enviar el formulario        
+        // Si no hay errores, enviar el formulario
         procesarFormularioMpago(event, "crear");
       }
     })
@@ -5450,15 +5429,15 @@ function validarFormularioMpago(event) {
     });
 }
 function verificarDuplicadoMpago(mpago) {
-  //console.log("Nombre verificar:", mpago); 
+  //console.log("Nombre verificar:", mpago);
 
   return fetch("cruds/verificar_nombre_mpago.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ mpago }),
   })
-  .then((response) => response.json())
-  .then((data) => {      
+    .then((response) => response.json())
+    .then((data) => {
       //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre ya existe.");
@@ -5481,19 +5460,16 @@ document.addEventListener("DOMContentLoaded", function () {
       fetch(`cruds/obtener_mpago.php?id=${id}`)
         .then((response) => response.json())
         .then((data) => {
-        //console.log("Datos recibidos del servidor:", data);
+          //console.log("Datos recibidos del servidor:", data);
           if (data.success) {
             const formularioMpago = document.getElementById("form-editarMpago");
             if (formularioMpago) {
-              const campos =[
-                "idmpago",
-                "mpago",
-                "desc_mpago",
-              ];
-              campos.forEach((campo) =>{
-               //console.log(`Asignando ${campo}:`, data.mpago[campo]);
-                formularioMpago[`editar-${campo}`].value = data.mpago[campo] || "";
-              });             
+              const campos = ["idmpago", "mpago", "desc_mpago"];
+              campos.forEach((campo) => {
+                //console.log(`Asignando ${campo}:`, data.mpago[campo]);
+                formularioMpago[`editar-${campo}`].value =
+                  data.mpago[campo] || "";
+              });
               abrirModalMpago("editar-modalMpago");
             } else {
               console.error("Formulario de edición no encontrado.");
@@ -5517,7 +5493,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-   // Validar y enviar el formulario de edición
+  // Validar y enviar el formulario de edición
   document.body.addEventListener("submit", function (event) {
     if (event.target && event.target.id === "form-editarMpago") {
       event.preventDefault(); // Esto evita el comportamiento predeterminado de recargar la página.
@@ -5542,7 +5518,7 @@ function verificarDuplicadoEditarMpago(mpago, id = 0) {
   })
     .then((response) => response.json())
     .then((data) => {
-       //console.log("Respuesta de verificar_nombre.php:", data);
+      //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre ya existe.");
       }
@@ -5569,8 +5545,8 @@ async function validarFormularioEdicionMpago(formulario) {
   ];
   let primerError = null;
   const errores = [];
-  
-   // Validar cada campo
+
+  // Validar cada campo
   campos.forEach((campo) => {
     const campoFormulario = document.getElementById(`editar-${campo.nombre}`);
     if (!campoFormulario) {
@@ -5583,18 +5559,18 @@ async function validarFormularioEdicionMpago(formulario) {
         campoFormulario.classList.remove("input-error"); // Quita la clase si el campo es válido
       }
     });
-const valor = campoFormulario.value.trim();
-      // Validar por longitud mínima
-      if (valor.length < campo.min) {
-        errores.push(campo.mensaje);
-        campoFormulario.classList.add("input-error");
-        campoFormulario.focus(); // Establece el foco en el campo inválido
-        if (!primerError) primerError = campoFormulario; // Guardar el primer error
-      } else {
-        campoFormulario.classList.remove("input-error");
-      }
-    });
-    // Si hay errores, mostrar la alerta y enfocar el primer campo con error
+    const valor = campoFormulario.value.trim();
+    // Validar por longitud mínima
+    if (valor.length < campo.min) {
+      errores.push(campo.mensaje);
+      campoFormulario.classList.add("input-error");
+      campoFormulario.focus(); // Establece el foco en el campo inválido
+      if (!primerError) primerError = campoFormulario; // Guardar el primer error
+    } else {
+      campoFormulario.classList.remove("input-error");
+    }
+  });
+  // Si hay errores, mostrar la alerta y enfocar el primer campo con error
   if (errores.length > 0) {
     Swal.fire({
       title: "Errores en el formulario",
@@ -5608,7 +5584,7 @@ const valor = campoFormulario.value.trim();
   // Verificar duplicado antes de enviar el formulario
   const mpagoInput = document.getElementById("editar-mpago");
   const idInput = document.getElementById("editar-idmpago");
-  if(!mpagoInput || !idInput){
+  if (!mpagoInput || !idInput) {
     console.log("Error: No se encontró el campo o ID.");
     return;
   }
@@ -5617,7 +5593,7 @@ const valor = campoFormulario.value.trim();
 
   try {
     //console.log("Verificando duplicado. ID:", id, "Mpago:", mpago);
-    const esDuplicado = await verificarDuplicadoEditarMpago(mpago, id);    
+    const esDuplicado = await verificarDuplicadoEditarMpago(mpago, id);
     if (esDuplicado) {
       return; // No enviar el formulario si hay duplicados
     } else {
@@ -5635,15 +5611,15 @@ function enviarFormularioEdicionMpago(formulario) {
     return;
   }
   const formData = new FormData(formulario);
-    
-      fetch("cruds/editar_mpago.php", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          //console.log("Respuesta del servidorEdit:", data);
-          if (data.success) {
+
+  fetch("cruds/editar_mpago.php", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Respuesta del servidorEdit:", data);
+      if (data.success) {
         mostrarAlerta(
           "success",
           "¡Éxito!",
@@ -5661,11 +5637,7 @@ function enviarFormularioEdicionMpago(formulario) {
     })
     .catch((error) => {
       console.error("Error al actualizar:", error);
-      mostrarAlerta(
-        "error",
-        "Error",
-        "Ocurrió un problema al actualizar."
-      );
+      mostrarAlerta("error", "Error", "Ocurrió un problema al actualizar.");
     });
 }
 // Actualizar fila de la tabla
@@ -5673,11 +5645,11 @@ function actualizarFilaTablaMpago(formData) {
   const fila = document
     .querySelector(`button[data-id="${formData.get("editar-idmpago")}"]`)
     .closest("tr");
-    //console.log(formData.get("editar-idmpago"));
-    if (fila) {
-      fila.cells[0].textContent = formData.get("mpago");
-      fila.cells[1].textContent = formData.get("desc_mpago");
-    }
+  //console.log(formData.get("editar-idmpago"));
+  if (fila) {
+    fila.cells[0].textContent = formData.get("mpago");
+    fila.cells[1].textContent = formData.get("desc_mpago");
+  }
 }
 // Eliminar Mpagos*****************************
 document.addEventListener("click", function (event) {
@@ -5776,7 +5748,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target.id === "buscarboxmpago") {
       const buscarBox = event.target; // El input dinámico
       const filtro = buscarBox.value.toLowerCase();
-      const limpiarBusquedaMpago = document.getElementById("limpiar-busquedaMpago"); // Botón dinámico
+      const limpiarBusquedaMpago = document.getElementById(
+        "limpiar-busquedaMpago"
+      ); // Botón dinámico
       const filas = document.querySelectorAll("#tabla-mpagos tbody tr");
       const mensajeVacio = document.getElementById("mensaje-vacio");
 
@@ -5853,7 +5827,7 @@ function cerrarModalImpuesto(id) {
 }
 
 function procesarFormularioImpuesto(event, tipo) {
-  event.preventDefault();//Para que no recergue la pagina
+  event.preventDefault(); //Para que no recergue la pagina
   const formData = new FormData(event.target);
 
   fetch(`cruds/procesar_${tipo}_impuesto.php`, {
@@ -5967,7 +5941,7 @@ function validarFormularioImpuesto(event) {
           icon: "error",
         });
       } else {
-        // Si no hay errores, enviar el formulario        
+        // Si no hay errores, enviar el formulario
         procesarFormularioImpuesto(event, "crear");
       }
     })
@@ -5981,15 +5955,15 @@ function validarFormularioImpuesto(event) {
     });
 }
 function verificarDuplicadoImpuesto(impuesto) {
-  //console.log("Nombre verificar:", impuesto); 
+  //console.log("Nombre verificar:", impuesto);
 
   return fetch("cruds/verificar_nombre_impuesto.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ impuesto }),
   })
-  .then((response) => response.json())
-  .then((data) => {      
+    .then((response) => response.json())
+    .then((data) => {
       //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre ya existe.");
@@ -6012,19 +5986,18 @@ document.addEventListener("DOMContentLoaded", function () {
       fetch(`cruds/obtener_impuesto.php?id=${id}`)
         .then((response) => response.json())
         .then((data) => {
-        //console.log("Datos recibidos del servidor:", data);
+          //console.log("Datos recibidos del servidor:", data);
           if (data.success) {
-            const formularioImpuesto = document.getElementById("form-editarImpuesto");
+            const formularioImpuesto = document.getElementById(
+              "form-editarImpuesto"
+            );
             if (formularioImpuesto) {
-              const campos =[
-                "idimpuesto",
-                "impuesto",
-                "tasa",
-              ];
-              campos.forEach((campo) =>{
-               //console.log(`Asignando ${campo}:`, data.impuesto[campo]);
-                formularioImpuesto[`editar-${campo}`].value = data.impuesto[campo] || "";
-              });             
+              const campos = ["idimpuesto", "impuesto", "tasa"];
+              campos.forEach((campo) => {
+                //console.log(`Asignando ${campo}:`, data.impuesto[campo]);
+                formularioImpuesto[`editar-${campo}`].value =
+                  data.impuesto[campo] || "";
+              });
               abrirModalImpuesto("editar-modalImpuesto");
             } else {
               console.error("Formulario de edición no encontrado.");
@@ -6048,7 +6021,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-   // Validar y enviar el formulario de edición
+  // Validar y enviar el formulario de edición
   document.body.addEventListener("submit", function (event) {
     if (event.target && event.target.id === "form-editarImpuesto") {
       event.preventDefault(); // Esto evita el comportamiento predeterminado de recargar la página.
@@ -6073,7 +6046,7 @@ function verificarDuplicadoEditarImpuesto(impuesto, id = 0) {
   })
     .then((response) => response.json())
     .then((data) => {
-       //console.log("Respuesta de verificar_nombre.php:", data);
+      //console.log("Respuesta de verificar_nombre.php:", data);
       if (data.existe) {
         mostrarAlerta("error", "Error", "El nombre ya existe.");
       }
@@ -6100,8 +6073,8 @@ async function validarFormularioEdicionImpuesto(formulario) {
   ];
   let primerError = null;
   const errores = [];
-  
-   // Validar cada campo
+
+  // Validar cada campo
   campos.forEach((campo) => {
     const campoFormulario = document.getElementById(`editar-${campo.nombre}`);
     if (!campoFormulario) {
@@ -6114,18 +6087,18 @@ async function validarFormularioEdicionImpuesto(formulario) {
         campoFormulario.classList.remove("input-error"); // Quita la clase si el campo es válido
       }
     });
-const valor = campoFormulario.value.trim();
-      // Validar por longitud mínima
-      if (valor.length < campo.min) {
-        errores.push(campo.mensaje);
-        campoFormulario.classList.add("input-error");
-        campoFormulario.focus(); // Establece el foco en el campo inválido
-        if (!primerError) primerError = campoFormulario; // Guardar el primer error
-      } else {
-        campoFormulario.classList.remove("input-error");
-      }
-    });
-    // Si hay errores, mostrar la alerta y enfocar el primer campo con error
+    const valor = campoFormulario.value.trim();
+    // Validar por longitud mínima
+    if (valor.length < campo.min) {
+      errores.push(campo.mensaje);
+      campoFormulario.classList.add("input-error");
+      campoFormulario.focus(); // Establece el foco en el campo inválido
+      if (!primerError) primerError = campoFormulario; // Guardar el primer error
+    } else {
+      campoFormulario.classList.remove("input-error");
+    }
+  });
+  // Si hay errores, mostrar la alerta y enfocar el primer campo con error
   if (errores.length > 0) {
     Swal.fire({
       title: "Errores en el formulario",
@@ -6139,7 +6112,7 @@ const valor = campoFormulario.value.trim();
   // Verificar duplicado antes de enviar el formulario
   const impuestoInput = document.getElementById("editar-impuesto");
   const idInput = document.getElementById("editar-idimpuesto");
-  if(!impuestoInput || !idInput){
+  if (!impuestoInput || !idInput) {
     console.log("Error: No se encontró el campo o ID.");
     return;
   }
@@ -6148,7 +6121,7 @@ const valor = campoFormulario.value.trim();
 
   try {
     //console.log("Verificando duplicado. ID:", id, "Impuesto:", impuesto);
-    const esDuplicado = await verificarDuplicadoEditarImpuesto(impuesto, id);    
+    const esDuplicado = await verificarDuplicadoEditarImpuesto(impuesto, id);
     if (esDuplicado) {
       return; // No enviar el formulario si hay duplicados
     } else {
@@ -6166,15 +6139,15 @@ function enviarFormularioEdicionImpuesto(formulario) {
     return;
   }
   const formData = new FormData(formulario);
-    
-      fetch("cruds/editar_impuesto.php", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          //console.log("Respuesta del servidorEdit:", data);
-          if (data.success) {
+
+  fetch("cruds/editar_impuesto.php", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Respuesta del servidorEdit:", data);
+      if (data.success) {
         mostrarAlerta(
           "success",
           "¡Éxito!",
@@ -6192,11 +6165,7 @@ function enviarFormularioEdicionImpuesto(formulario) {
     })
     .catch((error) => {
       console.error("Error al actualizar:", error);
-      mostrarAlerta(
-        "error",
-        "Error",
-        "Ocurrió un problema al actualizar."
-      );
+      mostrarAlerta("error", "Error", "Ocurrió un problema al actualizar.");
     });
 }
 // Actualizar fila de la tabla
@@ -6204,11 +6173,11 @@ function actualizarFilaTablaImpuesto(formData) {
   const fila = document
     .querySelector(`button[data-id="${formData.get("editar-idimpuesto")}"]`)
     .closest("tr");
-    //console.log(formData.get("editar-idimpuesto"));
-    if (fila) {
-      fila.cells[0].textContent = formData.get("impuesto");
-      fila.cells[1].textContent = formData.get("tasa");
-    }
+  //console.log(formData.get("editar-idimpuesto"));
+  if (fila) {
+    fila.cells[0].textContent = formData.get("impuesto");
+    fila.cells[1].textContent = formData.get("tasa");
+  }
 }
 // Eliminar Impuestos*****************************
 document.addEventListener("click", function (event) {
@@ -6307,7 +6276,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target.id === "buscarboximpuesto") {
       const buscarBox = event.target; // El input dinámico
       const filtro = buscarBox.value.toLowerCase();
-      const limpiarBusquedaImpuesto = document.getElementById("limpiar-busquedaImpuesto"); // Botón dinámico
+      const limpiarBusquedaImpuesto = document.getElementById(
+        "limpiar-busquedaImpuesto"
+      ); // Botón dinámico
       const filas = document.querySelectorAll("#tabla-impuestos tbody tr");
       const mensajeVacio = document.getElementById("mensaje-vacio");
 
@@ -6360,8 +6331,574 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 // Llamar formulario de Proveedores*************************************************
+document
+  .getElementById("proveedores-link")
+  .addEventListener("click", function (event) {
+    event.preventDefault(); // Evita la acción por defecto del enlace
+    fetch("catalogos/proveedores.php")
+      .then((response) => response.text())
+      .then((html) => {
+        document.getElementById("content-area").innerHTML = html;
+      })
+      .catch((error) => {
+        console.error("Error al cargar el contenido:", error);
+      });
+  });
 
-// Llamar formulario de Clientes****************************************************
+//Crear Proveedores***********************************
+function abrirModalProveedor(id) {
+  document.getElementById(id).style.display = "flex";
+}
+
+function cerrarModalProveedor(id) {
+  document.getElementById(id).style.display = "none";
+}
+
+function procesarFormularioProveedor(event, tipo) {
+  event.preventDefault(); //Para que no recergue la pagina
+  const formData = new FormData(event.target);
+
+  fetch(`cruds/procesar_${tipo}_proveedor.php`, {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        // Cerrar el modal
+        cerrarModalProveedor(tipo + "-modalProveedor");
+        // Limpiar los campos del formulario
+        event.target.reset();
+
+        // Actualizar la tabla dinámicamente si es 'crear'
+        if (tipo === "crear") {
+          const tbody = document.querySelector("table tbody");
+
+          // Crear una nueva fila
+          const newRow = document.createElement("tr");
+          newRow.innerHTML = `
+            <td>${data.proveedor.proveedor}</td>
+            <td>${data.proveedor.contacto}</td>
+            <td>${data.proveedor.telefono}</td>
+            <td>${data.proveedor.email}</td>
+            <td>
+              <button title="Editar" class="editarProveedor fa-solid fa-pen-to-square" data-id="${data.proveedor.id}"></button>
+              <button title="Eliminar" class="eliminarProveedor fa-solid fa-trash" data-id="${data.proveedor.id}"></button>
+            </td>
+          `;
+
+          // Agregar la nueva fila a la tabla
+          tbody.appendChild(newRow);
+        }
+
+        // Mostrar un mensaje de éxito
+        Swal.fire({
+          title: "¡Éxito!",
+          text: data.message, // Usar el mensaje del backend
+          icon: "success",
+        });
+      } else {
+        // Mostrar un mensaje de error específico del backend
+        Swal.fire({
+          title: "Error",
+          text: data.message || "Ocurrió un problema.", // Mostrar el mensaje específico si existe
+          icon: "error",
+        });
+      }
+    })
+    .catch((error) => {
+      // Manejar errores inesperados
+      console.error("Error:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Ocurrió un error inesperado. Intente más tarde.",
+        icon: "error",
+      });
+    });
+}
+function validarFormularioProveedor(event) {
+  event.preventDefault();
+
+  const proveedor = document.querySelector("[name='proveedor']").value.trim();
+  const contacto = document.querySelector("[name='contacto']").value.trim();
+  const rfc = document.querySelector("[name='rfc']").value.trim();
+
+  const errores = [];
+
+  if (proveedor.length < 3) {
+    errores.push("El nombre debe tener al menos 3 caracteres.");
+    const inputname = document.querySelector("#crear-proveedor");
+    inputname.focus();
+    inputname.classList.add("input-error"); // Añade la clase de error
+  }
+  // Elimina la clase de error al corregir
+  const inputname = document.querySelector("#crear-proveedor");
+  inputname.addEventListener("input", () => {
+    if (inputname.value.length >= 3) {
+      inputname.classList.remove("input-error"); // Quita la clase si el campo es válido
+    }
+  });
+
+  if (contacto.length < 3) {
+    errores.push("El contacto debe tener al menos 3 caracteres.");
+    const inputcontacto = document.querySelector("#crear-contacto");
+    inputcontacto.focus();
+    inputcontacto.classList.add("input-error"); // Añade la clase de error
+  }
+  // Elimina la clase de error al corregir
+  const inputcontacto = document.querySelector("#crear-contacto");
+  inputcontacto.addEventListener("input", () => {
+    if (inputcontacto.value.length >= 3) {
+      inputcontacto.classList.remove("input-error"); // Quita la clase si el campo es válido
+    }
+  });
+
+  if (rfc.length < 12) {
+    errores.push("El RFC debe tener al menos 12 caracteres.");
+    const inputrfc = document.querySelector("#crear-rfc");
+    inputrfc.focus();
+    inputrfc.classList.add("input-error"); // Añade la clase de error
+  }
+  // Elimina la clase de error al corregir
+  const inputrfc = document.querySelector("#crear-rfc");
+  inputrfc.addEventListener("input", () => {
+    if (inputrfc.value.length >= 12) {
+      inputrfc.classList.remove("input-error"); // Quita la clase si el campo es válido
+    }
+  });
+
+  if (errores.length > 0) {
+    Swal.fire({
+      title: "Errores en el formulario",
+      html: errores.join("<br>"),
+      icon: "error",
+    });
+    return;
+  }
+
+  // Verificar duplicados
+  verificarDuplicadoProveedor(proveedor)
+    .then((esDuplicado) => {
+      if (esDuplicado) {
+        Swal.fire({
+          title: "Error",
+          text: "El nombre ya existe. Por favor, elige otro.",
+          icon: "error",
+        });
+      } else {
+        // Si no hay errores, enviar el formulario
+        procesarFormularioProveedor(event, "crear");
+      }
+    })
+    .catch((error) => {
+      console.error("Error al verificar duplicados:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Ocurrió un problema al validar el nombre.",
+        icon: "error",
+      });
+    });
+}
+function verificarDuplicadoProveedor(proveedor) {
+  //console.log("Nombre verificar:", proveedor);
+
+  return fetch("cruds/verificar_nombre_proveedor.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ proveedor }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Respuesta de verificar_nombre.php:", data);
+      if (data.existe) {
+        mostrarAlerta("error", "Error", "El nombre ya existe.");
+      }
+      return data.existe;
+    })
+    .catch((error) => {
+      console.error("Error al verificar duplicado:", error);
+      return true; // Asume duplicado en caso de error
+    });
+}
+//Editar Proveedores************************************************************
+document.addEventListener("DOMContentLoaded", function () {
+  // Escuchar clic en el botón de editar
+  document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("editarProveedor")) {
+      const id = event.target.dataset.id;
+      //console.log("Botón editar clickeado. ID:", id);
+
+      fetch(`cruds/obtener_proveedor.php?id=${id}`)
+        .then((response) => response.json())
+        .then((data) => {
+          //console.log("Datos recibidos del servidor:", data);
+          if (data.success) {
+            const formularioProveedor = document.getElementById(
+              "form-editarProveedor"
+            );
+            if (formularioProveedor) {
+              const campos = [
+                "idproveedor",
+                "proveedor",
+                "contacto",
+                "rfc",
+                "telefono",
+                "celular",
+                "email",
+                "limitecred",
+                "diacred",
+              ];
+              //console.log(`Asignando ${campo}:`, data.proveedor[campo]);
+              campos.forEach((campo) => {
+                const input = formularioProveedor[`editar-${campo}`];
+                if (input) {
+                  //console.log(`Asignando ${campo}:`, data.proveedor[campo]);
+                  input.value = data.proveedor[campo] || "";
+                } else {
+                  console.warn(
+                    `El campo editar-${campo} no existe en el formulario.`
+                  );
+                }
+              });
+              abrirModalProveedor("editar-modalProveedor");
+            } else {
+              console.error("Formulario de edición no encontrado.");
+            }
+          } else {
+            mostrarAlerta(
+              "error",
+              "Error",
+              data.message || "No se pudo cargar el campo."
+            );
+          }
+        })
+        .catch((error) => {
+          console.error("Error al obtener el campo:", error);
+          mostrarAlerta(
+            "error",
+            "Error",
+            "Ocurrió un problema al obtener los datos."
+          );
+        });
+    }
+  });
+
+  // Validar y enviar el formulario de edición
+  document.body.addEventListener("submit", function (event) {
+    if (event.target && event.target.id === "form-editarProveedor") {
+      event.preventDefault(); // Esto evita el comportamiento predeterminado de recargar la página.
+      validarFormularioEdicionProveedor(event.target);
+    }
+  });
+});
+
+// Función genérica para mostrar alertas
+function mostrarAlerta(tipo, titulo, mensaje) {
+  Swal.fire({ title: titulo, text: mensaje, icon: tipo });
+}
+
+//Validar duplicados en edicion proveedor
+function verificarDuplicadoEditarProveedor(proveedor, id = 0) {
+  //console.log("Validando duplicados. ID:", id, "Proveedor:", proveedor);
+
+  return fetch("cruds/verificar_nombre_proveedor.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ proveedor, id }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Respuesta de verificar_nombre.php:", data);
+      if (data.existe) {
+        mostrarAlerta("error", "Error", "El nombre ya existe.");
+      }
+      return data.existe;
+    })
+    .catch((error) => {
+      console.error("Error al verificar duplicado:", error);
+      return true; // Asume duplicado en caso de error
+    });
+}
+// Validación del formulario de edición Proveedor
+async function validarFormularioEdicionProveedor(formulario) {
+  const campos = [
+    {
+      nombre: "proveedor",
+      min: 3,
+      mensaje: "El nombre debe tener al menos 3 caracteres.",
+    },
+    {
+      nombre: "contacto",
+      min: 3,
+      mensaje: "El contacto debe tener al menos 3 caracteres.",
+    },
+    {
+      nombre: "rfc",
+      min: 12,
+      mensaje: "El RFC debe tener al menos 12 caracteres.",
+    },
+  ];
+  let primerError = null;
+  const errores = [];
+
+  // Validar cada campo
+  campos.forEach((campo) => {
+    const campoFormulario = document.getElementById(`editar-${campo.nombre}`);
+    if (!campoFormulario) {
+      console.error(`El campo editar-${campo.nombre} no se encontró.`);
+      return; // Continúa con el siguiente campo
+    }
+    campoFormulario.addEventListener("input", () => {
+      //Quita lo rojo del error al validar que es mayor o igual a su validación
+      if (campoFormulario.value.length >= campo.min) {
+        campoFormulario.classList.remove("input-error"); // Quita la clase si el campo es válido
+      }
+    });
+    const valor = campoFormulario.value.trim();
+    // Validar por longitud mínima
+    if (valor.length < campo.min) {
+      errores.push(campo.mensaje);
+      campoFormulario.classList.add("input-error");
+      campoFormulario.focus(); // Establece el foco en el campo inválido
+      if (!primerError) primerError = campoFormulario; // Guardar el primer error
+    } else {
+      campoFormulario.classList.remove("input-error");
+    }
+  });
+  // Si hay errores, mostrar la alerta y enfocar el primer campo con error
+  if (errores.length > 0) {
+    Swal.fire({
+      title: "Errores en el formulario",
+      html: errores.join("<br>"),
+      icon: "error",
+    });
+    if (primerError) primerError.focus(); // Enfocar el primer campo con error
+    return;
+  }
+
+  // Verificar duplicado antes de enviar el formulario
+  const proveedorInput = document.getElementById("editar-proveedor");
+  const idInput = document.getElementById("editar-idproveedor");
+  if (!proveedorInput || !idInput) {
+    console.log("Error: No se encontró el campo o ID.");
+    return;
+  }
+  const proveedor = proveedorInput.value.trim();
+  const id = idInput.value;
+
+  try {
+    //console.log("Verificando duplicado. ID:", id, "Proveedor:", proveedor);
+    const esDuplicado = await verificarDuplicadoEditarCliente(proveedor, id);
+    if (esDuplicado) {
+      return; // No enviar el formulario si hay duplicados
+    } else {
+      //cerrarModalProveedor("editar-modalProveedor");
+      enviarFormularioEdicionProveedor(formulario); // Proceder si no hay duplicados
+    }
+  } catch (error) {
+    console.error("Error al verificar duplicado:", error);
+  }
+}
+// Enviar formulario de edición Proveedor
+function enviarFormularioEdicionProveedor(formulario) {
+  if (!formulario) {
+    console.error("El formulario no se encontró.");
+    return;
+  }
+  const formData = new FormData(formulario);
+
+  fetch("cruds/editar_proveedor.php", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Respuesta del servidorEdit:", data);
+      if (data.success) {
+        mostrarAlerta(
+          "success",
+          "¡Éxito!",
+          data.message || "Actualizada correctamente."
+        );
+        actualizarFilaTablaProveedor(formData);
+        cerrarModal("editar-modalProveedor");
+      } else {
+        mostrarAlerta(
+          "error",
+          "Error",
+          data.message || "No se pudo actualizar."
+        );
+      }
+    })
+    .catch((error) => {
+      console.error("Error al actualizar:", error);
+      mostrarAlerta("error", "Error", "Ocurrió un problema al actualizar.");
+    });
+}
+// Actualizar fila de la tabla
+function actualizarFilaTablaProveedor(formData) {
+  const fila = document
+    .querySelector(`button[data-id="${formData.get("editar-idproveedor")}"]`)
+    .closest("tr");
+  //console.log(formData.get("editar-idproveedor"));
+  if (fila) {
+    fila.cells[0].textContent = formData.get("proveedor");
+    fila.cells[1].textContent = formData.get("contacto");
+    fila.cells[2].textContent = formData.get("telefono");
+    fila.cells[3].textContent = formData.get("email");
+  }
+}
+// Eliminar Proveedores*****************************
+document.addEventListener("click", function (event) {
+  if (event.target.classList.contains("eliminarProveedor")) {
+    const id = event.target.dataset.id;
+
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esta acción",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Realizar la solicitud para eliminar
+        fetch(`cruds/eliminar_proveedor.php?id=${id}`, { method: "POST" })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              //alert("Registro eliminado correctamente");
+              Swal.fire(
+                "¡Eliminado!",
+                "El registro ha sido eliminado correctamente.",
+                "success"
+              );
+              // Remover la fila de la tabla
+              event.target.closest("tr").remove();
+            } else {
+              Swal.fire(
+                "Error",
+                data.message || "No se pudo eliminar el registro.",
+                "error"
+              );
+            }
+          })
+          .catch((error) => {
+            Swal.fire(
+              "Error",
+              "Hubo un problema al procesar tu solicitud.",
+              "error"
+            );
+            console.error("Error al eliminar:", error);
+          });
+      }
+    });
+  }
+});
+
+//Buscar en la tabla y filtrar
+document.addEventListener("DOMContentLoaded", function () {
+  const observarDOM = new MutationObserver(function (mutations) {
+    mutations.forEach((mutation) => {
+      if (mutation.type === "childList") {
+        const buscarBox = document.getElementById("buscarboxproveedor");
+        if (buscarBox) {
+          //console.log("Elemento 'buscarbox' encontrado dinámicamente");
+          agregarEventoBuscarProveedor(buscarBox);
+          observarDOM.disconnect(); // Deja de observar después de encontrarlo
+        }
+      }
+    });
+  });
+
+  // Comienza a observar el body del DOM
+  observarDOM.observe(document.body, { childList: true, subtree: true });
+
+  // Si el elemento ya existe en el DOM
+  const buscarBoxInicial = document.getElementById("buscarboxproveedor");
+  if (buscarBoxInicial) {
+    console.log("Elemento 'buscarboxproveedor' ya existe en el DOM");
+    agregarEventoBuscarProveedor(buscarBoxInicial);
+    observarDOM.disconnect(); // No es necesario seguir observando
+  }
+
+  // Función para agregar el evento de búsqueda
+  function agregarEventoBuscarProveedor(buscarBox) {
+    buscarBox.addEventListener("input", function () {
+      const filtro = buscarBox.value.toLowerCase();
+      const filas = document.querySelectorAll("#tabla-proveedores tbody tr");
+
+      filas.forEach((fila) => {
+        const textoFila = fila.textContent.toLowerCase();
+        fila.style.display = textoFila.includes(filtro) ? "" : "none";
+      });
+    });
+  }
+});
+
+//Limpiar busqueda
+document.addEventListener("DOMContentLoaded", function () {
+  // Delegación del evento 'input' en el campo de búsqueda
+  document.addEventListener("input", function (event) {
+    if (event.target.id === "buscarboxproveedor") {
+      const buscarBox = event.target; // El input dinámico
+      const filtro = buscarBox.value.toLowerCase();
+      const limpiarBusquedaCliente = document.getElementById(
+        "limpiar-busquedaCliente"
+      ); // Botón dinámico
+      const filas = document.querySelectorAll("#tabla-proveedores tbody tr");
+      const mensajeVacio = document.getElementById("mensaje-vacio");
+
+      let coincidencias = 0; // Contador de filas visibles
+
+      filas.forEach((fila) => {
+        const textoFila = fila.textContent.toLowerCase();
+        if (textoFila.includes(filtro)) {
+          fila.style.display = ""; // Mostrar fila
+          coincidencias++;
+        } else {
+          fila.style.display = "none"; // Ocultar fila
+        }
+      });
+
+      // Mostrar/ocultar mensaje de resultados vacíos
+      if (coincidencias === 0) {
+        mensajeVacio.style.display = "block";
+      } else {
+        mensajeVacio.style.display = "none";
+      }
+
+      // Filtrar las filas de la tabla
+      filas.forEach((fila) => {
+        const textoFila = fila.textContent.toLowerCase();
+        fila.style.display = textoFila.includes(filtro) ? "" : "none";
+      });
+    }
+  });
+
+  // Delegación del evento 'click' en el botón "Limpiar"
+  document.addEventListener("click", function (event) {
+    if (event.target.id === "limpiar-busquedaCliente") {
+      const buscarBox = document.getElementById("buscarboxproveedor");
+      const limpiarBusquedaCliente = event.target;
+
+      if (buscarBox) {
+        buscarBox.value = ""; // Limpiar el input
+        if (limpiarBusquedaCliente) {
+          limpiarBusquedaCliente.style.display = "none"; // Ocultar el botón de limpiar
+          document.getElementById("mensaje-vacio").style.display = "none";
+        }
+      }
+
+      const filas = document.querySelectorAll("#tabla-proveedores tbody tr");
+      filas.forEach((fila) => {
+        fila.style.display = ""; // Mostrar todas las filas
+      });
+    }
+  });
+});
 
 // Llamar a formulario movimientos
 document

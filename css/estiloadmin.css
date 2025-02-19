@@ -6,11 +6,10 @@
   border: none;
   outline: none;
   box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+  font-family: "system-ui";
 }
 body {
   display: flex;
-  font-family: Arial;
 }
 /*Fondo del menu*/
 .sidebar {

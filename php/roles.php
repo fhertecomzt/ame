@@ -9,9 +9,7 @@ include "verificar_sesion.php";
 include "conexion.php";
 include "funciones/funciones.php";
 
-
-$roles = obtenerRoles($dbh);
-
+$roles = obtenerRegistros($dbh, "roles", "idrol, nomrol, descrol", "ASC", "idrol");
 ?>
 
 <div class="containerr">

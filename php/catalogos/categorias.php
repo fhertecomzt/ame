@@ -10,8 +10,7 @@ if (!isset($_SESSION['idusuario']) || ($_SESSION["rol"] !== "SISTEMAS" && $_SESS
 include "../conexion.php";
 include "../funciones/funciones.php";
 
-
-$categorias = obtenerCategorias($dbh);
+$categorias = obtenerRegistros($dbh, "categorias", "idcategoria, nomcategoria, desccategoria", "ASC", "idcategoria");
 
 ?>
 

@@ -10,9 +10,7 @@ if (!isset($_SESSION['idusuario']) || ($_SESSION["rol"] !== "SISTEMAS" && $_SESS
 include "../conexion.php";
 include "../funciones/funciones.php";
 
-
-$impuestos = obtenerImpuestos($dbh);
-
+$impuestos = obtenerRegistros($dbh, "impuestos", "idimpuesto, nomimpuesto, tasa", "ASC", "idimpuesto");
 ?>
 
 <div class="containerr">

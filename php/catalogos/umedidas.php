@@ -11,7 +11,7 @@ include "../conexion.php";
 include "../funciones/funciones.php";
 
 
-$umedidas = obtenerUmedidas($dbh);
+$umedidas = obtenerRegistros($dbh, "umedidas", "idumedida, nomumedida, descumedida", "ASC", "idumedida");
 
 ?>
 

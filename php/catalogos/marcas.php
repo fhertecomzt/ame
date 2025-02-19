@@ -11,7 +11,7 @@ include "../conexion.php";
 include "../funciones/funciones.php";
 
 
-$marcas = obtenerMarcas($dbh);
+$marcas = obtenerRegistros($dbh, "marcas", "idmarca, nommarca, descmarca", "ASC", "idmarca");
 
 ?>
 

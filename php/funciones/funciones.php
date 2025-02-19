@@ -1,18 +1,42 @@
 <?php
-//Modulo mantenimiento*******************************************
-function obtenerTiendas($dbh)
+
+//Obtener registros*******************************************
+function obtenerRegistros($dbh, $tabla, $campos = "*", $orden = "id DESC", $campoId = "id", $registrosPorPagina = 10, $pagina = 1)
 {
-  $stmt = $dbh->prepare("SELECT * FROM tiendas");
+  // Evita SQL Injection verificando que el nombre de la tabla sea válido
+  $tablasPermitidas = ['tiendas', 'roles', 'categorias', 'umedidas', 'marcas', 'tallas', 'colores', 'generos', 'estilos', 'mpagos', 'impuestos','clientes','proveedores'];
+  if (!in_array($tabla, $tablasPermitidas)) {
+    return []; // Evita consultas en tablas no permitidas
+  }
+
+  // Calcular el OFFSET para la paginación
+  $offset = ($pagina - 1) * $registrosPorPagina;
+
+  // Consulta SQL con LIMIT y OFFSET para paginación
+  $sql = "SELECT $campos FROM $tabla ORDER BY $campoId $orden LIMIT :limit OFFSET :offset";
+  $stmt = $dbh->prepare($sql);
+
+  // Bind de los parámetros para evitar SQL Injection
+  $stmt->bindParam(':limit', $registrosPorPagina, PDO::PARAM_INT);
+  $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+
   $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  $registros = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  return $registros;
 }
 
-function obtenerRoles($dbh)
+// Función adicional para obtener el total de registros
+function obtenerTotalRegistros($dbh, $tabla)
 {
-  $stmt = $dbh->prepare("SELECT * FROM roles");
+  $sql = "SELECT COUNT(*) FROM $tabla";
+  $stmt = $dbh->prepare($sql);
   $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  return $stmt->fetchColumn();
 }
+
+
+
 
 function obtenerUsuarios($dbh)
 {
@@ -25,7 +49,6 @@ WHERE roles.nomrol IN ('SISTEMAS')");
   return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-
 function obtenerUsuariosSup($dbh)
 {
   $stmt = $dbh->prepare("SELECT usuarios.*, roles.nomrol, tiendas.nomtienda
@@ -33,62 +56,6 @@ FROM usuarios
 JOIN roles ON usuarios.idrol = roles.idrol
 JOIN tiendas ON usuarios.sucursales_id = tiendas.idtienda
 WHERE roles.nomrol IN ('SISTEMAS')");
-  $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-//Modulo catalogos*************************************************
-function obtenerCategorias($dbh)
-{
-  $stmt = $dbh->prepare("SELECT * FROM categorias");
-  $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-function obtenerUmedidas($dbh)
-{
-  $stmt = $dbh->prepare("SELECT * FROM umedidas");
-  $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-function obtenerMarcas($dbh)
-{
-  $stmt = $dbh->prepare("SELECT * FROM marcas");
-  $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-function obtenerTallas($dbh)
-{
-  $stmt = $dbh->prepare("SELECT * FROM tallas");
-  $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-function obtenerColores($dbh)
-{
-  $stmt = $dbh->prepare("SELECT * FROM colores");
-  $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-function obtenerGeneros($dbh)
-{
-  $stmt = $dbh->prepare("SELECT * FROM generos");
-  $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-function obtenerEstilos($dbh)
-{
-  $stmt = $dbh->prepare("SELECT * FROM estilos");
-  $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-function obtenerMpagos($dbh)
-{
-  $stmt = $dbh->prepare("SELECT * FROM mpagos");
-  $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-function obtenerImpuestos($dbh)
-{
-  $stmt = $dbh->prepare("SELECT * FROM impuestos");
   $stmt->execute();
   return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }

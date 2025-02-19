@@ -10,9 +10,7 @@ if (!isset($_SESSION['idusuario']) || ($_SESSION["rol"] !== "SISTEMAS" && $_SESS
 include "../conexion.php";
 include "../funciones/funciones.php";
 
-
-$generos = obtenerGeneros($dbh);
-
+$generos = obtenerRegistros($dbh, "generos", "idgenero, nomgenero, descgenero", "ASC", "idgenero");
 ?>
 
 <div class="containerr">

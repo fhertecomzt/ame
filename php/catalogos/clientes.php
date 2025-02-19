@@ -1,268 +1,278 @@
 <?php
 session_start();
-//RESTRICCIONES POR ROL
-if (
-    !isset($_SESSION['idusuario']) ||
-    !in_array($_SESSION['rol'], ['SISTEMAS', 'GERENCIA', 'VENTAS'])
-) {
+//Restricción por rol
+if (!isset($_SESSION['idusuario']) || ($_SESSION["rol"] !== "SISTEMAS" && $_SESSION["rol"] !== "GERENCIA")) {
     header("Location: ../../index.php");
     exit;
 }
 
+//Includes
 include "../conexion.php";
+include "../funciones/funciones.php";
 
-function obtenerClientes($dbh)
-{
-    $stmt = $dbh->prepare("SELECT * FROM clientes");
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function obtenerCliente($dbh, $idcliente)
-{
-    $stmt = $dbh->prepare("SELECT * FROM clientes WHERE idcliente = :idcliente");
-    $stmt->bindParam(':idcliente', $idcliente);
-    $stmt->execute();
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-}
-
-function crearCliente($dbh, $data)
-{
-    // Validación de datos
-    if (empty($data['nom_cliente']) || empty($data['tel_cliente']) || empty($data['email_cliente'])) {
-        return false;
-    }
-
-    $stmt = $dbh->prepare("INSERT INTO clientes (nom_cliente, rfc_cliente, dom_cliente, noext_cliente, noint_cliente, cp_cliente, col_cliente, cd_cliente, edo_cliente, tel_cliente, email_cliente, limitecred_cliente, diacred_cliente) VALUES (:nom_cliente, :rfc_cliente, :dom_cliente, :noext_cliente, :noint_cliente, :cp_cliente, :col_cliente, :cd_cliente, :edo_cliente, :tel_cliente, :email_cliente, :limitecred_cliente, :diacred_cliente)");
-
-    $params = [
-        ':nom_cliente' => $data['nom_cliente'],
-        ':rfc_cliente' => $data['rfc_cliente'],
-        ':dom_cliente' => $data['dom_cliente'],
-        ':noext_cliente' => $data['noext_cliente'],
-        ':noint_cliente' => $data['noint_cliente'],
-        ':cp_cliente' => $data['cp_cliente'],
-        ':col_cliente' => $data['col_cliente'],
-        ':cd_cliente' => $data['cd_cliente'],
-        ':edo_cliente' => $data['edo_cliente'],
-        ':tel_cliente' => $data['tel_cliente'],
-        ':email_cliente' => $data['email_cliente'],
-        ':limitecred_cliente' => $data['limitecred_cliente'],
-        ':diacred_cliente' => $data['diacred_cliente']
-    ];
-    // var_dump($params); Aquí verificamos si manda todos los datos esperados
-
-    if ($stmt->execute($params)) {
-        return true; //Indicamos que tuvimos exito
-    } else {
-        $errorInfo = $stmt->errorInfo();
-        error_log(print_r($errorInfo, true)); // Esto te ayudará a ver el error en el log
-        return false;
-    }
-}
-
-function actualizarCliente($dbh, $data)
-{
-    $stmt = $dbh->prepare("UPDATE clientes SET nom_cliente = :nom_cliente, rfc_cliente = :rfc_cliente, dom_cliente = :dom_cliente, noext_cliente = :noext_cliente, noint_cliente = :noint_cliente, cp_cliente = :cp_cliente, col_cliente = :col_cliente, cd_cliente = :cd_cliente, edo_cliente = :edo_cliente, tel_cliente = :tel_cliente, email_cliente = :email_cliente, limitecred_cliente = :limitecred_cliente, diacred_cliente = :diacred_cliente WHERE idcliente = :idcliente");
-    return $stmt->execute($data);
-}
-
-function eliminarCliente($dbh, $idcliente)
-{
-    $stmt = $dbh->prepare("DELETE FROM clientes WHERE idcliente = :idcliente");
-    $stmt->bindParam(':idcliente', $idcliente);
-    return $stmt->execute();
-}
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Recoger y limpiar los datos del formulario
-    $nom_cliente = filter_input(INPUT_POST, 'nom_cliente', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $rfc_cliente = filter_input(INPUT_POST, 'rfc_cliente', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $dom_cliente = filter_input(INPUT_POST, 'dom_cliente', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $noext_cliente = filter_input(INPUT_POST, 'noext_cliente', FILTER_SANITIZE_NUMBER_INT);
-    $noint_cliente = filter_input(INPUT_POST, 'noint_cliente', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $cp_cliente = filter_input(INPUT_POST, 'cp_cliente', FILTER_SANITIZE_NUMBER_INT);
-    $col_cliente = filter_input(INPUT_POST, 'col_cliente', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $cd_cliente = filter_input(INPUT_POST, 'cd_cliente', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $edo_cliente = filter_input(INPUT_POST, 'edo_cliente', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $tel_cliente = filter_input(INPUT_POST, 'tel_cliente', FILTER_SANITIZE_NUMBER_INT);
-    $email_cliente = filter_input(
-        INPUT_POST,
-        'email_cliente',
-        FILTER_SANITIZE_EMAIL
-    );
-    //Validación para email
-    if (!filter_var($email_cliente, FILTER_VALIDATE_EMAIL)) {
-        $error = "El email no es válido.";
-    }
-    $limitecred_cliente = filter_input(INPUT_POST, 'limitecred_cliente', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $diacred_cliente = filter_input(INPUT_POST, 'diacred_cliente', FILTER_SANITIZE_NUMBER_INT);
-    $idcliente = filter_input(INPUT_POST, 'idcliente', FILTER_SANITIZE_NUMBER_INT); // Obtener el ID del cliente
-
-    //Validaciones
-    if (empty($nom_cliente) || empty($tel_cliente) || empty($email_cliente)) {
-        $error = "Todos los campos con * son obligatorios.";
-    } elseif (empty($nom_cliente) || strlen($nom_cliente) < 4) {
-        $error = "El nombre de cliente debe tener al menos 4 caracteres.";
-    } else {
-        $data = [
-            'nom_cliente' => $nom_cliente,
-            'rfc_cliente' => $rfc_cliente,
-            'dom_cliente' => $dom_cliente,
-            'noext_cliente' => $noext_cliente,
-            'noint_cliente' => $noint_cliente,
-            'cp_cliente' => $cp_cliente,
-            'col_cliente' => $col_cliente,
-            'cd_cliente' => $cd_cliente,
-            'edo_cliente' => $edo_cliente,
-            'tel_cliente' => $tel_cliente,
-            'email_cliente' => $email_cliente,
-            'limitecred_cliente' => $limitecred_cliente,
-            'diacred_cliente' => $diacred_cliente
-        ];
-
-
-        // Actualizar cliente
-        // Verificar si se está actualizando o creando un nuevo cliente
-        if ($idcliente) {
-            // Actualizar Cliente
-            $data[':idcliente'] = $idcliente; // Agregar el ID del usuario para la actualización
-            if (actualizarCliente($dbh, $data)) {
-                $success = "Cliente actualizado exitosamente";
-            } else {
-                $error = "Error al actualizar Cliente: " . implode(", ", $stmt->errorInfo());
-            }
-        } else {
-            // Crear nuevo cliente
-            if (crearCliente($dbh, $data)) {
-                $success = "Cliente creado exitosamente";
-            } else {
-                $error = "Error al crear el cliente";
-            }
-        }
-    }
-}
-
-
-if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['idcliente'])) {
-    if (eliminarCliente($dbh, filter_input(INPUT_GET, 'idcliente', FILTER_SANITIZE_NUMBER_INT))) {
-        $success = "Cliente eliminado exitosamente";
-    } else {
-        $error = "Error al eliminar el cliente";
-    }
-}
-
-$clientes = obtenerClientes($dbh);
-$cliente = isset($_GET['idcliente']) ? obtenerCliente($dbh, filter_input(INPUT_GET, 'idcliente', FILTER_SANITIZE_NUMBER_INT)) : null;
-//var_dump($cliente); Comprobamos los datos del cliente
+$clientes = obtenerRegistros($dbh, "clientes", "idcliente, nom_cliente, tel_cliente, email_cliente", "ASC", "idcliente");
 ?>
 
-<div class="container">
-    <div class="tittle">Formulario de Clientes</div>
-    <!--Incluimos archivo de mensajes de estado para saber si es exito o error-->
-    <?php include "../mensajeestado.php"; ?>
-
-    <form method="post" action="clientes.php" id="frmClientes">
-        <input type="hidden" name="idcliente" value="<?php echo $cliente['idcliente'] ?? ''; ?>">
-        <div class="form-group">
-            <span class="is-required">Nombre Cliente:</span>
-            <input type="text" id="nom_cliente" name="nom_cliente" placeholder="Debe contener al menos 4 caracteres" value="<?php echo htmlspecialchars($cliente['nom_cliente'] ?? ''); ?>" required>
-        </div>
-        <div class="form-group">
-            <span>R.F.C.:</span>
-            <input type="text" id="rfc_cliente" name="rfc_cliente" value="<?php echo htmlspecialchars($cliente['rfc_cliente'] ?? ''); ?>">
-        </div>
-        <div class="form-group">
-            <span>Domicilio:</span>
-            <input type="text" id="dom_cliente" name="dom_cliente" value="<?php echo htmlspecialchars($cliente['dom_cliente'] ?? ''); ?>">
-        </div>
-        <div class="form-group">
-            <span>No. Exterior:</span>
-            <input type="number" id="noext_cliente" name="noext_cliente" value="<?php echo htmlspecialchars($cliente['noext_cliente'] ?? ''); ?>">
-        </div>
-        <div class="form-group">
-            <span>No. Interior:</span>
-            <input type="number" id="noint_cliente" name="noint_cliente" value="<?php echo htmlspecialchars($cliente['noint_cliente'] ?? ''); ?>">
-        </div>
-        <div class="form-group">
-            <span>Código postal:</span>
-            <input type="number" id="cp_cliente" name="cp_cliente" value="<?php echo htmlspecialchars($cliente['cp_cliente'] ?? ''); ?>">
-        </div>
-        <div class="form-group">
-            <span>Colonia:</span>
-            <input type="text" id="col_cliente" name="col_cliente" value="<?php echo htmlspecialchars($cliente['col_cliente'] ?? ''); ?>">
-        </div>
-        <div class="form-group">
-            <span>Ciudad:</span>
-            <input type="text" id="cd_cliente" name="cd_cliente" value="<?php echo htmlspecialchars($cliente['cd_cliente'] ?? ''); ?>">
-        </div>
-        <div class="form-group">
-            <span>Estado:</span>
-            <input type="text" id="edo_cliente" name="edo_cliente" value="<?php echo htmlspecialchars($cliente['edo_cliente'] ?? ''); ?>">
-        </div>
-        <div class="form-group">
-            <span class="is-required">Telefono:</span>
-            <input type="number" id="tel_cliente" name="tel_cliente" value="<?php echo htmlspecialchars($cliente['tel_cliente'] ?? ''); ?>" required>
-        </div>
-        <div class="form-group">
-            <span class="is-required">Email:</span>
-            <input type="email" id="email_cliente" name="email_cliente" value="<?php echo htmlspecialchars($cliente['email_cliente'] ?? ''); ?>" required>
-        </div>
-        <div class="form-group">
-            <span>Limite de credito:</span>
-            <input type="text" id="limitecred_cliente" name="limitecred_cliente" value="<?php echo htmlspecialchars($cliente['limitecred_cliente'] ?? ''); ?>">
-        </div>
-        <div class="form-group">
-            <span>Días de credito:</span>
-            <!--Limitamos a los 365 días de un año y a solo 3 digitos-->
-            <input type="number" id="diacred_cliente" name="diacred_cliente" value="<?php echo htmlspecialchars($cliente['diacred_cliente'] ?? ''); ?>" max="365" oninput="if(this.value.length > 3) this.value = this.value.slice(0, 3);">
-        </div>
-        <div class="form-group">
-            <span></span>
-            <input type="hidden" id="nada" name="nada" value="">
-        </div>
-
-        <div class="button">
-            <input type="button" id="botonNuevo" onclick="limpiarFormularioClientes(); cambiarTextoBoton();" value="Nuevo">
-        </div>
-        <div class="button">
-            <input type="submit" id="botonGuardarActualizar" value="<?php echo isset($cliente) ? 'Actualizar' : 'Guardar'; ?>"></input>
-        </div>
-    </form>
+<div class="containerr">
+    <button class="boton" onclick="abrirModalCliente('crear-modalCliente')">Nuevo</button>
+    <label class="buscarlabel" for="buscarboxcliente">Buscar:</label>
+    <input class="buscar--box" id="buscarboxcliente" type="search" placeholder="Qué estas buscando?">
 </div>
 
-<h3>Lista de Clientes</h3>
-<table border="1">
+<h3>Lista de clientes</h3>
+<table border="1" id="tabla-clientes">
     <thead>
         <tr>
-            <th>ID</th>
             <th>Nombre</th>
-            <th>Domicilio</th>
-            <th>No. Exterior</th>
-            <th>No. Interior</th>
-            <th>Telefono</th>
+            <th>Teléfono</th>
             <th>Email</th>
             <th>Acciones</th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
         <?php foreach ($clientes as $u): ?>
             <tr>
-                <td><?php echo $u['idcliente']; ?></td>
                 <td><?php echo htmlspecialchars($u['nom_cliente']); ?></td>
-                <td><?php echo htmlspecialchars($u['dom_cliente']); ?></td>
-                <td><?php echo htmlspecialchars($u['noext_cliente']); ?></td>
-                <td><?php echo htmlspecialchars($u['noint_cliente']); ?></td>
                 <td><?php echo htmlspecialchars($u['tel_cliente']); ?></td>
                 <td><?php echo htmlspecialchars($u['email_cliente']); ?></td>
                 <td>
-                    <a href="#" title="Editar" onclick="cargarEditarCliente(<?php echo $u['idcliente']; ?>); return false;"><i id="btneditar" class="fa-solid fa-pen-to-square"></i></a>
-                    &nbsp;&nbsp; &nbsp;
-
-                    <a href="#" title="Eliminar" onclick="eliminarCliente(<?php echo $u['idcliente']; ?>); return false;"><i id="btneliminar" class="fa-solid fa-trash"></i></a>
+                    <button title="Editar" class="editarCliente fa-solid fa-pen-to-square" data-id="<?php echo $u['idcliente']; ?>"></button>
+                    <button title="Eliminar" class="eliminarCliente fa-solid fa-trash" data-id="<?php echo $u['idcliente']; ?>"></button>
                 </td>
             </tr>
         <?php endforeach; ?>
     </tbody>
 </table>
+<!-- Mensaje no encuentra resultados -->
+<p id="mensaje-vacio" style="display: none; color: red;">No se encontraron resultados.</p>
+
+<!-- Modal para crear Cliente -->
+<div id="crear-modalCliente" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span title="Cerrar" class="close" onclick="cerrarModalCliente('crear-modalCliente')">&times;</span>
+        <h2 class="tittle">Crear Cliente</h2>
+        <form id="form-crearCliente" onsubmit="validarFormularioCliente(event, 'crear')">
+
+            <div class="form-group">
+                <label for="crear-cliente">Nombre:</label>
+                <input type="text" id="crear-cliente" name="cliente" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ0-9\s]+"
+                    title="Solo se permiten letras, números y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ0-9\s]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-rfc">R.F.C.:</label>
+                <input type="text" id="crear-rfc" name="rfc" autocomplete="off"
+                    pattern="[a-zA-Z0-9]+"
+                    title="Solo se permiten letras y números."
+                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" maxlength="13" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-calle">Calle:</label>
+                <input type="text" id="crear-calle" name="calle" autocomplete="off"
+                    pattern="[a-zA-Z0-9\s]+"
+                    title="Solo se permiten letras, espacios y números."
+                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '')" required>
+            </div>            
+
+            <div class="form-containernum">
+                <div class="form-group ladoble">
+                    <label for="crear-noexterior">No. exterior:</label>
+                    <input type="number" id="crear-noexterior" name="noexterior" autocomplete="off"
+                        pattern="[0-9]+"
+                        title="Solo se permiten números."
+                        oninput="this.value = this.value.replace(/[^0-9\s]/g, '')" size="10" min="0" maxlength="10" required>
+                </div>
+
+                <div class="form-group ladoble">
+                    <label for="crear-nointerior">No. interior:</label>
+                    <input type="text" id="crear-nointerior" name="nointerior" autocomplete="off"
+                        pattern="[0-9]+"
+                        title="Solo se permiten números."
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" size="10" min="0" value="0" maxlength="10" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-cpostal">Código postal:</label>
+                <input type="text" id="crear-cpostal" name="cpostal" autocomplete="off"
+                    pattern="\d{5}"
+                    title="Por favor, ingrese un código postal de 5 dígitos."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="5" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-colonia">Colonia:</label>
+                <input type="text" id="crear-colonia" name="colonia" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-ciudad">Ciudad:</label>
+                <input type="text" id="crear-ciudad" name="ciudad" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-estado">Estado:</label>
+                <input type="text" id="crear-estado" name="estado" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-telefono">Teléfono:</label>
+                <input type="text" id="crear-telefono" name="telefono" autocomplete="off" maxlength="10 "
+                    pattern="\d{10}"
+                    title="Por favor, ingrese un número de telefono de 10 dígitos."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-email">Email:</label>
+                <input type="email" id="crear-email" name="email" autocomplete="off" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-limitecred">Limite de crédito:</label>
+                <input type="text" id="crear-limitecred" name="limitecred" autocomplete="off"
+                    pattern="[0-9]+"
+                    title="Solo se permiten números."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" size="10" min="0" value="0" maxlength="10" required>
+            </div>
+
+            <div class="form-group">
+                <label for="crear-diacred">Días de crédito:</label>
+                <input type="text" id="crear-diacred" name="diacred" autocomplete="off"
+                    pattern="^(?:[0-9]|[1-9][0-9]|[1-3][0-6][0-5])$"
+                    title="Ingrese un número entre 1 y 365." size="3" min="0" value="0" max="365" required>
+            </div>
+
+            <button type="submit">Guardar</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para editar Cliente -->
+<div id="editar-modalCliente" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span title="Cerrar" class="close" onclick="cerrarModalCliente('editar-modalCliente')">&times;</span>
+        <h2 class="tittle">Editar Cliente</h2>
+        <form id="form-editarCliente">
+
+            <input type="hidden" id="editar-idcliente" name="editar-idcliente" value="" />
+
+            <div class="form-group">
+                <label for="editar-cliente">Nombre:</label>
+                <input type="text" id="editar-cliente" name="cliente" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ0-9\s]+"
+                    title="Solo se permiten letras, números y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ0-9\s]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-rfc">R.F.C.:</label>
+                <input type="text" id="editar-rfc" name="rfc" autocomplete="off" maxlength="13"
+                    pattern="[a-zA-Z0-9]+"
+                    title="Solo se permiten letras y números."
+                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-calle">Calle:</label>
+                <input type="text" id="editar-calle" name="calle" autocomplete="off"
+                    pattern="[a-zA-Z0-9\s]+"
+                    title="Solo se permiten letras, espacios y números."
+                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '')" required>
+            </div>
+
+            <div class="form-containernum">
+                <div class="form-group ladoble">
+                    <label for="editar-noexterior">No. exterior:</label>
+                    <input type="number" id="editar-noexterior" name="noexterior" autocomplete="off"
+                        pattern="[0-9]+"
+                        title="Solo se permiten números."
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" size="10" min="0" maxlength="10" required>
+                </div>
+
+                <div class="form-group ladoble">
+                    <label for="editar-nointerior">No. interior:</label>
+                    <input type="text" id="editar-nointerior" name="nointerior" autocomplete="off"
+                        pattern="[0-9]+"
+                        title="Solo se permiten números."
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" size="10" min="0" value="0" maxlength="10" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-cpostal">Código postal:</label>
+                <input type="text" id="editar-cpostal" name="cpostal" autocomplete="off"
+                    pattern="\d{5}"
+                    title="Por favor, ingrese un código postal de 5 dígitos."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="5" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-colonia">Colonia:</label>
+                <input type="text" id="editar-colonia" name="colonia" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-ciudad">Ciudad:</label>
+                <input type="text" id="editar-ciudad" name="ciudad" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-estado">Estado:</label>
+                <input type="text" id="editar-estado" name="estado" autocomplete="off"
+                    pattern="[a-zA-ZÀ-ÿ\s]+"
+                    title="Solo se permiten letras y espacios."
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-telefono">Teléfono:</label>
+                <input type="text" id="editar-telefono" name="telefono" autocomplete="off" maxlength="10 "
+                    pattern="\d{10}"
+                    title="Por favor, ingrese un número de telefono de 10 dígitos."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-email">Email:</label>
+                <input type="email" id="editar-email" name="email" autocomplete="off" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-limitecred">Limite de crédito:</label>
+                <input type="text" id="editar-limitecred" name="limitecred" autocomplete="off"
+                    pattern="^\d+(\.\d{1,2})?$"
+                    title="Ingrese un número válido con hasta 2 decimales (ej. 100.50)"
+                    size="10" min="0" value="0" maxlength="10" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editar-diacred">Días de crédito:</label>
+                <input type="text" id="editar-diacred" name="diacred" autocomplete="off"
+                    pattern="^(?:[0-9]|[1-9][0-9]|[1-3][0-6][0-5])$"
+                    title="Ingrese un número entre 0 y 365."
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" size="3" min="0" value="0" max="365" maxlength="10" required>
+            </div>
+
+            <button type="submit">Actualizar</button>
+        </form>
+    </div>
+</div>

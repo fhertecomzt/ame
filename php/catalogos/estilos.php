@@ -10,9 +10,8 @@ if (!isset($_SESSION['idusuario']) || ($_SESSION["rol"] !== "SISTEMAS" && $_SESS
 include "../conexion.php";
 include "../funciones/funciones.php";
 
-
-$estilos = obtenerEstilos($dbh);
-
+$estilos = obtenerRegistros($dbh, "estilos", "idestilo, nomestilo, descestilo", "ASC", "idestilo");
+ 
 ?>
 
 <div class="containerr">

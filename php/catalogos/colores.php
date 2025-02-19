@@ -11,7 +11,7 @@ include "../conexion.php";
 include "../funciones/funciones.php";
 
 
-$colores = obtenerColores($dbh);
+$colores = obtenerRegistros($dbh, "colores", "idcolor, nomcolor, desccolor", "ASC", "idcolor");
 
 ?>
 

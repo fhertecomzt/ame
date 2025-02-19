@@ -11,7 +11,7 @@ include "conexion.php";
 include "funciones/funciones.php";
 
 
-$tiendas = obtenerTiendas($dbh);
+$tiendas = obtenerRegistros($dbh, "tiendas", "idtienda, nomtienda, reptienda, rfctienda, emailtienda, teltienda", "ASC", "idtienda");
 ?>
 
 <div class="containerr">
@@ -88,16 +88,23 @@ $tiendas = obtenerTiendas($dbh);
                     title="Solo se permiten letras y espacios."
                     oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
             </div>
-            <div class="form-group">
-                <label for="crear-noexterior">No. Exterior:</label>
-                <input type="number" id="crear-noexterior" name="noexterior" autocomplete="off" size="10" maxlength="10"
-                    required>
+            <div class="form-containernum">
+                <div class="form-group ladoble">
+                    <label for="crear-noexterior">No. Exterior:</label>
+                    <input type="number" id="crear-noexterior" name="noexterior" autocomplete="off" size="10" maxlength="10"
+                        pattern="[0-9]+"
+                        title="Solo se permiten números."
+                        oninput="this.value = this.value.replace(/[^A-Z0-9]/g, '')" size="10" min="0" maxlength="10" required>
+                </div>
+                <div class="form-group ladoble">
+                    <label for="crear-nointerior">No. Interior:</label>
+                    <input type="text" id="crear-nointerior" name="nointerior" autocomplete="off" size="10" min="0" value="0"
+                        pattern="[a-zA-Z0-9]+"
+                        title="Solo se permiten letras y números."
+                        oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" size="10" min="0" value="0" maxlength="10" required>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="crear-nointerior">No. Interior:</label>
-                <input type="text" id="crear-nointerior" name="nointerior" autocomplete="off" size="10" min="0" value="0" maxlength="10" required>
-            </div>
-            <div class="form-group">
+            <div class="form-group ">
                 <label for="crear-colonia">Colonia:</label>
                 <input type="text" id="crear-colonia" name="colonia" autocomplete="off"
                     pattern="[a-zA-ZÀ-ÿ\s]+"
@@ -164,13 +171,21 @@ $tiendas = obtenerTiendas($dbh);
                 <label for="editar-domicilio">Calle:</label>
                 <input type="text" id="editar-domicilio" name="domicilio" required>
             </div>
-            <div class="form-group">
-                <label for="editar-noexterior">No. Exterior:</label>
-                <input type="numeric" id="editar-noexterior" name="noexterior" autocomplete="off" maxlength="10" required>
-            </div>
-            <div class="form-group">
-                <label for="editar-nointerior">No. Interior:</label>
-                <input type="text" id="editar-nointerior" name="nointerior" autocomplete="off" min="0" maxlength="10" required>
+            <div class="form-containernum">
+                <div class="form-group">
+                    <label for="editar-noexterior">No. Exterior:</label>
+                    <input type="numeric" id="editar-noexterior" name="noexterior" autocomplete="off" maxlength="10"
+                        pattern="[0-9]+"
+                        title="Solo se permiten números."
+                        oninput="this.value = this.value.replace(/[^A-Z0-9]/g, '')" size="10" min="0" value="0" maxlength="10" required>
+                </div>
+                <div class="form-group">
+                    <label for="editar-nointerior">No. Interior:</label>
+                    <input type="text" id="editar-nointerior" name="nointerior" autocomplete="off"
+                        pattern="[a-zA-Z0-9]+"
+                        title="Solo se permiten letras y números."
+                        oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" size="10" min="0" value="0" maxlength="10" required>
+                </div>
             </div>
             <div class="form-group">
                 <label for="editar-colonia">Colonia:</label>
