@@ -6534,8 +6534,7 @@ document.addEventListener("DOMContentLoaded", function () {
           //console.log("Datos recibidos del servidor:", data);
           if (data.success) {
             const formularioProveedor = document.getElementById(
-              "form-editarProveedor"
-            );
+              "form-editarProveedor");
             if (formularioProveedor) {
               const campos = [
                 "idproveedor",
@@ -6688,7 +6687,7 @@ async function validarFormularioEdicionProveedor(formulario) {
 
   try {
     //console.log("Verificando duplicado. ID:", id, "Proveedor:", proveedor);
-    const esDuplicado = await verificarDuplicadoEditarCliente(proveedor, id);
+    const esDuplicado = await verificarDuplicadoEditarProveedor(proveedor, id);
     if (esDuplicado) {
       return; // No enviar el formulario si hay duplicados
     } else {

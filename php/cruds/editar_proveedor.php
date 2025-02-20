@@ -56,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
   } catch (PDOException $e) {
     // Evitar exponer detalles técnicos en el mensaje de error
-    $response["message"] = "Error al actualizar la tienda. Intente más tarde.";
+    $response["message"] = "Error al actualizar el registro. Intente más tarde.";
   }
 } else {
   $response["message"] = "Método no permitido.";

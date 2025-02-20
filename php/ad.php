@@ -269,10 +269,9 @@ $_SESSION['last_token'] = $current_token;*/
         <div class="header--wrapper">
             <div class="header--title">
                 <h2>Tienda: <?php echo $_SESSION['sucursal_nombre'] ?></h2>
-                <span>Rol: <?php echo $_SESSION['rol'] ?> &nbsp;&nbsp;&nbsp;<span>Usuario: <?php echo $_SESSION['nombre'] . " " . $_SESSION['appaterno'] . " " . $_SESSION['apmaterno']; ?></span></span>
+                <span>Usuario: <?php echo $_SESSION['usuario'] ?></span>
             </div>
             <div class="user--info">
-
                 <img src="<?php echo $_SESSION['imagen']; ?>" alt="Imagen de perfil" width="50" height="50">
             </div>
         </div>
@@ -287,6 +286,19 @@ $_SESSION['last_token'] = $current_token;*/
         </div>
     </div>
 
+    <!-- Modal Perfil -->
+    <div id="perfil-Modal" class="Perfilmodal">
+        <div class="modal-contentPerfil">
+            <span class="closePerfil">&times;</span>
+            <img src="<?php echo $_SESSION['imagen']; ?>" alt="Imagen de perfil" width="100" height="100" >
+            <div class="textoPerfil" style="text-align: left;">
+                <p><strong>Perfil de Usuario de:</strong> <?php echo $_SESSION['usuario'] ?></p>
+                <p><strong>Nombre:</strong> <?php echo $_SESSION['nombre'] . " " . $_SESSION['appaterno'] . " " . $_SESSION['apmaterno']; ?></p>
+                <p><strong>Rol:</strong> <?php echo $_SESSION['rol']; ?></p>
+                <p><strong>Sucursal:</strong> <?php echo $_SESSION['sucursal_nombre']; ?></p>
+            </div>
+        </div>
+    </div>
     <!--Scripts JS-->
     <script src="../js/scripts.js"></script>
     <script src="../js/scriptssup.js"></script>
