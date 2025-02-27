@@ -28,7 +28,15 @@ $proveedores = obtenerRegistros($dbh, "proveedores", "idproveedor, nomproveedor"
 <div class="containerr">
   <button class="boton" onclick="abrirModalProducto('crear-modalProducto')">Nuevo</button>
   <label class="buscarlabel" for="buscarboxproducto">Buscar:</label>
-  <input type="text" class="buscar--box" id="buscarboxproducto" type="search" placeholder="¿Qué estas buscando?">
+  <input class="buscar--box" id="buscarboxproducto" type="search" placeholder="¿Qué estas buscando?" autocomplete="off">
+  <!-- Filtro de estatus -->
+  <label class="buscarlabel" for="estatusFiltro">Filtrar por Estatus:</label>
+  <select class="buscar--box" id="estatusFiltro" onchange="filtrarPorEstatus()" style="width: 100px;">
+    <option value="">Todos</option>
+    <option value="activo">Activo</option>
+    <option value="inactivo">Inactivo</option>
+  </select>
+
 </div>
 
 <h3>Lista de productos</h3>
@@ -47,7 +55,7 @@ $proveedores = obtenerRegistros($dbh, "proveedores", "idproveedor, nomproveedor"
     </thead>
     <tbody id="productos-lista">
       <?php foreach ($productos as $u): ?>
-        <tr>
+        <tr class="producto" data-estatus="<?php echo ($u['estatus'] == 1) ? 'activo' : 'inactivo'; ?>">
           <td><?php if (!empty($u['imagen'])): ?>
               <img src="<?= htmlspecialchars($u['imagen']) ?>" alt="Imagen de producto" width="50" height="50" onerror="this.src='../imgs/default.png'">
             <?php else: ?>
@@ -72,13 +80,10 @@ $proveedores = obtenerRegistros($dbh, "proveedores", "idproveedor, nomproveedor"
       <?php endforeach; ?>
     </tbody>
   </table>
-
-  <!-- Mensaje no encuentra resultados -->
-  <p id="mensaje-vacio" style="display: none; color: red;">No se encontraron resultados.</p>
 </div>
 
 <!-- Modal para crear Producto -->
-<div id="crear-modalProducto" class="modal" style="display: none;">
+<div id=" crear-modalProducto" class="modal" style="display: none;">
   <div class="modal-content">
     <span title="Cerrar" class="close" onclick="cerrarModalProducto('crear-modalProducto')">&times;</span>
     <h2 class="tittle">Crear Producto</h2>

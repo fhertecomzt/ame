@@ -1607,7 +1607,7 @@ document
       .then((html) => {
         document.getElementById("content-area").innerHTML = html;
         // Vuelve a activar el scroll infinito
-         iniciarScrollProductos(); 
+        iniciarScrollProductos();
       })
       .catch((error) => {
         console.error("Error al cargar el contenido:", error);
@@ -2160,83 +2160,133 @@ document.addEventListener("click", function (event) {
   }
 });
 //Buscar productos***********************************************************************
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("input", function (event) {
+  //console.log("DOM completamente cargado");
+  let timeout;
+
   const buscarBox = document.getElementById("buscarboxproducto");
-  
-  if (buscarBox) {    
-    buscarBox.addEventListener("input", function () {
+  const filtroEstatus = document.getElementById("estatus").value;
+  //Event delegation si el input está dentro de un contenedor dinámico
+  if (event.target && event.target.id === "buscarboxproducto") {
+    //console.log("Escribiendo en el input dinámico:", event.target.value);
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
       const filtro = buscarBox.value.trim().toLowerCase();
-      
-      if (filtro.length > 2) {
-        buscarProductos(filtro);
+
+      // Verificar si el filtro de búsqueda tiene más de 2 caracteres o si el estatus tiene un valor seleccionado
+      if (filtro.length > 2 || filtroEstatus) {
+        buscarProductos(filtro, filtroEstatus); // Pasar el filtro y el estatus
       } else {
+        //No hacer nada si no hay filtro
         cargarProductos(); // Si el input está vacío, carga todos los productos
       }
-    });
+    }, 500); //500ms de retraso
   }
-  
-  function buscarProductos(filtro) {
-    console.log("Input modificado:", buscarBox.value);
+
+  function buscarProductos(filtro, estatus) {
+    //console.log("Ejecutando búsqueda con filtro:", filtro); // Verifica que esta línea se ejecuta
     fetch(`cruds/buscar_productos.php?q=${encodeURIComponent(filtro)}`)
-      .then(response => response.json())
-      .then(data => {
-        actualizarTabla(data);
-        console.log("Buscar productos:", data);
+      .then((response) => {
+        // console.log("Respuesta recibida, estado:", response.status);
+        return response.json();
       })
-      .catch(error => console.error("Error en la búsqueda:", error));
+      .then((data) => {
+        //console.log("Datos recibidos del servidor:", data);
+        actualizarTabla(data);
+      })
+      .catch((error) => console.error("Error en la búsqueda:", error));
   }
 
   function actualizarTabla(productos) {
-    const tbody = document.querySelector("#tabla-productos tbody");
+    let tbody = document.getElementById("productos-lista");
 
     if (!tbody) {
-      console.warn("No se encontró tbody. Intentando de nuevo en 4000ms...");
-      setTimeout(() => actualizarTabla(productos), 4000);
+      //console.warn("No se encontró tbody. Intentando de nuevo en 3000ms...");
+      setTimeout(() => actualizarTabla(productos), 3000);
       return;
     }
 
     tbody.innerHTML = "";
 
     if (productos.length === 0) {
-      tbody.innerHTML = "<tr><td colspan='5'>No se encontraron productos</td></tr>";
+      tbody.innerHTML =
+        "<tr><td colspan='7' style='text-align: center; font-size: 18px; color: #f00; background-color: #f8d7da; padding: 10px; border-radius: 5px;'>No se encontraron productos</td></tr>";
       return;
     }
 
-    productos.forEach(producto => {
+    productos.forEach((producto) => {
       const fila = document.createElement("tr");
       fila.innerHTML = `
-        <td><img src="${producto.imagen}" width="50" height="50" onerror="this.src='../imgs/default.png'"></td>
+        <td><img src="${
+          producto.imagen
+        }" width="50" height="50" onerror="this.src='../imgs/default.png'"></td>
         <td>${producto.codbar_prod}</td>
         <td>${producto.nom_prod}</td>
         <td>${producto.costo_compra_prod}</td>
         <td>${producto.precio1_venta_prod}</td>
          <td>
-              <button class="btn ${producto.estatus == 1 ? 'btn-success' : 'btn-danger'}">
-                ${producto.estatus == 1 ? 'Activo' : 'Inactivo'}
+              <button class="btn ${
+                producto.estatus == 1 ? "btn-success" : "btn-danger"
+              }">
+                ${producto.estatus == 1 ? "Activo" : "Inactivo"}
               </button>
             </td>
             <td>
-              <button title="Editar" class="editarProducto fa-solid fa-pen-to-square" data-id="${producto.idproducto}"></button>
+              <button title="Editar" class="editarProducto fa-solid fa-pen-to-square" data-id="${
+                producto.idproducto
+              }"></button>
               &nbsp;&nbsp;&nbsp;
-              <button title="Eliminar" class="eliminarProducto fa-solid fa-trash" data-id="${producto.idproducto}"></button>
+              <button title="Eliminar" class="eliminarProducto fa-solid fa-trash" data-id="${
+                producto.idproducto
+              }"></button>
             </td>
       `;
       tbody.appendChild(fila);
     });
   }
-
   function cargarProductos() {
-    fetch("cruds/cargar_productos.php")
-      .then(response => response.json())
-      .then(data => {
+    //console.log("Ejecutando cargarProductos()...");
+    fetch("cruds/cargar_productos.php?limit=10&offset=0")
+      .then((response) => response.json())
+      .then((data) => {
+        //console.log("Productos cargados:", data);
         actualizarTabla(data);
       })
-      .catch(error => console.error("Error al cargar productos:", error));
+      .catch((error) => console.error("Error al cargar productos:", error));
   }
 
   // Cargar productos al inicio
   cargarProductos();
 });
+
+// Función para filtrar productos por estatus usando delegación de eventos
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('estatusFiltro').addEventListener('change', function() {
+    const estatusFiltro = this.value;
+    const filas = document.querySelectorAll('#productos-lista .producto');
+    filas.forEach(fila => {
+      const estatus = fila.getAttribute('data-estatus');
+      if (estatusFiltro === '' || estatus === estatusFiltro) {
+        fila.style.display = ''; // Mostrar fila
+      } else {
+        fila.style.display = 'none'; // Ocultar fila
+      }
+    });
+  });
+});
+function filtrarPorEstatus() {
+  const estatusFiltro = document.getElementById('estatusFiltro').value;
+  const filas = document.querySelectorAll('#productos-lista .producto');
+
+  filas.forEach(fila => {
+    const estatus = fila.getAttribute('data-estatus');
+    if (estatusFiltro === '' || estatus === estatusFiltro) {
+      fila.style.display = ''; // Mostrar fila
+    } else {
+      fila.style.display = 'none'; // Ocultar fila
+    }
+  });
+}
 
 // ------------------------ SCROLL INFINITO ------------------------
 
@@ -2247,28 +2297,36 @@ function cargarProductosScroll() {
   if (cargando) return;
   cargando = true;
 
-  fetch(`cruds/cargar_productos.php?page=${pagina}`)
-    .then(response => response.json())
-    .then(data => {
+  fetch(`cruds/cargar_productos_scroll.php?page=${pagina}`)
+    .then((response) => response.json())
+    .then((data) => {
       if (data.length > 0) {
         const tbody = document.querySelector("#tabla-productos tbody");
-        data.forEach(producto => {
+        data.forEach((producto) => {
           const row = document.createElement("tr");
           row.innerHTML = `
-            <td><img src="${producto.imagen}" width="50" height="50" onerror="this.src='../imgs/default.png'"></td>
+            <td><img src="${
+              producto.imagen
+            }" width="50" height="50" onerror="this.src='../imgs/default.png'"></td>
             <td>${producto.codbar_prod}</td>
             <td>${producto.nom_prod}</td>
             <td>${producto.costo_compra_prod}</td>
             <td>${producto.precio1_venta_prod}</td>
             <td>
-              <button class="btn ${producto.estatus == 1 ? 'btn-success' : 'btn-danger'}">
-                ${producto.estatus == 1 ? 'Activo' : 'Inactivo'}
+              <button class="btn ${
+                producto.estatus == 1 ? "btn-success" : "btn-danger"
+              }">
+                ${producto.estatus == 1 ? "Activo" : "Inactivo"}
               </button>
             </td>
             <td>
-              <button title="Editar" class="editarProducto fa-solid fa-pen-to-square" data-id="${producto.idproducto}"></button>
+              <button title="Editar" class="editarProducto fa-solid fa-pen-to-square" data-id="${
+                producto.idproducto
+              }"></button>
               &nbsp;&nbsp;&nbsp;
-              <button title="Eliminar" class="eliminarProducto fa-solid fa-trash" data-id="${producto.idproducto}"></button>
+              <button title="Eliminar" class="eliminarProducto fa-solid fa-trash" data-id="${
+                producto.idproducto
+              }"></button>
             </td>
           `;
           tbody.appendChild(row);
@@ -2282,11 +2340,11 @@ function cargarProductosScroll() {
           icon: "info",
           showConfirmButton: false,
           timer: 1500,
-          timerProgressBar: true
+          timerProgressBar: true,
         });
       }
     })
-    .catch(error => console.error("Error al cargar productos:", error));
+    .catch((error) => console.error("Error al cargar productos:", error));
 }
 
 function iniciarScrollProductos() {
@@ -2297,7 +2355,11 @@ function iniciarScrollProductos() {
   if (!scrollContainer) return;
 
   scrollContainer.addEventListener("scroll", () => {
-    if (scrollContainer.scrollTop + scrollContainer.clientHeight >= scrollContainer.scrollHeight - 10 && !cargando) {
+    if (
+      scrollContainer.scrollTop + scrollContainer.clientHeight >=
+        scrollContainer.scrollHeight - 10 &&
+      !cargando
+    ) {
       cargarProductosScroll();
     }
   });
@@ -2315,7 +2377,6 @@ const contentArea = document.getElementById("content-area");
 if (contentArea) {
   observer.observe(contentArea, { childList: true, subtree: true });
 }
-
 
 // Llamar formulario de Categorias **************************************************
 document

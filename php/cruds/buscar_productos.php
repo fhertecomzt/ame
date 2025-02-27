@@ -1,12 +1,32 @@
 <?php
-require_once "../conexion.php"; // Tu archivo de conexión a la base de datos
+require_once "../conexion.php";
+// Obtenemos los valores de 'q' (búsqueda) y 'estatus' de la URL, si existen
+$q = isset($_GET['q']) ? trim($_GET['q']) : '';
+$estatus = isset($_GET['estatus']) ? trim($_GET['estatus']) : '';
 
-if (isset($_GET['q'])) {
-  $filtro = "%" . $_GET['q'] . "%";
-  $sql = "SELECT idproducto, codbar_prod, nom_prod desc_prod, precio1_venta_prod FROM productos WHERE codbar_prod LIKE ? OR producto LIKE ?";
-  $stmt = $conn->prepare($sql);
-  $stmt->execute([$filtro, $filtro]);
-  $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Construimos la consulta SQL
+$sql = "SELECT * FROM productos WHERE (UPPER(nom_prod) LIKE ? OR UPPER(codbar_prod) LIKE ?";
 
-  echo json_encode($productos);
+// Si se pasa un estatus, agregar el filtro de estatus a la consulta
+if ($estatus !== '') {
+  $sql .= " AND estatus = ?";
 }
+
+// Cerramos la consulta SQL
+$sql .= ")";
+
+// Preparamos la consulta
+$stmt = $dbh->prepare($sql);
+
+// Ejecutamos la consulta con los parámetros adecuados
+if ($estatus !== '') {
+  $stmt->execute(["%$q%", "%$q%", $estatus]);
+} else {
+  $stmt->execute(["%$q%", "%$q%"]);
+}
+
+// Obtenemos los productos que coinciden con la búsqueda
+$productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Devolvemos los resultados en formato JSON
+echo json_encode($productos);
