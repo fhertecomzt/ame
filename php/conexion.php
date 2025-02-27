@@ -1,9 +1,12 @@
 <?php
 // conexion.php
 
-$dsn = 'mysql:host=localhost;dbname=gestion;charset=utf8mb4'; // Usar utf8mb4 para mayor compatibilidad con caracteres especiales.
-$username = 'root'; // Verifica si el usuario es realmente 'roots'.
-$password = '';
+//Conexion en PC$dsn = 'mysql:host=localhost;dbname=gestion;charset=utf8mb4'; // Usar utf8mb4 para mayor compatibilidad con caracteres especiales.
+
+//Conexiòn Mac local
+$dsn = 'mysql:host=192.168.1.112;dbname=gestion;charset=utf8mb4'; // Usar utf8mb4 para mayor compatibilidad con caracteres especiales.
+$username = 'redmac'; // Verifica si el usuario es realmente 'roots'.
+$password = 'Serverred2025/';
 
 try {
     $dbh = new PDO($dsn, $username, $password);
