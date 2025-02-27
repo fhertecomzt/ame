@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Establecer encabezados para la imagen
+// Establecer encabezados para la imagen ttt
 header("Content-Type: image/png");
 
 // Generar números aleatorios
