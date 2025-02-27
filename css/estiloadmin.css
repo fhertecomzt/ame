@@ -1,5 +1,5 @@
 /*Import Google Font Cdn enlace*/
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+/*@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");*/
 * {
   margin: 0;
   padding: 0;
@@ -82,9 +82,12 @@ span {
 }
 
 .logo {
-  height: 55px;
+  height: 70px;
   padding: 10px;
   text-align: center;
+}
+.logo img{
+  border-radius: 11px;
 }
 
 .logout {
@@ -123,6 +126,9 @@ span {
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+.user--info img:hover{
+  border: 1px solid rgb(0, 234, 255);
 }
 .search--box {
   background: rgb(237, 237, 237);

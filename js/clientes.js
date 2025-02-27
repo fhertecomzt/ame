@@ -57,11 +57,13 @@ function procesarFormularioCliente(event, tipo) {
           tbody.appendChild(newRow);
         }
 
-        // Mostrar un mensaje de éxito
+        // Mostrar un mensaje de fin de scroll
         Swal.fire({
-          title: "¡Éxito!",
+          title: "No hay más productos",
           text: data.message, // Usar el mensaje del backend
-          icon: "success",
+          icon: "info",
+          showConfirmButton: false,
+          timer: 1500
         });
       } else {
         // Mostrar un mensaje de error específico del backend
@@ -151,8 +153,8 @@ function validarFormularioCliente(event) {
     }
   });
 
-  if (isNaN(parseInt(nointerior)) || parseInt(nointerior) < 0) {
-    errores.push("El número interior debe ser mayor o igual a 0");
+  if (nointerior.length < 1) {
+    errores.push("EL número interior debe tener al menos 1 carácter.");
     const inputnointerior = document.querySelector("#crear-nointerior");
     inputnointerior.focus();
     inputnointerior.classList.add("input-error"); // Añade la clase de error
@@ -240,7 +242,7 @@ function validarFormularioCliente(event) {
     });
 }
 function verificarDuplicadoCliente(cliente) {
-  console.log("Nombre verificar:", cliente);
+  //console.log("Nombre verificar:", cliente);
 
   return fetch("cruds/verificar_nombre_cliente.php", {
     method: "POST",
@@ -391,7 +393,6 @@ async function validarFormularioEdicionCliente(formulario) {
       nombre: "nointerior",
       min: 0,
       mensaje: "El número interior debe ser mayor o igual a 0",
-      numerico: true,
     },
     {
       nombre: "colonia",

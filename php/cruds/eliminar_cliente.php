@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['id']) && ctype_digit($
 
     if ($stmt->execute()) {
       $response["success"] = true;
-      $response["message"] = "Tienda eliminada correctamente.";
+      $response["message"] = "Registro eliminado correctamente.";
     } else {
       $response["message"] = "Error al eliminar el registro.";
     }
@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['id']) && ctype_digit($
     $response["message"] = "Hubo un error al procesar la solicitud. Intente más tarde.";
   }
 } else {
-  $response["message"] = "Método no permitido o ID de tienda no válido.";
+  $response["message"] = "Método no permitido o ID no válido.";
 }
 
 // Enviar la respuesta en formato JSON

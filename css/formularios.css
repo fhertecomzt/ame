@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: "system-ui";
 }
 .containerr {
   background-color: #ffff;
@@ -17,7 +18,7 @@
   height: 70%;
 }
 .boton {
-  background: linear-gradient(130deg, blue, skyblue);
+  background: #5fb3ef;
   border: none;
   border-radius: 5px;
   color: #ffffff;
@@ -26,6 +27,9 @@
   font-weight: 500;
   outline: none;
   margin: 8px;
+}
+.boton:hover{
+  background: #7c52f0;
 }
 .buscarlabel {
   align-items: center;
@@ -83,7 +87,7 @@ form label {
   display: block;
   font-size: 12px;
   font-weight: 600;
-  margin-bottom: 1px;
+  margin-bottom: 4px;
 }
 .form-group input,
 select {
@@ -131,15 +135,21 @@ form .button input {
 /*Hacer que noexterior e interior queden en la misma fila*/
 .form-containernum {
     display: flex;
-    gap: 26px; /* Espaciado entre los inputs */
+    gap: 35px; /* Espaciado entre los inputs */
     align-items: center; /* Alineación vertical */
     flex-wrap: wrap; /* Permite que se acomoden en pantallas pequeñas */
+    margin-left: 5px;
 }
 
 .ladoble {
     display: flex;
     flex-direction: column; /* Mantiene el label encima del input */
-    width: calc(100% / 2 - 19px);
+    width: calc(100% / 2 - 24px);
+}
+.laquinta {
+    display: flex;
+    flex-direction: column; /* Mantiene el label encima del input */
+    width: calc(100% / 5 - 19px);
 }
 
 /* Estilo general del modal */
@@ -215,7 +225,32 @@ form .button input {
   outline: none;
   box-shadow: 0 0 5px red;
 }
+/* Checkbox caracteristicas*/
+.caracteristicas-container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
 
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Espacio entre checkboxes */
+    margin-top: 5px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    gap: 5px; /* Espacio entre checkbox y texto */
+    font-weight: 450;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+}
 /* Opcional: Ajustar para pantallas más pequeñas */
 @media (max-width: 600px) {
   .modal-content {

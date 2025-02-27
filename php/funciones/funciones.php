@@ -4,7 +4,7 @@
 function obtenerRegistros($dbh, $tabla, $campos = "*", $orden = "id DESC", $campoId = "id", $registrosPorPagina = 10, $pagina = 1)
 {
   // Evita SQL Injection verificando que el nombre de la tabla sea válido
-  $tablasPermitidas = ['tiendas', 'roles', 'categorias', 'umedidas', 'marcas', 'tallas', 'colores', 'generos', 'estilos', 'mpagos', 'impuestos','clientes','proveedores'];
+  $tablasPermitidas = ['tiendas', 'roles', 'productos', 'categorias', 'umedidas', 'marcas', 'tallas', 'colores', 'generos', 'estilos', 'mpagos', 'impuestos','clientes','proveedores'];
   if (!in_array($tabla, $tablasPermitidas)) {
     return []; // Evita consultas en tablas no permitidas
   }

@@ -70,11 +70,11 @@ $_SESSION['last_token'] = $current_token;*/
     <nav>
         <div class="sidebar">
             <div class="logo">
-                <img src="../imgs/logo.jpg" alt="SOUMAZ" style="height: 50px; width: 50px; border-radius: 25px">
+                <img src="../imgs/logo.jpg" alt="SOUMAZ" style="height: 50px; width: 50px; ">
             </div>
             <ul class="menu">
                 <li>
-                    <a href="ad.php#" id="inicio-link">
+                    <a href="#" id="dashboard-link">
                         <i class="fas fa-tachometer-alt"></i>
                         <span>INICIO</span>
                     </a>

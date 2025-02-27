@@ -75,7 +75,7 @@ $clientes = obtenerRegistros($dbh, "clientes", "idcliente, nom_cliente, tel_clie
                     pattern="[a-zA-Z0-9\s]+"
                     title="Solo se permiten letras, espacios y números."
                     oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '')" required>
-            </div>            
+            </div>
 
             <div class="form-containernum">
                 <div class="form-group ladoble">
@@ -83,15 +83,14 @@ $clientes = obtenerRegistros($dbh, "clientes", "idcliente, nom_cliente, tel_clie
                     <input type="number" id="crear-noexterior" name="noexterior" autocomplete="off"
                         pattern="[0-9]+"
                         title="Solo se permiten números."
-                        oninput="this.value = this.value.replace(/[^0-9\s]/g, '')" size="10" min="0" maxlength="10" required>
+                        oninput="this.value = this.value.replace(/[^0-9\s]/g, '')" size="6" min="0" maxlength="6" required>
                 </div>
 
                 <div class="form-group ladoble">
                     <label for="crear-nointerior">No. interior:</label>
                     <input type="text" id="crear-nointerior" name="nointerior" autocomplete="off"
-                        pattern="[0-9]+"
-                        title="Solo se permiten números."
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" size="10" min="0" value="0" maxlength="10" required>
+                        ptitle="Solo se permiten letras y números."
+                        oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ0-9]/g, '')" size="6" min="0" maxlength="6" required>
                 </div>
             </div>
 
@@ -199,15 +198,14 @@ $clientes = obtenerRegistros($dbh, "clientes", "idcliente, nom_cliente, tel_clie
                     <input type="number" id="editar-noexterior" name="noexterior" autocomplete="off"
                         pattern="[0-9]+"
                         title="Solo se permiten números."
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" size="10" min="0" maxlength="10" required>
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" size="6" min="0" maxlength="6" required>
                 </div>
 
                 <div class="form-group ladoble">
                     <label for="editar-nointerior">No. interior:</label>
                     <input type="text" id="editar-nointerior" name="nointerior" autocomplete="off"
-                        pattern="[0-9]+"
-                        title="Solo se permiten números."
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" size="10" min="0" value="0" maxlength="10" required>
+                        ptitle="Solo se permiten letras y números."
+                        oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ0-9]/g, '')" size="6" min="0" maxlength="6" required>
                 </div>
             </div>
 

@@ -21,6 +21,10 @@ tr:hover td {
   background-color: #6d73e4;
   color: rgb(255, 255, 255);
 }
+td img{
+  border-radius: 10px;
+}
+
 .editar,
 .editarRol,
 .editarUser,
@@ -34,9 +38,30 @@ tr:hover td {
 .editarMpago,
 .editarImpuesto,
 .editarCliente,
-.editarProveedor {
+.editarProveedor,
+.editarProducto {
   color: #002cee;
   cursor: pointer;
+}
+.editar:hover,
+.editarRol:hover,
+.editarUser:hover,
+.editarCat:hover,
+.editarUmed:hover,
+.editarMarca:hover,
+.editarTalla:hover,
+.editarColor:hover,
+.editarGenero:hover,
+.editarEstilo:hover,
+.editarMpago:hover,
+.editarImpuesto:hover,
+.editarCliente:hover,
+.editarProveedor:hover,
+.editarProducto:hover {
+  background-color: #f2ff00;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 5px;
 }
 .eliminar,
 .eliminarRol,
@@ -51,10 +76,32 @@ tr:hover td {
 .eliminarMpago,
 .eliminarImpuesto,
 .eliminarCliente,
-.eliminarProveedor {
+.eliminarProveedor,
+.eliminarProducto {
   color: #ff0000;
   margin-left: 6px;
   cursor: pointer;
+}
+.eliminar:hover,
+.eliminarRol:hover,
+.eliminarUser:hover,
+.eliminarCat:hover,
+.eliminarUmed:hover,
+.eliminarMarca:hover,
+.eliminarTalla:hover,
+.eliminarColor:hover,
+.eliminarGenero:hover,
+.eliminarEstilo:hover,
+.eliminarMpago:hover,
+.eliminarImpuesto:hover,
+.eliminarCliente:hover,
+.eliminarProveedor:hover,
+.eliminarProducto:hover {
+  background-color: #ffffff;
+  margin-left: 6px;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 5px;
 }
 
 #limpiar-busqueda {
@@ -71,4 +118,18 @@ tr:hover td {
 
 #limpiar-busqueda:hover {
   background-color: #d32f2f;
+}
+/*Estados activos o inactivos*/
+.btn-success {
+  background-color: #0aa629;
+  border-radius: 5px;
+  color: white;
+  padding: 5px 9px;  
+}
+
+.btn-danger {
+  background-color: #ff5722;
+  border-radius: 5px;
+  color: white;
+  padding: 5px;  
 }

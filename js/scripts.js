@@ -1,9 +1,36 @@
+function toggleCampo(campo) {
+  var checkbox = document.getElementById("check-" + campo);
+  var campoDiv = document.getElementById("campo-" + campo);
+
+  if (checkbox.checked) {
+    campoDiv.style.display = "block";
+  } else {
+    campoDiv.style.display = "none";
+  }
+}
+
 //Función para cambiar de nombre los botones guardar nuevo y actualizar
 function cambiarTextoBoton() {
   // Seleccionamos el botón de "Actualizar" / "Guardar" y cambiamos su valor a "Guardar"
   const boton = document.getElementById("botonGuardarActualizar");
   boton.value = "Guardar";
 }
+
+//Llamar pagina Dashboard****************
+document
+  .getElementById("dashboard-link")
+  .addEventListener("click", function (event) {
+    event.preventDefault(); // Evita la acción por defecto del enlace
+    fetch("dashboard.php")
+      .then((response) => response.text())
+      .then((html) => {
+        document.getElementById("content-area").innerHTML = html;
+      })
+      .catch((error) => {
+        console.error("Error al cargar el contenido:", error);
+      });
+  });
+
 //Llamar pagina de Tiendas****************
 document
   .getElementById("tiendas-link")
@@ -179,8 +206,8 @@ function validarFormularioTienda(event) {
     }
   });
 
-  if (isNaN(parseInt(nointerior)) || parseInt(nointerior) < 0) {
-    errores.push("El número interior debe ser mayor o igual a 0");
+  if (nointerior.length < 1) {
+    errores.push("Número interior debe tener al menos 1 carácter.");
     const inputnointerior = document.querySelector("#crear-nointerior");
     inputnointerior.focus();
     inputnointerior.classList.add("input-error"); // Añade la clase de error
@@ -415,9 +442,8 @@ async function validarFormularioEdicion(formulario) {
     },
     {
       nombrec: "nointerior",
-      min: 0,
+      min: 1,
       mensaje: "El número interior debe ser mayor o igual a 0",
-      numerico: true,
     },
     {
       nombrec: "colonia",
@@ -1571,8 +1597,727 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+// Llamar formulario de Productos ***************************************************
+document
+  .getElementById("productos-link")
+  .addEventListener("click", function (event) {
+    event.preventDefault(); // Evita la acción por defecto del enlace
+    fetch("catalogos/productos.php")
+      .then((response) => response.text())
+      .then((html) => {
+        document.getElementById("content-area").innerHTML = html;
+        // Vuelve a activar el scroll infinito
+         iniciarScrollProductos(); 
+      })
+      .catch((error) => {
+        console.error("Error al cargar el contenido:", error);
+      });
+  });
 
-// Llamar formulario de Categorias ***************************************************
+//Crear Productos***************
+function abrirModalProducto(id) {
+  document.getElementById(id).style.display = "flex";
+}
+
+function cerrarModalProducto(id) {
+  document.getElementById(id).style.display = "none";
+}
+
+function procesarFormularioProducto(event, tipo) {
+  event.preventDefault(); //Para que no recergue la pagina
+  console.log("Interceptando envío del formulario2"); // Verifica si se ejecuta
+  const formData = new FormData(event.target);
+
+  //Verificar qué datos se están enviando
+  for (let pair of formData.entries()) {
+    console.log(pair[0], pair[1]);
+  }
+
+  fetch(`cruds/procesar_${tipo}_producto.php`, {
+    method: "POST",
+    body: new FormData(document.getElementById("form-crearProducto")),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Respuesta del servidor:", data);
+      if (!data.success) {
+        throw new Error(data.message || "Error desconocido.");
+      }
+      // Aquí verificamos si la propiedad imagen existe antes de usarla
+      if (!data.rutaImagen) {
+        console.warn("No se recibió imagen en la respuesta del servidor.");
+      }
+      console.log("Imagen subida con éxito:", data.rutaImagen);
+
+      if (data.success) {
+        // Cerrar el modal
+        cerrarModalProducto(tipo + "-modalProducto");
+        // Limpiar los campos del formulario
+        event.target.reset();
+
+        // Actualizar la tabla dinámicamente si es 'crear'
+        if (tipo === "crear") {
+          const tbody = document.querySelector("table tbody");
+
+          // Crear una nueva fila
+          //En la linea de estatus escribimos eso para que cuando
+          //se inserte en la tabla se convierta a texto y no a número con su botón
+
+          const newRow = document.createElement("tr");
+          newRow.innerHTML = `
+            <td>${data.producto.imagen}</td>
+            <td>${data.producto.codebar}</td>
+            <td>${data.producto.producto}</td>
+            <td>${data.producto.costo_compra}</td>
+            <td>${data.producto.precio1}</td>            
+            <td>
+              <button class="btn ${
+                data.producto.estatus == 1 ? "btn-success" : "btn-danger"
+              }">
+              ${data.producto.estatus == 1 ? "Activo" : "Inactivo"}
+              </button>
+            </td>
+
+            
+            <td>
+              <button title="Editar" class="editarProducto fa-solid fa-pen-to-square" data-id="${
+                data.producto.id
+              }"></button>
+              <button title="Eliminar" class="eliminarProducto fa-solid fa-trash" data-id="${
+                data.producto.id
+              }"></button>
+            </td>
+          `;
+
+          // Agregar la nueva fila a la tabla
+          tbody.appendChild(newRow);
+        }
+
+        // Mostrar un mensaje de éxito
+        Swal.fire({
+          title: "¡Éxito!",
+          text: data.message, // Usar el mensaje del backend
+          icon: "success",
+          showConfirmButton: false,
+          timer: 3000,
+        });
+      } else {
+        // Mostrar un mensaje de error específico del backend
+        Swal.fire({
+          title: "Error",
+          text: data.message || "Ocurrió un problema.", // Mostrar el mensaje específico si existe
+          icon: "error",
+        });
+      }
+    })
+    .catch((error) => {
+      // Manejar errores inesperados
+      console.error("Error en fetch:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Ocurrió un error inesperado. Intente más tarde.",
+        icon: "error",
+      });
+    });
+}
+
+function validarFormularioProducto(event) {
+  event.preventDefault();
+
+  const codebar = document.querySelector("[name='codebar']").value.trim();
+  const producto = document.querySelector("[name='producto']").value.trim();
+  const descprod = document.querySelector("[name='descprod']").value.trim();
+  const idcategoria = document
+    .querySelector("[name='idcategoria']")
+    .value.trim();
+  const idmarca = document.querySelector("[name='idmarca']").value.trim();
+  const idgenero = document.querySelector("[name='idgenero']").value.trim();
+  const idtalla = document.querySelector("[name='idtalla']").value.trim();
+  const idestilo = document.querySelector("[name='idestilo']").value.trim();
+  const idcolor = document.querySelector("[name='idcolor']").value.trim();
+  const costo_compra = document
+    .querySelector("[name='costo_compra']")
+    .value.trim();
+  const ganancia = document.querySelector("[name='ganancia']").value.trim();
+  const precio1 = document.querySelector("[name='precio1']").value.trim();
+  const precio2 = document.querySelector("[name='precio2']").value.trim();
+  const precio3 = document.querySelector("[name='precio3']").value.trim();
+  const idimpuesto = document.querySelector("[name='idimpuesto']").value.trim();
+  const idumedida = document.querySelector("[name='idumedida']").value.trim();
+  const idproveedor = document
+    .querySelector("[name='idproveedor']")
+    .value.trim();
+  const estatus = document.querySelector("[name='estatus']").value.trim();
+
+  const errores = [];
+  //Validaciones simples
+  if (codebar.length < 0) {
+    errores.push("El nombre debe tener al menos 3 caracteres.");
+    const inputcodebar = document.querySelector("#crear-codebar");
+    inputcodebar.focus();
+    inputcodebar.classList.add("input-error"); // Añade la clase de error
+  }
+  // Elimina la clase de error al corregir
+  const inputcodebar = document.querySelector("#crear-codebar");
+  inputcodebar.addEventListener("input", () => {
+    if (inputcodebar.value.length >= 0) {
+      inputcodebar.classList.remove("input-error"); // Quita la clase si el campo es válido
+    }
+  });
+  if (producto.length < 3) {
+    errores.push("El nombre debe tener al menos 3 caracteres.");
+    const inputname = document.querySelector("#crear-producto");
+    inputname.focus();
+    inputname.classList.add("input-error"); // Añade la clase de error
+  }
+  // Elimina la clase de error al corregir
+  const inputname = document.querySelector("#crear-producto");
+  inputname.addEventListener("input", () => {
+    if (inputname.value.length >= 3) {
+      inputname.classList.remove("input-error"); // Quita la clase si el campo es válido
+    }
+  });
+
+  if (descprod.length < 3) {
+    errores.push("La descripción debe tener al menos 3 caracteres.");
+    const inputdesc = document.querySelector("#crear-descprod");
+    inputdesc.focus();
+    inputdesc.classList.add("input-error"); // Añade la clase de error
+  }
+  // Elimina la clase de error al corregir
+  const inputdesc = document.querySelector("#crear-descprod");
+  inputdesc.addEventListener("input", () => {
+    if (inputdesc.value.length >= 3) {
+      inputdesc.classList.remove("input-error"); // Quita la clase si el campo es válido
+    }
+  });
+
+  if (errores.length > 0) {
+    Swal.fire({
+      title: "Errores en el formulario",
+      html: errores.join("<br>"),
+      icon: "error",
+    });
+    return;
+  }
+
+  // Verificar duplicados antes de proceder
+  verificarDuplicadoProducto(producto)
+    .then((esDuplicado) => {
+      if (esDuplicado) {
+        Swal.fire({
+          title: "Error",
+          text: "El nombre ya existe. Por favor, elige otro.",
+          icon: "error",
+        });
+      } else {
+        // Si no hay errores, enviar el formulario
+        procesarFormularioProducto(event, "crear");
+      }
+    })
+    .catch((error) => {
+      console.error("Error al verificar duplicados:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Ocurrió un problema al validar el nombre.",
+        icon: "error",
+      });
+    });
+}
+function verificarDuplicadoProducto(producto) {
+  //console.log("Nombre verificar:", nombre);
+
+  return fetch("cruds/verificar_nombre_producto.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ producto }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Respuesta de verificar_nombre.php:", data);
+      if (data.existe) {
+        mostrarAlerta("error", "Error", "El nombre ya existe.");
+      }
+      return data.existe;
+    })
+    .catch((error) => {
+      console.error("Error al verificar duplicado:", error);
+      return true; // Asume duplicado en caso de error
+    });
+}
+//Editar Productos************************************************************
+document.addEventListener("DOMContentLoaded", function () {
+  // Escuchar clic en el botón de editar
+  document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("editarProducto")) {
+      const id = event.target.dataset.id;
+      //console.log("Botón editar clickeado. ID:", id);
+
+      fetch(`cruds/obtener_producto.php?id=${id}`)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Datos recibidos del servidor:", data);
+          if (data.success) {
+            const formularioProducto = document.getElementById(
+              "form-editarProducto"
+            );
+            if (formularioProducto) {
+              const campos = [
+                "idproducto",
+                "codebar",
+                "producto",
+                "descprod",
+                "categoria",
+                "marca",
+                "genero",
+                "talla",
+                "color",
+                "costo_compra",
+                "ganancia",
+                "precio1",
+                "precio2",
+                "precio3",
+                "impuesto",
+                "umedida",
+                "proveedor",
+                "estatus",
+              ];
+              //console.log(`Asignando ${campo}:`, data.producto[campo]);
+              campos.forEach((campo) => {
+                const input = formularioProducto[`editar-${campo}`];
+                if (input) {
+                  //console.log(`Asignando ${campo}:`, data.producto[campo]);
+                  input.value = data.producto[campo] || "";
+                } else {
+                  console.warn(
+                    `El campo editar-${campo} no existe en el formulario.`
+                  );
+                }
+              });
+              abrirModalProducto("editar-modalProducto");
+            } else {
+              console.error("Formulario de edición no encontrado.");
+            }
+          } else {
+            mostrarAlerta(
+              "error",
+              "Error",
+              data.message || "No se pudo cargar el campo."
+            );
+          }
+        })
+        .catch((error) => {
+          console.error("Error al obtener el campo:", error);
+          mostrarAlerta(
+            "error",
+            "Error",
+            "Ocurrió un problema al obtener los datos."
+          );
+        });
+    }
+  });
+
+  // Validar y enviar el formulario de edición
+  document.body.addEventListener("submit", function (event) {
+    if (event.target && event.target.id === "form-editarProducto") {
+      event.preventDefault(); // Esto evita el comportamiento predeterminado de recargar la página.
+      validarFormularioEdicionProducto(event.target);
+    }
+  });
+});
+
+// Función genérica para mostrar alertas
+function mostrarAlerta(tipo, titulo, mensaje) {
+  Swal.fire({ title: titulo, text: mensaje, icon: tipo });
+}
+
+//Validar duplicados en edicion producto
+function verificarDuplicadoEditarProducto(producto, id = 0) {
+  //console.log("Validando duplicados. ID:", id, "Producto:", producto);
+
+  return fetch("cruds/verificar_nombre_producto.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ producto, id }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Respuesta de verificar_nombre.php:", data);
+      if (data.existe) {
+        mostrarAlerta("error", "Error", "El nombre ya existe.");
+      }
+      return data.existe;
+    })
+    .catch((error) => {
+      console.error("Error al verificar duplicado:", error);
+      return true; // Asume duplicado en caso de error
+    });
+}
+// Validación del formulario de edición Producto
+async function validarFormularioEdicionProducto(formulario) {
+  const campos = [
+    {
+      nombre: "producto",
+      min: 3,
+      mensaje: "El nombre debe tener al menos 3 caracteres.",
+    },
+    {
+      nombre: "rfc",
+      min: 12,
+      mensaje: "El RFC debe tener al menos 12 caracteres.",
+    },
+    {
+      nombre: "calle",
+      min: 3,
+      mensaje: "La calle debe tener al menos 3 caracteres.",
+    },
+    {
+      nombre: "noexterior",
+      min: 1,
+      mensaje: "El número exterior debe ser mayor a 0",
+      numerico: true,
+    },
+    {
+      nombre: "nointerior",
+      min: 0,
+      mensaje: "El número interior debe ser mayor o igual a 0",
+      numerico: true,
+    },
+    {
+      nombre: "colonia",
+      min: 3,
+      mensaje: "La colonia debe tener al menos 3 caracteres.",
+    },
+    {
+      nombre: "ciudad",
+      min: 3,
+      mensaje: "La ciudad debe tener al menos 3 caracteres.",
+    },
+    {
+      nombre: "estado",
+      min: 3,
+      mensaje: "El estado debe tener al menos 3 caracteres.",
+    },
+  ];
+  let primerError = null;
+  const errores = [];
+
+  // Validar cada campo
+  campos.forEach((campo) => {
+    const campoFormulario = document.getElementById(`editar-${campo.nombre}`);
+    if (!campoFormulario) {
+      console.error(`El campo editar-${campo.nombre} no se encontró.`);
+      return; // Continúa con el siguiente campo
+    }
+    campoFormulario.addEventListener("input", () => {
+      //Quita lo rojo del error al validar que es mayor o igual a su validación
+      if (campoFormulario.value.length >= campo.min) {
+        campoFormulario.classList.remove("input-error"); // Quita la clase si el campo es válido
+      }
+    });
+    const valor = campoFormulario.value.trim();
+    // Validar por longitud mínima
+    if (valor.length < campo.min) {
+      errores.push(campo.mensaje);
+      campoFormulario.classList.add("input-error");
+      campoFormulario.focus(); // Establece el foco en el campo inválido
+      if (!primerError) primerError = campoFormulario; // Guardar el primer error
+    } else {
+      campoFormulario.classList.remove("input-error");
+    }
+  });
+  // Si hay errores, mostrar la alerta y enfocar el primer campo con error
+  if (errores.length > 0) {
+    Swal.fire({
+      title: "Errores en el formulario",
+      html: errores.join("<br>"),
+      icon: "error",
+    });
+    if (primerError) primerError.focus(); // Enfocar el primer campo con error
+    return;
+  }
+
+  // Verificar duplicado antes de enviar el formulario
+  const productoInput = document.getElementById("editar-producto");
+  const idInput = document.getElementById("editar-idproducto");
+  if (!productoInput || !idInput) {
+    console.log("Error: No se encontró el campo o ID.");
+    return;
+  }
+  const producto = productoInput.value.trim();
+  const id = idInput.value;
+
+  try {
+    //console.log("Verificando duplicado. ID:", id, "Producto:", producto);
+    const esDuplicado = await verificarDuplicadoEditarProducto(producto, id);
+    if (esDuplicado) {
+      return; // No enviar el formulario si hay duplicados
+    } else {
+      //cerrarModalProducto("editar-modalProducto");
+      enviarFormularioEdicionProducto(formulario); // Proceder si no hay duplicados
+    }
+  } catch (error) {
+    console.error("Error al verificar duplicado:", error);
+  }
+}
+// Enviar formulario de edición Producto
+function enviarFormularioEdicionProducto(formulario) {
+  if (!formulario) {
+    console.error("El formulario no se encontró.");
+    return;
+  }
+  const formData = new FormData(formulario);
+
+  fetch("cruds/editar_producto.php", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("Respuesta del servidorEdit:", data);
+      if (data.success) {
+        mostrarAlerta(
+          "success",
+          "¡Éxito!",
+          data.message || "Actualizada correctamente."
+        );
+        actualizarFilaTablaProducto(formData);
+        cerrarModal("editar-modalProducto");
+      } else {
+        mostrarAlerta(
+          "error",
+          "Error",
+          data.message || "No se pudo actualizar."
+        );
+      }
+    })
+    .catch((error) => {
+      console.error("Error al actualizar:", error);
+      mostrarAlerta("error", "Error", "Ocurrió un problema al actualizar.");
+    });
+}
+// Actualizar fila de la tabla
+function actualizarFilaTablaProducto(formData) {
+  const fila = document
+    .querySelector(`button[data-id="${formData.get("editar-idproducto")}"]`)
+    .closest("tr");
+  //console.log(formData.get("editar-idproducto"));
+  if (fila) {
+    fila.cells[0].textContent = formData.get("producto");
+    fila.cells[1].textContent = formData.get("telefono");
+    fila.cells[2].textContent = formData.get("email");
+  }
+}
+// Eliminar Productos*****************************
+document.addEventListener("click", function (event) {
+  if (event.target.classList.contains("eliminarProducto")) {
+    const id = event.target.dataset.id;
+
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esta acción",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Realizar la solicitud para eliminar
+        fetch(`cruds/eliminar_producto.php?id=${id}`, { method: "POST" })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              //alert("Registro eliminado correctamente");
+              Swal.fire({
+                title: "¡Eliminado!",
+                text: data.message,
+                icon: "success",
+                showConfirmButton: false,
+                timer: 1500,
+              });
+              // Remover la fila de la tabla
+              event.target.closest("tr").remove();
+            } else {
+              Swal.fire(
+                "Error",
+                data.message || "No se pudo eliminar el registro.",
+                "error"
+              );
+            }
+          })
+          .catch((error) => {
+            Swal.fire(
+              "Error",
+              "Hubo un problema al procesar tu solicitud.",
+              "error"
+            );
+            console.error("Error al eliminar:", error);
+          });
+      }
+    });
+  }
+});
+//Buscar productos***********************************************************************
+document.addEventListener("DOMContentLoaded", function () {
+  const buscarBox = document.getElementById("buscarboxproducto");
+  
+  if (buscarBox) {    
+    buscarBox.addEventListener("input", function () {
+      const filtro = buscarBox.value.trim().toLowerCase();
+      
+      if (filtro.length > 2) {
+        buscarProductos(filtro);
+      } else {
+        cargarProductos(); // Si el input está vacío, carga todos los productos
+      }
+    });
+  }
+  
+  function buscarProductos(filtro) {
+    console.log("Input modificado:", buscarBox.value);
+    fetch(`cruds/buscar_productos.php?q=${encodeURIComponent(filtro)}`)
+      .then(response => response.json())
+      .then(data => {
+        actualizarTabla(data);
+        console.log("Buscar productos:", data);
+      })
+      .catch(error => console.error("Error en la búsqueda:", error));
+  }
+
+  function actualizarTabla(productos) {
+    const tbody = document.querySelector("#tabla-productos tbody");
+
+    if (!tbody) {
+      console.warn("No se encontró tbody. Intentando de nuevo en 4000ms...");
+      setTimeout(() => actualizarTabla(productos), 4000);
+      return;
+    }
+
+    tbody.innerHTML = "";
+
+    if (productos.length === 0) {
+      tbody.innerHTML = "<tr><td colspan='5'>No se encontraron productos</td></tr>";
+      return;
+    }
+
+    productos.forEach(producto => {
+      const fila = document.createElement("tr");
+      fila.innerHTML = `
+        <td><img src="${producto.imagen}" width="50" height="50" onerror="this.src='../imgs/default.png'"></td>
+        <td>${producto.codbar_prod}</td>
+        <td>${producto.nom_prod}</td>
+        <td>${producto.costo_compra_prod}</td>
+        <td>${producto.precio1_venta_prod}</td>
+         <td>
+              <button class="btn ${producto.estatus == 1 ? 'btn-success' : 'btn-danger'}">
+                ${producto.estatus == 1 ? 'Activo' : 'Inactivo'}
+              </button>
+            </td>
+            <td>
+              <button title="Editar" class="editarProducto fa-solid fa-pen-to-square" data-id="${producto.idproducto}"></button>
+              &nbsp;&nbsp;&nbsp;
+              <button title="Eliminar" class="eliminarProducto fa-solid fa-trash" data-id="${producto.idproducto}"></button>
+            </td>
+      `;
+      tbody.appendChild(fila);
+    });
+  }
+
+  function cargarProductos() {
+    fetch("cruds/cargar_productos.php")
+      .then(response => response.json())
+      .then(data => {
+        actualizarTabla(data);
+      })
+      .catch(error => console.error("Error al cargar productos:", error));
+  }
+
+  // Cargar productos al inicio
+  cargarProductos();
+});
+
+// ------------------------ SCROLL INFINITO ------------------------
+
+let pagina = 2;
+let cargando = false;
+
+function cargarProductosScroll() {
+  if (cargando) return;
+  cargando = true;
+
+  fetch(`cruds/cargar_productos.php?page=${pagina}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.length > 0) {
+        const tbody = document.querySelector("#tabla-productos tbody");
+        data.forEach(producto => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td><img src="${producto.imagen}" width="50" height="50" onerror="this.src='../imgs/default.png'"></td>
+            <td>${producto.codbar_prod}</td>
+            <td>${producto.nom_prod}</td>
+            <td>${producto.costo_compra_prod}</td>
+            <td>${producto.precio1_venta_prod}</td>
+            <td>
+              <button class="btn ${producto.estatus == 1 ? 'btn-success' : 'btn-danger'}">
+                ${producto.estatus == 1 ? 'Activo' : 'Inactivo'}
+              </button>
+            </td>
+            <td>
+              <button title="Editar" class="editarProducto fa-solid fa-pen-to-square" data-id="${producto.idproducto}"></button>
+              &nbsp;&nbsp;&nbsp;
+              <button title="Eliminar" class="eliminarProducto fa-solid fa-trash" data-id="${producto.idproducto}"></button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        pagina++; // Aumentamos la página
+        cargando = false;
+      } else {
+        Swal.fire({
+          title: "No hay más productos.",
+          icon: "info",
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true
+        });
+      }
+    })
+    .catch(error => console.error("Error al cargar productos:", error));
+}
+
+function iniciarScrollProductos() {
+  pagina = 2;
+  cargando = false;
+
+  const scrollContainer = document.getElementById("scroll-container");
+  if (!scrollContainer) return;
+
+  scrollContainer.addEventListener("scroll", () => {
+    if (scrollContainer.scrollTop + scrollContainer.clientHeight >= scrollContainer.scrollHeight - 10 && !cargando) {
+      cargarProductosScroll();
+    }
+  });
+}
+
+const observer = new MutationObserver(() => {
+  const productosSeccion = document.getElementById("scroll-container");
+  if (productosSeccion) {
+    observer.disconnect();
+    iniciarScrollProductos();
+  }
+});
+
+const contentArea = document.getElementById("content-area");
+if (contentArea) {
+  observer.observe(contentArea, { childList: true, subtree: true });
+}
+
+
+// Llamar formulario de Categorias **************************************************
 document
   .getElementById("categorias-link")
   .addEventListener("click", function (event) {
@@ -6534,7 +7279,8 @@ document.addEventListener("DOMContentLoaded", function () {
           //console.log("Datos recibidos del servidor:", data);
           if (data.success) {
             const formularioProveedor = document.getElementById(
-              "form-editarProveedor");
+              "form-editarProveedor"
+            );
             if (formularioProveedor) {
               const campos = [
                 "idproveedor",

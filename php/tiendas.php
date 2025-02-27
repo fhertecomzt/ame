@@ -18,8 +18,6 @@ $tiendas = obtenerRegistros($dbh, "tiendas", "idtienda, nomtienda, reptienda, rf
     <button class="boton" onclick="abrirModal('crear-modal')">Nuevo</button>
     <label class="buscarlabel" for="buscarbox">Buscar:</label>
     <input class="buscar--box" id="buscarbox" type="search" placeholder="Qué estas buscando?">
-    <!--Boton limpiar input de busqueda 
-    <button title="Limpiar buscar" class="fa-solid" id="limpiar-busqueda" type="button" style="display: none;">X</button>-->
 </div>
 
 
@@ -86,22 +84,20 @@ $tiendas = obtenerRegistros($dbh, "tiendas", "idtienda, nomtienda, reptienda, rf
                 <label for="crear-domicilio">Calle:</label>
                 <input type="text" id="crear-domicilio" name="domicilio" autocomplete="off" pattern="[a-zA-ZÀ-ÿ\s]+"
                     title="Solo se permiten letras y espacios."
-                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '')" required>
+                    oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ]/g, '')" size="10" min="0" maxlength="30" required>
             </div>
             <div class="form-containernum">
                 <div class="form-group ladoble">
                     <label for="crear-noexterior">No. Exterior:</label>
                     <input type="number" id="crear-noexterior" name="noexterior" autocomplete="off" size="10" maxlength="10"
-                        pattern="[0-9]+"
-                        title="Solo se permiten números."
-                        oninput="this.value = this.value.replace(/[^A-Z0-9]/g, '')" size="10" min="0" maxlength="10" required>
+                        ptitle="Solo se permiten letras y números."
+                        oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ0-9]/g, '')" size="10" min="0" maxlength="6" required>
                 </div>
                 <div class="form-group ladoble">
                     <label for="crear-nointerior">No. Interior:</label>
                     <input type="text" id="crear-nointerior" name="nointerior" autocomplete="off" size="10" min="0" value="0"
-                        pattern="[a-zA-Z0-9]+"
                         title="Solo se permiten letras y números."
-                        oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" size="10" min="0" value="0" maxlength="10" required>
+                        oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ0-9]/g, '')" size=" 10" min="0" value="0" maxlength="6" required>
                 </div>
             </div>
             <div class="form-group ">
@@ -183,8 +179,8 @@ $tiendas = obtenerRegistros($dbh, "tiendas", "idtienda, nomtienda, reptienda, rf
                     <label for="editar-nointerior">No. Interior:</label>
                     <input type="text" id="editar-nointerior" name="nointerior" autocomplete="off"
                         pattern="[a-zA-Z0-9]+"
-                        title="Solo se permiten letras y números."
-                        oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" size="10" min="0" value="0" maxlength="10" required>
+                        title="Solo se permiten letras ."
+                        oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ0-9]/g, '')" size="10" min="0" value="0" maxlength="10" required>
                 </div>
             </div>
             <div class="form-group">
