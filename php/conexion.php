@@ -1,7 +1,8 @@
 <?php
 // conexion.php
 
-//Conexion en PC$dsn = 'mysql:host=localhost;dbname=gestion;charset=utf8mb4'; // Usar utf8mb4 para mayor compatibilidad con caracteres especiales.
+//Conexion para PC
+//$dsn = 'mysql:host=localhost;dbname=gestion;charset=utf8mb4'; // Usar utf8mb4 para mayor compatibilidad con caracteres especiales.
 
 //Conexiòn Mac local
 $dsn = 'mysql:host=192.168.1.112;dbname=gestion;charset=utf8mb4'; // Usar utf8mb4 para mayor compatibilidad con caracteres especiales.
