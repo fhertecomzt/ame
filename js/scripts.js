@@ -2178,7 +2178,7 @@ document.addEventListener("input", function (event) {
         buscarProductos(filtro, filtroEstatus); // Pasar el filtro y el estatus
       } else {
         //No hacer nada si no hay filtro
-        cargarProductos(); // Si el input está vacío, carga todos los productos
+        //cargarProductos(); // Si el input está vacío, carga todos los productos si dejo esto no funsiona el filtrado
       }
     }, 500); //500ms de retraso
   }
@@ -2244,7 +2244,7 @@ document.addEventListener("input", function (event) {
       tbody.appendChild(fila);
     });
   }
-  function cargarProductos() {
+ /* function cargarProductos() {
     //console.log("Ejecutando cargarProductos()...");
     fetch("cruds/cargar_productos.php?limit=10&offset=0")
       .then((response) => response.json())
@@ -2256,40 +2256,54 @@ document.addEventListener("input", function (event) {
   }
 
   // Cargar productos al inicio
-  cargarProductos();
+  //cargarProductos(); */
 });
 
-// Función para filtrar productos por estatus usando delegación de eventos
-document.addEventListener('DOMContentLoaded', function () {
-  document.getElementById('estatusFiltro').addEventListener('change', function() {
-    const estatusFiltro = this.value;
-    const filas = document.querySelectorAll('#productos-lista .producto');
-    filas.forEach(fila => {
-      const estatus = fila.getAttribute('data-estatus');
-      if (estatusFiltro === '' || estatus === estatusFiltro) {
-        fila.style.display = ''; // Mostrar fila
-      } else {
-        fila.style.display = 'none'; // Ocultar fila
-      }
-    });
+//Filtrar productos por estatus usando delegación de eventos********************************
+// Delegación de eventos para el select de estatus
+document.addEventListener("DOMContentLoaded", function () {
+  // Delegación de eventos para el select de estatus
+  document.addEventListener("change", function (event) {
+    if (event.target && event.target.id === "estatusFiltro") {
+      filtrarPorEstatus();
+    }
   });
-});
-function filtrarPorEstatus() {
-  const estatusFiltro = document.getElementById('estatusFiltro').value;
-  const filas = document.querySelectorAll('#productos-lista .producto');
 
-  filas.forEach(fila => {
-    const estatus = fila.getAttribute('data-estatus');
-    if (estatusFiltro === '' || estatus === estatusFiltro) {
-      fila.style.display = ''; // Mostrar fila
-    } else {
-      fila.style.display = 'none'; // Ocultar fila
+  // Detectar cuando se agregan nuevos productos y volver a aplicar el filtro
+  const observer = new MutationObserver(() => {
+    //console.log("Productos actualizados, aplicando filtro...");
+    filtrarPorEstatus();
+  });
+
+  const productosLista = document.getElementById("productos-lista");
+  if (productosLista) {
+    observer.observe(productosLista, { childList: true, subtree: true });
+  }
+});
+
+// Función para filtrar productos por estatus
+function filtrarPorEstatus() {
+  const estatusFiltro = document.getElementById("estatusFiltro").value.trim().toLowerCase();
+  //console.log(" Filtro seleccionado:", estatusFiltro);
+
+  const filas = document.querySelectorAll("#productos-lista tr");
+
+  filas.forEach((fila) => {//como parametro despues de fila, va index
+    const botonEstatus = fila.querySelector("td button");
+    if (botonEstatus) {
+      const estatusTexto = botonEstatus.textContent.trim().toLowerCase();
+     // console.log(`Fila ${index + 1} - Estatus en botón: "${estatusTexto}"`);
+
+      if (estatusFiltro === "" || estatusTexto === estatusFiltro) {
+        fila.style.display = ""; // Mostrar
+      } else {
+        fila.style.display = "none"; // Ocultar
+      }
     }
   });
 }
 
 // ------------------------ SCROLL INFINITO ------------------------
-
 let pagina = 2;
 let cargando = false;
 
@@ -7793,7 +7807,57 @@ function limpiarFormularioMovimientos() {
   selects.forEach((select) => (select.selectedIndex = 0)); // Reinicia el select al primer valor (generalmente un placeholder)
 }
 
-// Llamar a formulario generador de etiquetas
+
+// Movimientos de productos***************************************************
+document
+  .getElementById("crudproductos-link")
+  .addEventListener("click", function (event) {
+    event.preventDefault(); // Evita la acción por defecto del enlace
+    fetch("operaciones/crudproductos.php")
+      .then((response) => response.text())
+      .then((html) => {
+        document.getElementById("content-area").innerHTML = html;
+      })
+      .catch((error) => {
+        console.error("Error al cargar el contenido:", error);
+      });
+  });
+    function agregarFila() {
+      var tabla = document.getElementById('tabla-productos').getElementsByTagName('tbody')[0];
+      var nuevaFila = tabla.insertRow(tabla.rows.length);
+
+      var celdas = [
+        '<input type="text" name="codbar[]" required>',
+        '<input type="text" name="nom_prod[]" required>',
+        '<input type="text" name="desc_prod[]" required>',
+        '<select name="idcategoria[]" required>' + obtenerOpciones("categorias") + '</select>',
+        '<select name="idtalla[]" required>' + obtenerOpciones("tallas") + '</select>',
+        '<input type="number" name="costo_prod[]" step="0.01" required>',
+        '<input type="number" name="precio1[]" step="0.01" required>',
+        '<input type="number" name="precio2[]" step="0.01">',
+        '<select name="idimpuesto[]" required>' + obtenerOpciones("impuestos") + '</select>',
+        '<select name="idestatus[]" required>' + obtenerOpciones("estatus") + '</select>',
+        '<button type="button" onclick="eliminarFila(this)">Eliminar</button>'
+      ];
+
+      celdas.forEach(function(contenido) {
+        var celda = nuevaFila.insertCell();
+        celda.innerHTML = contenido;
+      });
+    }
+
+    function eliminarFila(boton) {
+      var fila = boton.parentNode.parentNode;
+      fila.parentNode.removeChild(fila);
+    }
+
+    function obtenerOpciones(tabla) {
+      // Función para obtener las opciones de cada tabla (categorias, tallas, impuestos, estatus)
+      // Esta función debería generar las opciones de forma similar a lo que hicimos en el PHP
+      return "";
+    }
+
+// Llamar a formulario generador de etiquetas***************************************************************************
 document
   .getElementById("etiquetas-link")
   .addEventListener("click", function (event) {

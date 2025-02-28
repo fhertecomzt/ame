@@ -204,6 +204,12 @@ $_SESSION['last_token'] = $current_token;*/
                             </a>
                         </li>
                         <li>
+                            <a href="#" id="crudproductos-link">
+                                <i class="fa-solid fa-list-check"></i>
+                                <span>MOVIS 2</span>
+                            </a>
+                        </li>
+                        <li>
                             <a href="#" id="etiquetas-link">
                                 <i class="fa-solid fa-barcode"></i>
                                 <span>ETIQUETAS</span>
@@ -290,7 +296,7 @@ $_SESSION['last_token'] = $current_token;*/
     <div id="perfil-Modal" class="Perfilmodal">
         <div class="modal-contentPerfil">
             <span class="closePerfil">&times;</span>
-            <img src="<?php echo $_SESSION['imagen']; ?>" alt="Imagen de perfil" width="100" height="100" >
+            <img src="<?php echo $_SESSION['imagen']; ?>" alt="Imagen de perfil" width="100" height="100">
             <div class="textoPerfil" style="text-align: left;">
                 <p><strong>Perfil de Usuario de:</strong> <?php echo $_SESSION['usuario'] ?></p>
                 <p><strong>Nombre:</strong> <?php echo $_SESSION['nombre'] . " " . $_SESSION['appaterno'] . " " . $_SESSION['apmaterno']; ?></p>

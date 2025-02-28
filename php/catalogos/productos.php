@@ -26,17 +26,19 @@ $proveedores = obtenerRegistros($dbh, "proveedores", "idproveedor, nomproveedor"
 ?>
 
 <div class="containerr">
+  <!-- Abrir Modal crear productos -->
   <button class="boton" onclick="abrirModalProducto('crear-modalProducto')">Nuevo</button>
+  <!-- Input buscar productos -->
   <label class="buscarlabel" for="buscarboxproducto">Buscar:</label>
   <input class="buscar--box" id="buscarboxproducto" type="search" placeholder="¿Qué estas buscando?" autocomplete="off">
+
   <!-- Filtro de estatus -->
   <label class="buscarlabel" for="estatusFiltro">Filtrar por Estatus:</label>
   <select class="buscar--box" id="estatusFiltro" onchange="filtrarPorEstatus()" style="width: 100px;">
     <option value="">Todos</option>
-    <option value="activo">Activo</option>
-    <option value="inactivo">Inactivo</option>
+    <option value="Activo">Activo</option>
+    <option value="Inactivo">Inactivo</option>
   </select>
-
 </div>
 
 <h3>Lista de productos</h3>
@@ -53,9 +55,10 @@ $proveedores = obtenerRegistros($dbh, "proveedores", "idproveedor, nomproveedor"
         <th>Acciones</th>
       </tr>
     </thead>
+
     <tbody id="productos-lista">
-      <?php foreach ($productos as $u): ?>
-        <tr class="producto" data-estatus="<?php echo ($u['estatus'] == 1) ? 'activo' : 'inactivo'; ?>">
+      <?php foreach ($productos as $u): ?>        
+        <tr class="producto" data-estatus="<?php echo ($u['estatus'] == 1) ? 'Activo' : 'Inactivo'; ?>">
           <td><?php if (!empty($u['imagen'])): ?>
               <img src="<?= htmlspecialchars($u['imagen']) ?>" alt="Imagen de producto" width="50" height="50" onerror="this.src='../imgs/default.png'">
             <?php else: ?>
